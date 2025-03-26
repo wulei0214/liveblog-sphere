@@ -32,7 +32,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      if (!username.trim() || !password.trim()) {
+      // 确保去除用户名和密码前后的空格
+      const trimmedUsername = username.trim();
+      const trimmedPassword = password.trim();
+      
+      if (!trimmedUsername || !trimmedPassword) {
         toast({
           title: "登录失败",
           description: "用户名和密码不能为空",
@@ -42,7 +46,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return false;
       }
       
-      const loggedInUser = loginUser(username, password);
+      const loggedInUser = loginUser(trimmedUsername, trimmedPassword);
       
       if (loggedInUser) {
         setUser(loggedInUser);
@@ -74,7 +78,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   const register = async (username: string, password: string): Promise<boolean> => {
     try {
-      if (!username.trim() || !password.trim()) {
+      // 确保去除用户名和密码前后的空格
+      const trimmedUsername = username.trim();
+      const trimmedPassword = password.trim();
+      
+      if (!trimmedUsername || !trimmedPassword) {
         toast({
           title: "注册失败",
           description: "用户名和密码不能为空",
@@ -84,7 +92,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return false;
       }
       
-      const newUser = registerUser(username, password);
+      const newUser = registerUser(trimmedUsername, trimmedPassword);
       
       if (newUser) {
         toast({

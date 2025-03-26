@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -49,11 +48,6 @@ const Login = () => {
     e.preventDefault();
     const { username, password } = loginData;
     
-    // 前端验证
-    if (!username.trim() || !password.trim()) {
-      return; // 在 AuthContext 中已有相应提示，这里直接返回
-    }
-    
     const success = await login(username, password);
     if (success) {
       navigate('/');
@@ -65,12 +59,7 @@ const Login = () => {
     e.preventDefault();
     const { username, password, confirmPassword } = registerData;
     
-    // 前端验证
-    if (!username.trim() || !password.trim()) {
-      return; // 在 AuthContext 中已有相应提示，这里直接返回
-    }
-    
-    if (password.trim() !== confirmPassword.trim()) {
+    if (password !== confirmPassword) {
       alert('两次输入的密码不一致');
       return;
     }
