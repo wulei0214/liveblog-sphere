@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import AnimatedTransition from '../components/AnimatedTransition';
@@ -49,6 +49,11 @@ const Login = () => {
     e.preventDefault();
     const { username, password } = loginData;
     
+    // 前端验证
+    if (!username.trim() || !password.trim()) {
+      return; // 在 AuthContext 中已有相应提示，这里直接返回
+    }
+    
     const success = await login(username, password);
     if (success) {
       navigate('/');
@@ -60,7 +65,12 @@ const Login = () => {
     e.preventDefault();
     const { username, password, confirmPassword } = registerData;
     
-    if (password !== confirmPassword) {
+    // 前端验证
+    if (!username.trim() || !password.trim()) {
+      return; // 在 AuthContext 中已有相应提示，这里直接返回
+    }
+    
+    if (password.trim() !== confirmPassword.trim()) {
       alert('两次输入的密码不一致');
       return;
     }
@@ -69,14 +79,14 @@ const Login = () => {
     if (success) {
       setActiveTab('login');
       setLoginData({
-        username: username,
+        username: username.trim(),
         password: '',
       });
     }
   };
   
   // 如果已登录，重定向到首页
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       navigate('/');
     }

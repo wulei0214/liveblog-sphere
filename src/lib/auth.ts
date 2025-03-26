@@ -49,8 +49,17 @@ loadUsers();
 
 // 用户登录服务
 export const loginUser = (username: string, password: string): User | null => {
+  // 去除用户名和密码的前后空格
+  const trimmedUsername = username.trim();
+  const trimmedPassword = password.trim();
+  
+  // 验证是否为空
+  if (!trimmedUsername || !trimmedPassword) {
+    return null;
+  }
+  
   const user = users.find(
-    (u) => u.username === username && u.password === password
+    (u) => u.username === trimmedUsername && u.password === trimmedPassword
   );
   
   if (user) {
@@ -64,16 +73,25 @@ export const loginUser = (username: string, password: string): User | null => {
 
 // 用户注册服务
 export const registerUser = (username: string, password: string): User | null => {
+  // 去除用户名和密码的前后空格
+  const trimmedUsername = username.trim();
+  const trimmedPassword = password.trim();
+  
+  // 验证是否为空
+  if (!trimmedUsername || !trimmedPassword) {
+    return null;
+  }
+  
   // 检查用户名是否已存在
-  if (users.some((u) => u.username === username)) {
+  if (users.some((u) => u.username === trimmedUsername)) {
     return null;
   }
   
   // 创建新用户
   const newUser: User = {
     id: Date.now().toString(),
-    username,
-    password,
+    username: trimmedUsername,
+    password: trimmedPassword,
     role: UserRole.USER, // 默认为普通用户角色
     createdAt: new Date(),
   };

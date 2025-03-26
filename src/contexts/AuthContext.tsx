@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, getCurrentUser, loginUser, logoutUser, registerUser, isAdmin } from '../lib/auth';
 import { useToast } from '../hooks/use-toast';
@@ -20,7 +19,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   
-  // 检查用户是否已登录
   useEffect(() => {
     const loadUser = () => {
       const currentUser = getCurrentUser();
@@ -31,9 +29,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     loadUser();
   }, []);
   
-  // 登录方法
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
+      if (!username.trim() || !password.trim()) {
+        toast({
+          title: "登录失败",
+          description: "用户名和密码不能为空",
+          variant: "destructive",
+          duration: 3000,
+        });
+        return false;
+      }
+      
       const loggedInUser = loginUser(username, password);
       
       if (loggedInUser) {
@@ -41,6 +48,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         toast({
           title: "登录成功",
           description: `欢迎回来，${loggedInUser.username}！`,
+          duration: 3000,
         });
         return true;
       } else {
@@ -48,6 +56,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           title: "登录失败",
           description: "用户名或密码不正确",
           variant: "destructive",
+          duration: 3000,
         });
         return false;
       }
@@ -56,19 +65,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         title: "登录出错",
         description: "登录过程中发生错误",
         variant: "destructive",
+        duration: 3000,
       });
       return false;
     }
   };
   
-  // 注册方法
   const register = async (username: string, password: string): Promise<boolean> => {
     try {
-      if (!username || !password) {
+      if (!username.trim() || !password.trim()) {
         toast({
           title: "注册失败",
           description: "用户名和密码不能为空",
           variant: "destructive",
+          duration: 3000,
         });
         return false;
       }
@@ -79,6 +89,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         toast({
           title: "注册成功",
           description: "您可以现在登录了",
+          duration: 3000,
         });
         return true;
       } else {
@@ -86,6 +97,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           title: "注册失败",
           description: "用户名已存在",
           variant: "destructive",
+          duration: 3000,
         });
         return false;
       }
@@ -94,18 +106,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         title: "注册出错",
         description: "注册过程中发生错误",
         variant: "destructive",
+        duration: 3000,
       });
       return false;
     }
   };
   
-  // 登出方法
   const logout = () => {
     logoutUser();
     setUser(null);
     toast({
       title: "已登出",
       description: "您已成功退出登录",
+      duration: 3000,
     });
   };
   
