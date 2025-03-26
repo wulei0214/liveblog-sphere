@@ -1,12 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, PenLine } from 'lucide-react';
+import { Menu, X, PenLine, User, LogOut, Users, Shield } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Button } from './ui/button';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { isAuthenticated, isAdminUser, user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,6 +49,45 @@ const Navbar: React.FC = () => {
             <NavLinks />
           </div>
 
+          <div className="hidden md:flex items-center space-x-4">
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-4">
+                <div className="text-sm font-medium">
+                  <span>欢迎，</span>
+                  <span className="text-primary">{user?.username}</span>
+                  {isAdminUser && (
+                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                      <Shield className="h-3 w-3 mr-1" />
+                      管理员
+                    </span>
+                  )}
+                </div>
+                {isAdminUser && (
+                  <Link to="/admin/users" className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-primary">
+                    <Users size={16} />
+                    <span>用户管理</span>
+                  </Link>
+                )}
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  onClick={logout}
+                  className="flex items-center space-x-1"
+                >
+                  <LogOut size={16} />
+                  <span>退出</span>
+                </Button>
+              </div>
+            ) : (
+              <Link to="/login">
+                <Button variant="default" size="sm" className="flex items-center space-x-1">
+                  <User size={16} />
+                  <span>登录</span>
+                </Button>
+              </Link>
+            )}
+          </div>
+
           <div className="flex items-center md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -64,6 +106,38 @@ const Navbar: React.FC = () => {
           <div className="container mx-auto px-4 py-4">
             <nav className="flex flex-col space-y-4">
               <NavLinks />
+              {isAuthenticated ? (
+                <>
+                  <div className="flex items-center py-2">
+                    <User size={16} className="mr-2" />
+                    <span className="text-sm font-medium">{user?.username}</span>
+                    {isAdminUser && (
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <Shield className="h-3 w-3 mr-1" />
+                        管理员
+                      </span>
+                    )}
+                  </div>
+                  {isAdminUser && (
+                    <Link to="/admin/users" className="flex items-center space-x-2 py-2 text-gray-600 dark:text-gray-300 hover:text-primary">
+                      <Users size={16} />
+                      <span>用户管理</span>
+                    </Link>
+                  )}
+                  <button
+                    onClick={logout}
+                    className="flex items-center space-x-2 py-2 text-gray-600 dark:text-gray-300 hover:text-primary"
+                  >
+                    <LogOut size={16} />
+                    <span>退出</span>
+                  </button>
+                </>
+              ) : (
+                <Link to="/login" className="flex items-center space-x-2 py-2 text-gray-600 dark:text-gray-300 hover:text-primary">
+                  <User size={16} />
+                  <span>登录</span>
+                </Link>
+              )}
             </nav>
           </div>
         </div>
