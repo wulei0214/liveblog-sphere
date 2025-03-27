@@ -1,12 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Carousel, 
-  CarouselContent, 
-  CarouselItem, 
-  CarouselNext, 
-  CarouselPrevious 
-} from "@/components/ui/carousel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Newspaper, ExternalLink } from 'lucide-react';
 
@@ -153,13 +146,13 @@ const NewsSlider: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full py-4">
+    <div className="w-full h-full min-h-[80vh] py-4">
       <div className="flex items-center mb-4">
         <Newspaper className="mr-2 text-primary" />
         <h2 className="text-xl font-serif font-semibold">央视新闻简报</h2>
       </div>
       
-      <ScrollArea className="h-[400px] w-full pr-4">
+      <ScrollArea className="h-[calc(100vh-200px)] w-full pr-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {news.map((item) => (
             <a 

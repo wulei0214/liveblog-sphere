@@ -21,12 +21,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import NewsSlider from './NewsSlider';
 import WeiboEmbed from './WeiboEmbed';
+import MusicEmbed from './MusicEmbed';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showNews, setShowNews] = useState(false);
   const [showWeibo, setShowWeibo] = useState(false);
+  const [showMusic, setShowMusic] = useState(false);
   const location = useLocation();
   const { isAuthenticated, isAdminUser, user, logout } = useAuth();
 
@@ -43,18 +45,28 @@ const Navbar: React.FC = () => {
     setIsMenuOpen(false);
     setShowNews(false);
     setShowWeibo(false);
+    setShowMusic(false);
   }, [location.pathname]);
 
   const handleNewsClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setShowNews(!showNews);
     setShowWeibo(false);
+    setShowMusic(false);
   };
 
   const handleWeiboClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setShowWeibo(!showWeibo);
     setShowNews(false);
+    setShowMusic(false);
+  };
+
+  const handleMusicClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowMusic(!showMusic);
+    setShowNews(false);
+    setShowWeibo(false);
   };
 
   return (
@@ -107,31 +119,13 @@ const Navbar: React.FC = () => {
                   </NavigationMenuItem>
                   
                   <NavigationMenuItem>
-                    <NavigationMenuTrigger>
+                    <button 
+                      className={navigationMenuTriggerStyle()}
+                      onClick={handleMusicClick}
+                    >
                       <Music size={16} className="mr-2" />
                       音乐
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <div className="p-4 min-w-[220px]">
-                        <div className="mb-2 text-sm font-medium">第三方登录</div>
-                        <Link 
-                          to="/music/login-qq" 
-                          className="flex items-center space-x-2 p-2 rounded-md hover:bg-accent"
-                        >
-                          <span className="text-blue-500 font-bold">QQ</span>
-                          <span>音乐登录</span>
-                        </Link>
-                        <div className="mt-2 pt-2 border-t">
-                          <Link 
-                            to="/music" 
-                            className="flex items-center space-x-2 p-2 rounded-md hover:bg-accent"
-                          >
-                            <Music size={16} />
-                            <span>进入音乐</span>
-                          </Link>
-                        </div>
-                      </div>
-                    </NavigationMenuContent>
+                    </button>
                   </NavigationMenuItem>
                   
                   <NavigationMenuItem>
@@ -227,25 +221,13 @@ const Navbar: React.FC = () => {
                   <span>简报</span>
                 </button>
                 
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center space-x-2 py-2 text-gray-600 dark:text-gray-300 hover:text-primary">
-                    <Music size={16} />
-                    <span>音乐</span>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <Link to="/music/login-qq">
-                      <DropdownMenuItem>
-                        <span className="text-blue-500 font-bold mr-2">QQ</span>
-                        音乐登录
-                      </DropdownMenuItem>
-                    </Link>
-                    <Link to="/music">
-                      <DropdownMenuItem>
-                        进入音乐
-                      </DropdownMenuItem>
-                    </Link>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <button
+                  onClick={handleMusicClick}
+                  className="flex items-center space-x-2 py-2 text-gray-600 dark:text-gray-300 hover:text-primary"
+                >
+                  <Music size={16} />
+                  <span>音乐</span>
+                </button>
                 
                 <button
                   onClick={handleWeiboClick}
@@ -295,8 +277,14 @@ const Navbar: React.FC = () => {
 
       {/* News slider that appears when clicking on News */}
       {showNews && (
-        <div className="fixed top-[80px] left-0 right-0 bg-white dark:bg-gray-900 shadow-lg z-40 animate-slide-down">
+        <div className="fixed top-[80px] inset-0 pt-[80px] bg-white dark:bg-gray-900 shadow-lg z-40 animate-slide-down overflow-auto">
           <div className="container mx-auto p-4">
+            <button 
+              onClick={() => setShowNews(false)}
+              className="absolute top-[90px] right-6 p-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+            >
+              <X size={20} />
+            </button>
             <NewsSlider />
           </div>
         </div>
@@ -304,9 +292,30 @@ const Navbar: React.FC = () => {
 
       {/* Weibo embed that appears when clicking on Weibo */}
       {showWeibo && (
-        <div className="fixed top-[80px] left-0 right-0 bg-white dark:bg-gray-900 shadow-lg z-40 animate-slide-down">
+        <div className="fixed top-[80px] inset-0 pt-[80px] bg-white dark:bg-gray-900 shadow-lg z-40 animate-slide-down overflow-auto">
           <div className="container mx-auto p-4">
+            <button 
+              onClick={() => setShowWeibo(false)}
+              className="absolute top-[90px] right-6 p-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+            >
+              <X size={20} />
+            </button>
             <WeiboEmbed />
+          </div>
+        </div>
+      )}
+
+      {/* Music embed that appears when clicking on Music */}
+      {showMusic && (
+        <div className="fixed top-[80px] inset-0 pt-[80px] bg-white dark:bg-gray-900 shadow-lg z-40 animate-slide-down overflow-auto">
+          <div className="container mx-auto p-4">
+            <button 
+              onClick={() => setShowMusic(false)}
+              className="absolute top-[90px] right-6 p-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+            >
+              <X size={20} />
+            </button>
+            <MusicEmbed />
           </div>
         </div>
       )}

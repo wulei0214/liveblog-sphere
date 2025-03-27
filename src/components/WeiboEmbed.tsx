@@ -89,13 +89,13 @@ const WeiboEmbed: React.FC = () => {
   const [posts, setPosts] = useState(mockWeiboPosts);
 
   return (
-    <div className="w-full py-4">
+    <div className="w-full h-full min-h-[80vh] py-4">
       <div className="flex items-center mb-4">
         <Twitter className="mr-2 text-primary" />
         <h2 className="text-xl font-serif font-semibold">微博热门</h2>
       </div>
 
-      <ScrollArea className="h-[500px] w-full pr-4">
+      <ScrollArea className="h-[calc(100vh-200px)] w-full pr-4">
         <div className="space-y-6">
           {posts.map((post) => (
             <div 
