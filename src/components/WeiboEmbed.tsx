@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Twitter, Heart, MessageCircle, RefreshCw, Share2, User } from 'lucide-react';
+import { Twitter, Heart, MessageCircle, RefreshCw, Share2, ExternalLink } from 'lucide-react';
 
 // Mock data for Weibo posts
 const mockWeiboPosts = [
