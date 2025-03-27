@@ -1,4 +1,15 @@
 
+import { getCurrentUser } from './auth';
+
+export interface Comment {
+  id: string;
+  postId: string;
+  userId: string;
+  username: string;
+  content: string;
+  date: string;
+}
+
 export interface Post {
   id: string;
   title: string;
@@ -7,6 +18,9 @@ export interface Post {
   date: string;
   readTime: string;
   image?: string;
+  authorId: string;
+  authorName: string;
+  comments: Comment[];
 }
 
 // Sample data for the blog
@@ -43,7 +57,10 @@ export const posts: Post[] = [
     excerpt: '探索极简主义如何帮助你减少生活中的杂乱，专注于真正重要的事物，提升生活质量和内心平静。',
     date: '2023-06-15',
     readTime: '5 分钟',
-    image: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?ixlib=rb-1.2.1&auto=format&fit=crop&w=1347&q=80'
+    image: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?ixlib=rb-1.2.1&auto=format&fit=crop&w=1347&q=80',
+    authorId: '1',
+    authorName: 'admin',
+    comments: []
   },
   {
     id: '2',
@@ -82,7 +99,10 @@ export const posts: Post[] = [
     excerpt: '在信息爆炸的时代，我们的注意力不断被分散。本文分享了保持专注、避免数字干扰的实用技巧。',
     date: '2023-07-22',
     readTime: '6 分钟',
-    image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+    image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+    authorId: '1',
+    authorName: 'admin',
+    comments: []
   },
   {
     id: '3',
@@ -120,9 +140,34 @@ export const posts: Post[] = [
     excerpt: '在快节奏的现代生活中，慢下来成为一种奢侈。本文探讨了慢生活的重要性及如何在忙碌中找到平静。',
     date: '2023-08-05',
     readTime: '4 分钟',
-    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+    authorId: '1',
+    authorName: 'admin',
+    comments: []
   }
 ];
+
+// 初始化从localStorage加载数据
+const loadPostsFromStorage = (): void => {
+  const storedPosts = localStorage.getItem('blogs');
+  if (storedPosts) {
+    const parsedPosts = JSON.parse(storedPosts);
+    // 替换内存中的posts数组
+    posts.length = 0;
+    posts.push(...parsedPosts);
+  } else {
+    // 首次初始化，存储默认文章
+    savePostsToStorage();
+  }
+};
+
+// 保存文章数据到localStorage
+const savePostsToStorage = (): void => {
+  localStorage.setItem('blogs', JSON.stringify(posts));
+};
+
+// 初始化数据
+loadPostsFromStorage();
 
 // Function to get all posts
 export const getAllPosts = (): Post[] => {
@@ -134,15 +179,134 @@ export const getPostById = (id: string): Post | undefined => {
   return posts.find(post => post.id === id);
 };
 
-// Function to add a new post (in real app, this would connect to a backend)
-export const addPost = (post: Omit<Post, 'id' | 'date' | 'readTime'>): Post => {
+// Function to add a new post
+export const addPost = (post: Omit<Post, 'id' | 'date' | 'readTime' | 'authorId' | 'authorName' | 'comments'>): Post => {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    throw new Error('用户未登录');
+  }
+  
   const newPost: Post = {
     ...post,
     id: Math.random().toString(36).substring(2, 9),
     date: new Date().toISOString().split('T')[0],
-    readTime: `${Math.ceil(post.content.length / 1000)} 分钟`
+    readTime: `${Math.ceil(post.content.length / 1000)} 分钟`,
+    authorId: currentUser.id,
+    authorName: currentUser.username,
+    comments: []
   };
   
   posts.unshift(newPost);
+  savePostsToStorage();
   return newPost;
+};
+
+// Function to update a post
+export const updatePost = (
+  postId: string, 
+  updates: Partial<Pick<Post, 'title' | 'content' | 'excerpt' | 'image'>>
+): Post | null => {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    throw new Error('用户未登录');
+  }
+  
+  const postIndex = posts.findIndex(post => post.id === postId);
+  if (postIndex === -1) return null;
+  
+  const post = posts[postIndex];
+  
+  // 检查是否是作者或管理员
+  if (post.authorId !== currentUser.id && currentUser.role !== 'admin') {
+    throw new Error('没有权限编辑此文章');
+  }
+  
+  // 更新文章
+  const updatedPost = { 
+    ...post,
+    ...updates,
+    // 如果内容更新了，重新计算阅读时间
+    readTime: updates.content 
+      ? `${Math.ceil(updates.content.length / 1000)} 分钟`
+      : post.readTime
+  };
+  
+  posts[postIndex] = updatedPost;
+  savePostsToStorage();
+  
+  return updatedPost;
+};
+
+// Function to delete a post
+export const deletePost = (postId: string): boolean => {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    throw new Error('用户未登录');
+  }
+  
+  const postIndex = posts.findIndex(post => post.id === postId);
+  if (postIndex === -1) return false;
+  
+  const post = posts[postIndex];
+  
+  // 检查是否是作者或管理员
+  if (post.authorId !== currentUser.id && currentUser.role !== 'admin') {
+    throw new Error('没有权限删除此文章');
+  }
+  
+  posts.splice(postIndex, 1);
+  savePostsToStorage();
+  
+  return true;
+};
+
+// Function to add a comment to a post
+export const addComment = (postId: string, content: string): Comment | null => {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    throw new Error('用户未登录');
+  }
+  
+  const post = posts.find(p => p.id === postId);
+  if (!post) return null;
+  
+  const newComment: Comment = {
+    id: Math.random().toString(36).substring(2, 9),
+    postId,
+    userId: currentUser.id,
+    username: currentUser.username,
+    content,
+    date: new Date().toISOString().split('T')[0]
+  };
+  
+  post.comments.push(newComment);
+  savePostsToStorage();
+  
+  return newComment;
+};
+
+// Function to delete a comment
+export const deleteComment = (postId: string, commentId: string): boolean => {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    throw new Error('用户未登录');
+  }
+  
+  const post = posts.find(p => p.id === postId);
+  if (!post) return false;
+  
+  const commentIndex = post.comments.findIndex(c => c.id === commentId);
+  if (commentIndex === -1) return false;
+  
+  const comment = post.comments[commentIndex];
+  
+  // 只有评论作者和管理员可以删除评论
+  if (comment.userId !== currentUser.id && currentUser.role !== 'admin') {
+    throw new Error('没有权限删除此评论');
+  }
+  
+  post.comments.splice(commentIndex, 1);
+  savePostsToStorage();
+  
+  return true;
 };

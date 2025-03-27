@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import AnimatedTransition from '../components/AnimatedTransition';
@@ -9,18 +9,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from 'sonner';
+import { useAuth } from '../contexts/AuthContext';
 
 const Create = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [image, setImage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    // 检查用户是否已登录
+    if (!isAuthenticated) {
+      toast.error('请先登录后再发布文章');
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // 验证表单输入
     if (!title.trim() || !content.trim() || !excerpt.trim()) {
       toast.error('请填写必填字段');
       return;
@@ -30,16 +41,20 @@ const Create = () => {
     
     try {
       const newPost = addPost({
-        title,
-        content,
-        excerpt,
-        image: image || undefined
+        title: title.trim(),
+        content: content.trim(),
+        excerpt: excerpt.trim(),
+        image: image.trim() || undefined
       });
       
       toast.success('文章已发布');
       navigate(`/post/${newPost.id}`);
     } catch (error) {
-      toast.error('发布失败，请重试');
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error('发布失败，请重试');
+      }
       setIsSubmitting(false);
     }
   };
