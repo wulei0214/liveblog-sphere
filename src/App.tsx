@@ -13,6 +13,9 @@ import Edit from "./pages/Edit";
 import Login from "./pages/Login";
 import UserManagement from "./pages/UserManagement";
 import NotFound from "./pages/NotFound";
+import Heard from "./pages/Heard";
+import Music from "./pages/Music";
+import MusicLoginQQ from "./pages/MusicLoginQQ";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +34,9 @@ const App = () => (
               <Route path="/edit/:id" element={<Edit />} />
               <Route path="/login" element={<Login />} />
               <Route path="/admin/users" element={<UserManagement />} />
+              <Route path="/heard" element={<Heard />} />
+              <Route path="/music" element={<Music />} />
+              <Route path="/music/login-qq" element={<MusicLoginQQ />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>
