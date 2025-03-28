@@ -1,8 +1,11 @@
 
-// This is a mock service for QQ Music integration
-// In a real application, you would need to integrate with QQ Music's APIs
+/**
+ * QQ音乐服务模块
+ * 提供QQ音乐API集成，包括登录验证、获取音乐列表等功能
+ * 这是一个模拟服务，实际应用中需要集成真实的QQ音乐API
+ */
 
-// Mock tracks with playable URLs (using royalty-free music for demo)
+// 免费音乐列表（无版权问题，可直接播放的音乐）
 const freeTracks = [
   {
     id: '1',
@@ -11,6 +14,7 @@ const freeTracks = [
     album: '魔杰座',
     duration: '3:42',
     url: 'https://file-examples.com/storage/fee231cad563b359537d0c9/2017/11/file_example_MP3_700KB.mp3',
+    coverUrl: 'https://picsum.photos/200?random=1',
   },
   {
     id: '2',
@@ -19,6 +23,7 @@ const freeTracks = [
     album: '猎户星座',
     duration: '5:01',
     url: 'https://file-examples.com/storage/fee231cad563b359537d0c9/2017/11/file_example_MP3_1MG.mp3',
+    coverUrl: 'https://picsum.photos/200?random=2',
   },
   {
     id: '3',
@@ -27,6 +32,7 @@ const freeTracks = [
     album: '天外来物',
     duration: '4:17',
     url: 'https://file-examples.com/storage/fee231cad563b359537d0c9/2017/11/file_example_MP3_2MG.mp3',
+    coverUrl: 'https://picsum.photos/200?random=3',
   },
   {
     id: '4',
@@ -35,6 +41,7 @@ const freeTracks = [
     album: '起风了',
     duration: '5:11',
     url: 'https://file-examples.com/storage/fee231cad563b359537d0c9/2017/11/file_example_MP3_5MG.mp3',
+    coverUrl: 'https://picsum.photos/200?random=4',
   },
   {
     id: '5',
@@ -43,6 +50,7 @@ const freeTracks = [
     album: '新地球',
     duration: '4:38',
     url: 'https://cdn.pixabay.com/download/audio/2022/01/12/audio_78c0c34ecd.mp3',
+    coverUrl: 'https://picsum.photos/200?random=5',
   },
   {
     id: '6',
@@ -51,6 +59,7 @@ const freeTracks = [
     album: '摩天动物园',
     duration: '4:20',
     url: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_30ff3b6df9.mp3',
+    coverUrl: 'https://picsum.photos/200?random=6',
   },
   {
     id: '7',
@@ -59,6 +68,7 @@ const freeTracks = [
     album: '说散就散',
     duration: '4:14',
     url: 'https://cdn.pixabay.com/download/audio/2022/10/25/audio_946bc816e4.mp3',
+    coverUrl: 'https://picsum.photos/200?random=7',
   },
   {
     id: '8',
@@ -67,6 +77,7 @@ const freeTracks = [
     album: '意外',
     duration: '4:14',
     url: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8a58993bc.mp3',
+    coverUrl: 'https://picsum.photos/200?random=8',
   },
   {
     id: '9',
@@ -75,6 +86,7 @@ const freeTracks = [
     album: '世界',
     duration: '4:07',
     url: 'https://cdn.pixabay.com/download/audio/2021/11/25/audio_5b8a2f4a0a.mp3',
+    coverUrl: 'https://picsum.photos/200?random=9',
   },
   {
     id: '10',
@@ -83,10 +95,11 @@ const freeTracks = [
     album: '平凡的一天',
     duration: '3:26',
     url: 'https://cdn.pixabay.com/download/audio/2022/08/02/audio_884fe92c21.mp3',
+    coverUrl: 'https://picsum.photos/200?random=10',
   },
 ];
 
-// Mock user playlists (available after login)
+// 登录用户可获取的音乐列表（包含更多内容）
 const userTracks = [
   ...freeTracks,
   {
@@ -96,6 +109,7 @@ const userTracks = [
     album: '魔杰座',
     duration: '4:24',
     url: 'https://cdn.pixabay.com/download/audio/2022/10/10/audio_654d34a64f.mp3',
+    coverUrl: 'https://picsum.photos/200?random=11',
   },
   {
     id: '12',
@@ -104,6 +118,7 @@ const userTracks = [
     album: '叶惠美',
     duration: '4:29',
     url: 'https://cdn.pixabay.com/download/audio/2022/11/22/audio_770e1fb98b.mp3',
+    coverUrl: 'https://picsum.photos/200?random=12',
   },
   {
     id: '13',
@@ -112,6 +127,7 @@ const userTracks = [
     album: '我爱他',
     duration: '4:02',
     url: 'https://cdn.pixabay.com/download/audio/2022/12/15/audio_a4c52e6027.mp3',
+    coverUrl: 'https://picsum.photos/200?random=13',
   },
   {
     id: '14',
@@ -120,6 +136,7 @@ const userTracks = [
     album: '大鱼',
     duration: '4:41',
     url: 'https://cdn.pixabay.com/download/audio/2022/10/25/audio_0621d4cd9e.mp3',
+    coverUrl: 'https://picsum.photos/200?random=14',
   },
   {
     id: '15',
@@ -128,38 +145,43 @@ const userTracks = [
     album: '沙漠骆驼',
     duration: '5:38',
     url: 'https://cdn.pixabay.com/download/audio/2023/01/17/audio_c39e965108.mp3',
+    coverUrl: 'https://picsum.photos/200?random=15',
   },
 ];
 
 /**
- * Check if user is logged in to QQ Music
+ * 检查用户是否已登录QQ音乐
+ * @returns {Promise<boolean>} 登录状态
  */
 export const isLoggedInToQQMusic = async (): Promise<boolean> => {
-  // In a real app, check for authentication token or session
+  // 实际应用中，检查认证令牌或会话
   const token = localStorage.getItem('qq_music_token');
   return !!token;
 };
 
 /**
- * Log in to QQ Music
+ * 登录QQ音乐
+ * @param {string} qqId - QQ号
+ * @returns {Promise<boolean>} 登录结果
  */
 export const loginToQQMusic = async (qqId: string): Promise<boolean> => {
   try {
-    // In a real app, make an API call to QQ Music auth service
-    // This is just a mock implementation
+    // 实际应用中，需要调用QQ音乐的认证API
+    // 这里仅作模拟实现
     
-    // Store a fake token
+    // 存储模拟令牌
     localStorage.setItem('qq_music_token', 'mock_qq_token_' + qqId);
     localStorage.setItem('qq_music_user_id', qqId);
     return true;
   } catch (error) {
-    console.error('Failed to login to QQ Music:', error);
+    console.error('QQ音乐登录失败:', error);
     return false;
   }
 };
 
 /**
- * Log out from QQ Music
+ * 退出QQ音乐登录
+ * @returns {Promise<void>}
  */
 export const logoutFromQQMusic = async (): Promise<void> => {
   localStorage.removeItem('qq_music_token');
@@ -167,14 +189,16 @@ export const logoutFromQQMusic = async (): Promise<void> => {
 };
 
 /**
- * Get music tracks (either free tracks or user's playlist)
+ * 获取音乐列表
+ * 未登录用户获取免费歌曲，已登录用户获取个人歌单
+ * @param {boolean} isLoggedIn - 登录状态
+ * @returns {Promise<Array>} 音乐列表
  */
 export const getQQMusicTracks = async (isLoggedIn: boolean): Promise<any[]> => {
-  // In a real app, make API calls to QQ Music service
-  // If not logged in, return free tracks
-  // If logged in, return user's playlist
+  // 实际应用中，调用QQ音乐API获取数据
+  // 未登录用户返回免费歌曲，已登录用户返回个人歌单
   
-  // Adding a slight delay to simulate API call
+  // 模拟API调用延迟
   await new Promise(resolve => setTimeout(resolve, 500));
   
   return isLoggedIn ? userTracks : freeTracks;

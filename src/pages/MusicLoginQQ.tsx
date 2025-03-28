@@ -9,13 +9,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
 import { loginToQQMusic } from '../lib/qqMusicService';
+import { Music } from 'lucide-react';
 
+/**
+ * QQ音乐登录页面
+ * 提供QQ账号登录功能，登录后可访问更多音乐内容
+ */
 const MusicLoginQQ = () => {
   const navigate = useNavigate();
   const [qqId, setQqId] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  /**
+   * 处理表单提交
+   * @param {Event} e - 表单事件
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -27,7 +36,7 @@ const MusicLoginQQ = () => {
     setIsLoading(true);
     
     try {
-      // In a real app, this would validate credentials with QQ
+      // 实际应用中验证QQ账号和密码
       const success = await loginToQQMusic(qqId);
       
       if (success) {
@@ -35,7 +44,7 @@ const MusicLoginQQ = () => {
           duration: 3000,
         });
         
-        // Redirect to music page
+        // 登录成功后跳转到音乐页面
         setTimeout(() => {
           navigate('/music');
         }, 1500);
@@ -50,12 +59,15 @@ const MusicLoginQQ = () => {
     }
   };
 
-  // Simplified QQ login for demo purposes
+  /**
+   * 演示账号快速登录
+   * 用于演示目的，使用默认账号登录
+   */
   const handleQuickLogin = async () => {
     setIsLoading(true);
     
     try {
-      // Use a demo account
+      // 使用演示账号
       const success = await loginToQQMusic('123456789');
       
       if (success) {
@@ -92,7 +104,7 @@ const MusicLoginQQ = () => {
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
               <div className="flex flex-col items-center mb-6">
                 <div className="w-20 h-20 flex items-center justify-center bg-blue-100 rounded-full mb-6">
-                  <span className="text-blue-500 text-xl font-bold">QQ</span>
+                  <Music className="text-blue-500 h-10 w-10" />
                 </div>
                 
                 <h2 className="text-xl font-semibold mb-2">使用QQ账号登录音乐服务</h2>

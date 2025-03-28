@@ -16,7 +16,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Play, Pause, Music as MusicIcon, User } from 'lucide-react';
+import { toast } from 'sonner';
 
+/**
+ * 音乐页面组件
+ * 实现QQ音乐播放功能，未登录状态下显示免费歌曲，登录后显示用户歌单
+ */
 const Music = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,28 +30,36 @@ const Music = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState(null);
 
+  /**
+   * 初始化音乐播放器并检查登录状态
+   */
   useEffect(() => {
-    // Check if user is logged in to QQ Music
+    // 检查是否已登录QQ音乐
     const checkLoginStatus = async () => {
       const loggedIn = await isLoggedInToQQMusic();
       setIsLoggedIn(loggedIn);
       
-      // Get tracks (either free ones or user's playlist based on login status)
+      // 获取音乐列表(根据登录状态选择免费歌曲或用户歌单)
       try {
         const musicTracks = await getQQMusicTracks(loggedIn);
         setTracks(musicTracks);
       } catch (error) {
-        console.error("Failed to load tracks:", error);
+        console.error("加载音乐列表失败:", error);
+        toast.error("加载音乐列表失败，请稍后再试");
       }
     };
     
     checkLoginStatus();
     
-    // Create audio element
+    // 创建音频元素
     const audio = new Audio();
+    audio.onerror = (e) => {
+      console.error("音频播放错误:", e);
+      toast.error("该音乐无法播放，请尝试其他歌曲");
+    };
     setAudioElement(audio);
     
-    // Cleanup
+    // 组件卸载时清理资源
     return () => {
       if (audio) {
         audio.pause();
@@ -55,32 +68,48 @@ const Music = () => {
     };
   }, []);
 
+  /**
+   * 跳转到QQ音乐登录页
+   */
   const handleLogin = () => {
     navigate('/music/login-qq');
   };
 
+  /**
+   * 播放选中的音乐
+   * @param {Object} track - 要播放的音乐对象
+   */
   const playTrack = (track) => {
     if (audioElement) {
-      // Stop current track if playing
+      // 停止当前播放的音乐
       audioElement.pause();
       
-      // Play new track
+      // 播放新选择的音乐
       audioElement.src = track.url;
       audioElement.play()
-        .catch(error => console.error("Failed to play track:", error));
+        .catch(error => {
+          console.error("播放音乐失败:", error);
+          toast.error("无法播放这首歌曲，请尝试其他歌曲");
+        });
       
       setCurrentTrack(track);
       setIsPlaying(true);
     }
   };
 
+  /**
+   * 切换播放/暂停状态
+   */
   const togglePlayPause = () => {
     if (audioElement) {
       if (isPlaying) {
         audioElement.pause();
       } else {
         audioElement.play()
-          .catch(error => console.error("Failed to resume track:", error));
+          .catch(error => {
+            console.error("恢复播放失败:", error);
+            toast.error("恢复播放失败，请重新选择歌曲");
+          });
       }
       setIsPlaying(!isPlaying);
     }
@@ -109,6 +138,7 @@ const Music = () => {
               )}
             </div>
             
+            {/* 当前播放器控制区域 */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
               {currentTrack ? (
                 <div className="flex items-center space-x-4">
@@ -133,10 +163,11 @@ const Music = () => {
               )}
             </div>
             
+            {/* 歌曲列表区域 */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
               <Table>
                 <TableCaption>
-                  {isLoggedIn ? '您的QQ音乐歌单' : '随机推荐歌曲'}
+                  {isLoggedIn ? '您的QQ音乐歌单' : '免费推荐歌曲'}
                 </TableCaption>
                 <TableHeader>
                   <TableRow>

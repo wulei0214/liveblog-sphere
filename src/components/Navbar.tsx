@@ -1,37 +1,31 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, PenLine, User, LogOut, Users, Shield, Home, FilePlus, Music, Newspaper, Twitter } from 'lucide-react';
+import { Menu, X, PenLine, User, LogOut, Users, Shield, Home, FilePlus, Music, Newspaper } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/button';
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import NewsSlider from './NewsSlider';
-import WeiboEmbed from './WeiboEmbed';
 import MusicEmbed from './MusicEmbed';
 
-const Navbar: React.FC = () => {
+/**
+ * 导航栏组件
+ * 提供网站主要导航功能和用户相关操作
+ */
+const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showNews, setShowNews] = useState(false);
-  const [showWeibo, setShowWeibo] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
   const location = useLocation();
   const { isAuthenticated, isAdminUser, user, logout } = useAuth();
 
+  // 监听滚动事件，控制导航栏样式
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -41,32 +35,25 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // 路由变化时关闭所有弹出内容
   useEffect(() => {
     setIsMenuOpen(false);
     setShowNews(false);
-    setShowWeibo(false);
     setShowMusic(false);
   }, [location.pathname]);
 
-  const handleNewsClick = (e: React.MouseEvent) => {
+  // 切换显示新闻内容
+  const handleNewsClick = (e) => {
     e.preventDefault();
     setShowNews(!showNews);
-    setShowWeibo(false);
     setShowMusic(false);
   };
 
-  const handleWeiboClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setShowWeibo(!showWeibo);
-    setShowNews(false);
-    setShowMusic(false);
-  };
-
-  const handleMusicClick = (e: React.MouseEvent) => {
+  // 切换显示音乐内容
+  const handleMusicClick = (e) => {
     e.preventDefault();
     setShowMusic(!showMusic);
     setShowNews(false);
-    setShowWeibo(false);
   };
 
   return (
@@ -80,6 +67,7 @@ const Navbar: React.FC = () => {
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
+            {/* Logo */}
             <Link 
               to="/" 
               className="flex items-center space-x-3 group"
@@ -91,6 +79,7 @@ const Navbar: React.FC = () => {
               <span className="text-xl font-serif font-medium tracking-tight">LiveBlog</span>
             </Link>
 
+            {/* 桌面端导航 */}
             <div className="hidden md:flex items-center space-x-8">
               <NavigationMenu>
                 <NavigationMenuList>
@@ -119,28 +108,16 @@ const Navbar: React.FC = () => {
                   </NavigationMenuItem>
                   
                   <NavigationMenuItem>
-                    <button 
-                      className={navigationMenuTriggerStyle()}
-                      onClick={handleMusicClick}
-                    >
+                    <Link to="/music" className={navigationMenuTriggerStyle()}>
                       <Music size={16} className="mr-2" />
                       音乐
-                    </button>
-                  </NavigationMenuItem>
-                  
-                  <NavigationMenuItem>
-                    <button 
-                      className={navigationMenuTriggerStyle()}
-                      onClick={handleWeiboClick}
-                    >
-                      <Twitter size={16} className="mr-2" />
-                      微博
-                    </button>
+                    </Link>
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
             </div>
 
+            {/* 用户相关操作 */}
             <div className="hidden md:flex items-center space-x-4">
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
@@ -180,6 +157,7 @@ const Navbar: React.FC = () => {
               )}
             </div>
 
+            {/* 移动端菜单开关 */}
             <div className="flex items-center md:hidden">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -192,7 +170,7 @@ const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* 移动端菜单 */}
         {isMenuOpen && (
           <div className="md:hidden absolute top-full left-0 right-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 animate-slide-down">
             <div className="container mx-auto px-4 py-4">
@@ -221,21 +199,13 @@ const Navbar: React.FC = () => {
                   <span>简报</span>
                 </button>
                 
-                <button
-                  onClick={handleMusicClick}
+                <Link 
+                  to="/music"
                   className="flex items-center space-x-2 py-2 text-gray-600 dark:text-gray-300 hover:text-primary"
                 >
                   <Music size={16} />
                   <span>音乐</span>
-                </button>
-                
-                <button
-                  onClick={handleWeiboClick}
-                  className="flex items-center space-x-2 py-2 text-gray-600 dark:text-gray-300 hover:text-primary"
-                >
-                  <Twitter size={16} />
-                  <span>微博</span>
-                </button>
+                </Link>
                 
                 {isAuthenticated ? (
                   <>
@@ -275,7 +245,7 @@ const Navbar: React.FC = () => {
         )}
       </header>
 
-      {/* News slider that appears when clicking on News */}
+      {/* 新闻弹出层 */}
       {showNews && (
         <div className="fixed top-[80px] inset-0 pt-[80px] bg-white dark:bg-gray-900 shadow-lg z-40 animate-slide-down overflow-auto">
           <div className="container mx-auto p-4">
@@ -290,22 +260,7 @@ const Navbar: React.FC = () => {
         </div>
       )}
 
-      {/* Weibo embed that appears when clicking on Weibo */}
-      {showWeibo && (
-        <div className="fixed top-[80px] inset-0 pt-[80px] bg-white dark:bg-gray-900 shadow-lg z-40 animate-slide-down overflow-auto">
-          <div className="container mx-auto p-4">
-            <button 
-              onClick={() => setShowWeibo(false)}
-              className="absolute top-[90px] right-6 p-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
-            >
-              <X size={20} />
-            </button>
-            <WeiboEmbed />
-          </div>
-        </div>
-      )}
-
-      {/* Music embed that appears when clicking on Music */}
+      {/* 音乐弹出层 */}
       {showMusic && (
         <div className="fixed top-[80px] inset-0 pt-[80px] bg-white dark:bg-gray-900 shadow-lg z-40 animate-slide-down overflow-auto">
           <div className="container mx-auto p-4">

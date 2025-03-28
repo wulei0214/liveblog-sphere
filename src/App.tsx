@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { AuthProvider } from "./contexts/AuthContext";
+
+// 页面组件
 import Index from "./pages/Index";
 import Post from "./pages/Post";
 import Create from "./pages/Create";
@@ -17,8 +19,13 @@ import Heard from "./pages/Heard";
 import Music from "./pages/Music";
 import MusicLoginQQ from "./pages/MusicLoginQQ";
 
+// 创建React Query客户端
 const queryClient = new QueryClient();
 
+/**
+ * 应用程序入口组件
+ * 配置路由和全局提供者
+ */
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>

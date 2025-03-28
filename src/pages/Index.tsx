@@ -6,9 +6,14 @@ import AnimatedTransition from '../components/AnimatedTransition';
 import { getAllPosts } from '../lib/data';
 import Navbar from '../components/Navbar';
 
+/**
+ * 网站首页
+ * 展示博客文章列表
+ */
 const Index = () => {
   const posts = getAllPosts();
   
+  // 页面加载时滚动到顶部
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
