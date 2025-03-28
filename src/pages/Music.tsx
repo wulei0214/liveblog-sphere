@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import AnimatedTransition from '../components/AnimatedTransition';
 import Navbar from '../components/Navbar';
 import { Button } from "@/components/ui/button";
-import { isLoggedInToQQMusic, loginToQQMusic, getQQMusicTracks } from '../lib/qqMusicService';
+import { isLoggedInToQQMusic, getQQMusicTracks } from '../lib/qqMusicService';
 import {
   Table,
   TableBody,
@@ -32,8 +32,12 @@ const Music = () => {
       setIsLoggedIn(loggedIn);
       
       // Get tracks (either free ones or user's playlist based on login status)
-      const musicTracks = await getQQMusicTracks(loggedIn);
-      setTracks(musicTracks);
+      try {
+        const musicTracks = await getQQMusicTracks(loggedIn);
+        setTracks(musicTracks);
+      } catch (error) {
+        console.error("Failed to load tracks:", error);
+      }
     };
     
     checkLoginStatus();
@@ -62,7 +66,9 @@ const Music = () => {
       
       // Play new track
       audioElement.src = track.url;
-      audioElement.play();
+      audioElement.play()
+        .catch(error => console.error("Failed to play track:", error));
+      
       setCurrentTrack(track);
       setIsPlaying(true);
     }
@@ -73,7 +79,8 @@ const Music = () => {
       if (isPlaying) {
         audioElement.pause();
       } else {
-        audioElement.play();
+        audioElement.play()
+          .catch(error => console.error("Failed to resume track:", error));
       }
       setIsPlaying(!isPlaying);
     }

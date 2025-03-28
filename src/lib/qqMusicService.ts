@@ -2,7 +2,7 @@
 // This is a mock service for QQ Music integration
 // In a real application, you would need to integrate with QQ Music's APIs
 
-// Mock free tracks (available without login)
+// Mock tracks with playable URLs (using royalty-free music for demo)
 const freeTracks = [
   {
     id: '1',
@@ -10,7 +10,7 @@ const freeTracks = [
     artist: '周杰伦',
     album: '魔杰座',
     duration: '3:42',
-    url: 'https://example.com/songs/diaoxiang.mp3', // This would be a real URL in production
+    url: 'https://file-examples.com/storage/fee231cad563b359537d0c9/2017/11/file_example_MP3_700KB.mp3',
   },
   {
     id: '2',
@@ -18,7 +18,7 @@ const freeTracks = [
     artist: '朴树',
     album: '猎户星座',
     duration: '5:01',
-    url: 'https://example.com/songs/pingfanzhilu.mp3',
+    url: 'https://file-examples.com/storage/fee231cad563b359537d0c9/2017/11/file_example_MP3_1MG.mp3',
   },
   {
     id: '3',
@@ -26,7 +26,7 @@ const freeTracks = [
     artist: '薛之谦',
     album: '天外来物',
     duration: '4:17',
-    url: 'https://example.com/songs/tianwailaiwu.mp3',
+    url: 'https://file-examples.com/storage/fee231cad563b359537d0c9/2017/11/file_example_MP3_2MG.mp3',
   },
   {
     id: '4',
@@ -34,7 +34,7 @@ const freeTracks = [
     artist: '买辣椒也用券',
     album: '起风了',
     duration: '5:11',
-    url: 'https://example.com/songs/qifengle.mp3',
+    url: 'https://file-examples.com/storage/fee231cad563b359537d0c9/2017/11/file_example_MP3_5MG.mp3',
   },
   {
     id: '5',
@@ -42,7 +42,7 @@ const freeTracks = [
     artist: '林俊杰',
     album: '新地球',
     duration: '4:38',
-    url: 'https://example.com/songs/keximeiru.mp3',
+    url: 'https://cdn.pixabay.com/download/audio/2022/01/12/audio_78c0c34ecd.mp3',
   },
   {
     id: '6',
@@ -50,7 +50,7 @@ const freeTracks = [
     artist: 'G.E.M.邓紫棋',
     album: '摩天动物园',
     duration: '4:20',
-    url: 'https://example.com/songs/juhao.mp3',
+    url: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_30ff3b6df9.mp3',
   },
   {
     id: '7',
@@ -58,7 +58,7 @@ const freeTracks = [
     artist: 'JC陈咏桐',
     album: '说散就散',
     duration: '4:14',
-    url: 'https://example.com/songs/shuosanjiusan.mp3',
+    url: 'https://cdn.pixabay.com/download/audio/2022/10/25/audio_946bc816e4.mp3',
   },
   {
     id: '8',
@@ -66,7 +66,7 @@ const freeTracks = [
     artist: '薛之谦',
     album: '意外',
     duration: '4:14',
-    url: 'https://example.com/songs/renzhendexue.mp3',
+    url: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8a58993bc.mp3',
   },
   {
     id: '9',
@@ -74,7 +74,7 @@ const freeTracks = [
     artist: '逃跑计划',
     album: '世界',
     duration: '4:07',
-    url: 'https://example.com/songs/yekongzhong.mp3',
+    url: 'https://cdn.pixabay.com/download/audio/2021/11/25/audio_5b8a2f4a0a.mp3',
   },
   {
     id: '10',
@@ -82,7 +82,7 @@ const freeTracks = [
     artist: '毛不易',
     album: '平凡的一天',
     duration: '3:26',
-    url: 'https://example.com/songs/xiangwozheyangderen.mp3',
+    url: 'https://cdn.pixabay.com/download/audio/2022/08/02/audio_884fe92c21.mp3',
   },
 ];
 
@@ -95,7 +95,7 @@ const userTracks = [
     artist: '周杰伦',
     album: '魔杰座',
     duration: '4:24',
-    url: 'https://example.com/songs/huahai.mp3',
+    url: 'https://cdn.pixabay.com/download/audio/2022/10/10/audio_654d34a64f.mp3',
   },
   {
     id: '12',
@@ -103,7 +103,7 @@ const userTracks = [
     artist: '周杰伦',
     album: '叶惠美',
     duration: '4:29',
-    url: 'https://example.com/songs/qingtian.mp3',
+    url: 'https://cdn.pixabay.com/download/audio/2022/11/22/audio_770e1fb98b.mp3',
   },
   {
     id: '13',
@@ -111,7 +111,7 @@ const userTracks = [
     artist: '王小洋',
     album: '我爱他',
     duration: '4:02',
-    url: 'https://example.com/songs/woaita.mp3',
+    url: 'https://cdn.pixabay.com/download/audio/2022/12/15/audio_a4c52e6027.mp3',
   },
   {
     id: '14',
@@ -119,7 +119,7 @@ const userTracks = [
     artist: '周深',
     album: '大鱼',
     duration: '4:41',
-    url: 'https://example.com/songs/dayu.mp3',
+    url: 'https://cdn.pixabay.com/download/audio/2022/10/25/audio_0621d4cd9e.mp3',
   },
   {
     id: '15',
@@ -127,7 +127,7 @@ const userTracks = [
     artist: '展展与罗罗',
     album: '沙漠骆驼',
     duration: '5:38',
-    url: 'https://example.com/songs/shamoluotuo.mp3',
+    url: 'https://cdn.pixabay.com/download/audio/2023/01/17/audio_c39e965108.mp3',
   },
 ];
 
