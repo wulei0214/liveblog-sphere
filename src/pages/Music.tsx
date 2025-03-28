@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import AnimatedTransition from '../components/AnimatedTransition';
 import Navbar from '../components/Navbar';
-import MusicEmbed from '../components/MusicEmbed';
 import { Button } from "@/components/ui/button";
 import { isLoggedInToQQMusic, loginToQQMusic, getQQMusicTracks } from '../lib/qqMusicService';
 import {
@@ -16,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Play, Pause, Music, User } from 'lucide-react';
+import { Play, Pause, Music as MusicIcon, User } from 'lucide-react';
 
 const Music = () => {
   const navigate = useNavigate();
@@ -121,7 +120,7 @@ const Music = () => {
                 </div>
               ) : (
                 <div className="flex justify-center items-center h-20 text-gray-500">
-                  <Music className="mr-2" />
+                  <MusicIcon className="mr-2" />
                   <span>选择一首歌曲开始播放</span>
                 </div>
               )}
