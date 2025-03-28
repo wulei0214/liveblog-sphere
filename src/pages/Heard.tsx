@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 /**
  * 听到页面
  * 展示微博内容，包括热搜和微博帖子
+ * 登录用户可以查看关注的信息，未登录用户可以查看热搜榜
  */
 const Heard = () => {
   const { isAuthenticated } = useAuth();

@@ -14,6 +14,7 @@ import Create from "./pages/Create";
 import Edit from "./pages/Edit";
 import Login from "./pages/Login";
 import UserManagement from "./pages/UserManagement";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import Heard from "./pages/Heard";
 import Music from "./pages/Music";
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/edit/:id" element={<Edit />} />
               <Route path="/login" element={<Login />} />
               <Route path="/admin/users" element={<UserManagement />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/heard" element={<Heard />} />
               <Route path="/music" element={<Music />} />
               <Route path="/music/login-qq" element={<MusicLoginQQ />} />

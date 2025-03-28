@@ -7,7 +7,8 @@ import AnimatedTransition from '../components/AnimatedTransition';
 import { getAllPosts } from '../lib/data';
 import Navbar from '../components/Navbar';
 import { Button } from '@/components/ui/button';
-import { Newspaper, Music, HeadphonesIcon } from 'lucide-react';
+import { Newspaper, Music, HeadphonesIcon, BarChart } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 /**
  * 网站首页
@@ -15,6 +16,7 @@ import { Newspaper, Music, HeadphonesIcon } from 'lucide-react';
  */
 const Index = () => {
   const posts = getAllPosts();
+  const { isAdminUser } = useAuth();
   
   // 页面加载时滚动到顶部
   useEffect(() => {
@@ -57,6 +59,14 @@ const Index = () => {
                     <span>音乐</span>
                   </Button>
                 </Link>
+                {isAdminUser && (
+                  <Link to="/admin/dashboard">
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <BarChart className="h-4 w-4" />
+                      <span>管理后台</span>
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
 
