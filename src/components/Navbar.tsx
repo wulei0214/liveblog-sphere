@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, PenLine, User, LogOut, Users, Shield, Home, FilePlus, Music, Newspaper } from 'lucide-react';
+import { Menu, X, PenLine, User, LogOut, Users, Shield, Home, FilePlus, Music, Newspaper, HeadphonesIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/button';
 import {
@@ -12,6 +11,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import NewsSlider from './NewsSlider';
 import MusicEmbed from './MusicEmbed';
+import WeiboComponent from './WeiboComponent';
 
 /**
  * 导航栏组件
@@ -22,6 +22,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showNews, setShowNews] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
+  const [showWeibo, setShowWeibo] = useState(false);
   const location = useLocation();
   const { isAuthenticated, isAdminUser, user, logout } = useAuth();
 
@@ -40,12 +41,22 @@ const Navbar = () => {
     setIsMenuOpen(false);
     setShowNews(false);
     setShowMusic(false);
+    setShowWeibo(false);
   }, [location.pathname]);
 
   // 切换显示新闻内容
   const handleNewsClick = (e) => {
     e.preventDefault();
     setShowNews(!showNews);
+    setShowMusic(false);
+    setShowWeibo(false);
+  };
+
+  // 切换显示微博内容
+  const handleWeiboClick = (e) => {
+    e.preventDefault();
+    setShowWeibo(!showWeibo);
+    setShowNews(false);
     setShowMusic(false);
   };
 
@@ -54,6 +65,7 @@ const Navbar = () => {
     e.preventDefault();
     setShowMusic(!showMusic);
     setShowNews(false);
+    setShowWeibo(false);
   };
 
   return (
@@ -105,6 +117,13 @@ const Navbar = () => {
                       <Newspaper size={16} className="mr-2" />
                       简报
                     </button>
+                  </NavigationMenuItem>
+                  
+                  <NavigationMenuItem>
+                    <Link to="/heard" className={navigationMenuTriggerStyle()}>
+                      <HeadphonesIcon size={16} className="mr-2" />
+                      听到
+                    </Link>
                   </NavigationMenuItem>
                   
                   <NavigationMenuItem>
@@ -200,6 +219,14 @@ const Navbar = () => {
                 </button>
                 
                 <Link 
+                  to="/heard" 
+                  className="flex items-center space-x-2 py-2 text-gray-600 dark:text-gray-300 hover:text-primary"
+                >
+                  <HeadphonesIcon size={16} />
+                  <span>听到</span>
+                </Link>
+                
+                <Link 
                   to="/music"
                   className="flex items-center space-x-2 py-2 text-gray-600 dark:text-gray-300 hover:text-primary"
                 >
@@ -271,6 +298,21 @@ const Navbar = () => {
               <X size={20} />
             </button>
             <MusicEmbed />
+          </div>
+        </div>
+      )}
+
+      {/* 微博弹出层 */}
+      {showWeibo && (
+        <div className="fixed top-[80px] inset-0 pt-[80px] bg-white dark:bg-gray-900 shadow-lg z-40 animate-slide-down overflow-auto">
+          <div className="container mx-auto p-4">
+            <button 
+              onClick={() => setShowWeibo(false)}
+              className="absolute top-[90px] right-6 p-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+            >
+              <X size={20} />
+            </button>
+            <WeiboComponent />
           </div>
         </div>
       )}
