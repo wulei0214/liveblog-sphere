@@ -1,44 +1,55 @@
-import { Tables } from '../lib/databaseSchema';
-import * as db from '../lib/database';
-import { getCurrentUser } from './userRepository';
 
 /**
  * 文章数据存储库
  * 提供文章和评论相关的数据操作方法
  */
+import { Tables } from '../lib/databaseSchema';
+import * as db from '../lib/database';
+import { getCurrentUser, isEditor } from './userRepository';
+import { getCategoryById } from './categoryRepository';
 
-// 文章类型定义
+/**
+ * 文章类型定义
+ */
 export interface Post {
-  id: string;
-  title: string;
-  content: string;
-  excerpt: string;
-  author: {
-    id: string;
-    username: string;
+  id: string;                   // 文章唯一标识
+  title: string;                // 文章标题
+  content: string;              // 文章内容
+  excerpt: string;              // 文章摘要
+  author: {                     // 作者信息
+    id: string;                 // 作者ID
+    username: string;           // 作者用户名
   };
-  createdAt: Date;
-  updatedAt: Date;
-  tags: string[];
-  image?: string;
-  readTime?: number; // 添加阅读时间字段
-  views: number;
-  likes: string[]; // 存储点赞用户的ID
-  comments: Comment[];
+  createdAt: Date;              // 创建时间
+  updatedAt: Date;              // 更新时间
+  tags: string[];               // 标签数组
+  categoryId?: string;          // 分类ID
+  image?: string;               // 特色图片URL
+  readTime?: number;            // 阅读时间
+  views: number;                // 浏览次数
+  likes: string[];              // 点赞用户ID数组
+  comments: Comment[];          // 评论数组
+  status: 'published' | 'draft' | 'scheduled'; // 文章状态
+  scheduledAt?: Date;           // 计划发布时间
 }
 
-// 评论类型定义
+/**
+ * 评论类型定义
+ */
 export interface Comment {
-  id: string;
-  content: string;
-  author: {
-    id: string;
-    username: string;
+  id: string;           // 评论唯一标识
+  content: string;      // 评论内容
+  author: {             // 评论作者
+    id: string;         // 作者ID
+    username: string;   // 作者用户名
   };
-  createdAt: Date;
+  createdAt: Date;      // 创建时间
+  parentId?: string;    // 父评论ID（用于回复功能）
 }
 
-// 初始化文章数据
+/**
+ * 初始化文章数据
+ */
 const initializePostsIfEmpty = () => {
   const posts = db.getAll<Post>(Tables.POSTS);
   
@@ -67,7 +78,9 @@ const initializePostsIfEmpty = () => {
   }
 };
 
-// 创建样例文章
+/**
+ * 创建样例文章
+ */
 const createSamplePosts = () => {
   const samplePosts: Post[] = [
     {
@@ -105,12 +118,14 @@ const createSamplePosts = () => {
       },
       createdAt: new Date('2023-06-15'),
       updatedAt: new Date('2023-06-15'),
-      tags: [],
+      tags: ['1', '5'],
+      categoryId: '2',
       image: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?ixlib=rb-1.2.1&auto=format&fit=crop&w=1347&q=80',
       readTime: 5,
       views: 0,
       likes: [],
-      comments: []
+      comments: [],
+      status: 'published'
     },
     {
       id: '2',
@@ -153,12 +168,14 @@ const createSamplePosts = () => {
       },
       createdAt: new Date('2023-07-22'),
       updatedAt: new Date('2023-07-22'),
-      tags: [],
+      tags: ['3', '4'],
+      categoryId: '1',
       image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
       readTime: 6,
       views: 0,
       likes: [],
-      comments: []
+      comments: [],
+      status: 'published'
     },
   ];
   
@@ -169,25 +186,99 @@ const createSamplePosts = () => {
 // 确保文章数据存在
 initializePostsIfEmpty();
 
-// 获取所有文章
-export const getAllPosts = (): Post[] => {
-  return db.getAll<Post>(Tables.POSTS).sort((a, b) => 
+/**
+ * 获取所有文章
+ * @param includeStatus 包含的文章状态，默认只包含已发布的
+ * @returns 文章数组
+ */
+export const getAllPosts = (includeStatus: ('published' | 'draft' | 'scheduled')[] = ['published']): Post[] => {
+  const posts = db.getAll<Post>(Tables.POSTS);
+  
+  // 默认排序：按创建时间倒序
+  let filteredPosts = posts.filter(post => includeStatus.includes(post.status));
+  
+  // 对于计划发布的文章，检查是否已到发布时间
+  const now = new Date();
+  filteredPosts = filteredPosts.map(post => {
+    if (post.status === 'scheduled' && post.scheduledAt && post.scheduledAt <= now) {
+      return { ...post, status: 'published' };
+    }
+    return post;
+  });
+  
+  return filteredPosts.sort((a, b) => 
     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 };
 
-// 获取单个文章
+/**
+ * 获取单个文章
+ * @param id 文章ID
+ * @returns 文章对象或null
+ */
 export const getPostById = (id: string): Post | null => {
-  return db.getById<Post>(Tables.POSTS, id);
+  const post = db.getById<Post>(Tables.POSTS, id);
+  
+  // 对于计划发布的文章，检查是否已到发布时间
+  if (post && post.status === 'scheduled' && post.scheduledAt && post.scheduledAt <= new Date()) {
+    return { ...post, status: 'published' };
+  }
+  
+  return post;
 };
 
-// 添加新文章
+/**
+ * 获取用户的文章
+ * @param userId 用户ID
+ * @param includeStatus 包含的文章状态
+ * @returns 文章数组
+ */
+export const getPostsByUser = (
+  userId: string, 
+  includeStatus: ('published' | 'draft' | 'scheduled')[] = ['published']
+): Post[] => {
+  return getAllPosts(includeStatus).filter(post => post.author.id === userId);
+};
+
+/**
+ * 获取分类下的文章
+ * @param categoryId 分类ID
+ * @returns 文章数组
+ */
+export const getPostsByCategory = (categoryId: string): Post[] => {
+  return getAllPosts(['published']).filter(post => post.categoryId === categoryId);
+};
+
+/**
+ * 获取包含特定标签的文章
+ * @param tagId 标签ID
+ * @returns 文章数组
+ */
+export const getPostsByTag = (tagId: string): Post[] => {
+  return getAllPosts(['published']).filter(post => post.tags.includes(tagId));
+};
+
+/**
+ * 添加新文章
+ * @param title 标题
+ * @param content 内容
+ * @param excerpt 摘要
+ * @param tags 标签数组
+ * @param categoryId 分类ID
+ * @param image 特色图片URL
+ * @param status 状态
+ * @param scheduledAt 计划发布时间
+ * @returns 创建的文章或null
+ */
 export const addPost = (
   title: string, 
   content: string, 
   excerpt: string, 
   tags: string[] = [],
-  image?: string
+  categoryId?: string,
+  image?: string,
+  status: 'published' | 'draft' | 'scheduled' = 'published',
+  scheduledAt?: Date
 ): Post | null => {
   const currentUser = getCurrentUser();
   if (!currentUser) {
@@ -197,6 +288,11 @@ export const addPost = (
   // 计算阅读时间（假设每分钟阅读200字）
   const wordCount = content.trim().split(/\s+/).length;
   const readTime = Math.max(1, Math.ceil(wordCount / 200));
+  
+  // 如果选择了分类，验证分类是否存在
+  if (categoryId && !getCategoryById(categoryId)) {
+    return null;
+  }
   
   const newPost: Post = {
     id: Date.now().toString(),
@@ -210,20 +306,28 @@ export const addPost = (
     createdAt: new Date(),
     updatedAt: new Date(),
     tags,
+    categoryId,
     image,
     readTime,
     views: 0,
     likes: [],
     comments: [],
+    status,
+    scheduledAt: status === 'scheduled' ? scheduledAt : undefined
   };
   
   return db.create<Post>(Tables.POSTS, newPost);
 };
 
-// 更新文章
+/**
+ * 更新文章
+ * @param id 文章ID
+ * @param updates 更新数据
+ * @returns 更新后的文章或null
+ */
 export const updatePost = (
   id: string, 
-  updates: Partial<Pick<Post, 'title' | 'content' | 'excerpt' | 'image' | 'tags'>>
+  updates: Partial<Pick<Post, 'title' | 'content' | 'excerpt' | 'image' | 'tags' | 'categoryId' | 'status' | 'scheduledAt'>>
 ): Post | null => {
   const currentUser = getCurrentUser();
   if (!currentUser) {
@@ -235,8 +339,8 @@ export const updatePost = (
     return null;
   }
   
-  // 检查是否为作者或管理员
-  if (post.author.id !== currentUser.id && currentUser.role !== 'admin') {
+  // 检查是否为作者、编辑或管理员
+  if (post.author.id !== currentUser.id && !isEditor()) {
     return null;
   }
   
@@ -247,6 +351,11 @@ export const updatePost = (
     readTime = Math.max(1, Math.ceil(wordCount / 200));
   }
   
+  // 如果选择了分类，验证分类是否存在
+  if (updates.categoryId && !getCategoryById(updates.categoryId)) {
+    return null;
+  }
+  
   return db.update<Post>(Tables.POSTS, id, {
     ...updates,
     readTime,
@@ -254,7 +363,11 @@ export const updatePost = (
   });
 };
 
-// 删除文章
+/**
+ * 删除文章
+ * @param id 文章ID
+ * @returns 是否成功
+ */
 export const deletePost = (id: string): boolean => {
   const currentUser = getCurrentUser();
   if (!currentUser) {
@@ -274,8 +387,28 @@ export const deletePost = (id: string): boolean => {
   return db.remove(Tables.POSTS, id);
 };
 
-// 添加评论
-export const addComment = (postId: string, content: string): Post | null => {
+/**
+ * 增加文章浏览次数
+ * @param id 文章ID
+ * @returns 更新后的文章或null
+ */
+export const incrementViews = (id: string): Post | null => {
+  const post = db.getById<Post>(Tables.POSTS, id);
+  if (!post) {
+    return null;
+  }
+  
+  return db.update<Post>(Tables.POSTS, id, {
+    views: post.views + 1
+  });
+};
+
+/**
+ * 文章点赞
+ * @param postId 文章ID
+ * @returns 更新后的文章或null
+ */
+export const likePost = (postId: string): Post | null => {
   const currentUser = getCurrentUser();
   if (!currentUser) {
     return null;
@@ -283,6 +416,67 @@ export const addComment = (postId: string, content: string): Post | null => {
   
   const post = db.getById<Post>(Tables.POSTS, postId);
   if (!post) {
+    return null;
+  }
+  
+  // 检查用户是否已经点赞
+  const likes = [...post.likes];
+  const userIndex = likes.indexOf(currentUser.id);
+  
+  if (userIndex !== -1) {
+    // 用户已经点赞，取消点赞
+    likes.splice(userIndex, 1);
+  } else {
+    // 用户未点赞，添加点赞
+    likes.push(currentUser.id);
+  }
+  
+  return db.update<Post>(Tables.POSTS, postId, { likes });
+};
+
+/**
+ * 检查用户是否已对文章点赞
+ * @param postId 文章ID
+ * @returns 是否已点赞
+ */
+export const hasLiked = (postId: string): boolean => {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    return false;
+  }
+  
+  const post = db.getById<Post>(Tables.POSTS, postId);
+  if (!post) {
+    return false;
+  }
+  
+  return post.likes.includes(currentUser.id);
+};
+
+/**
+ * 添加评论
+ * @param postId 文章ID
+ * @param content 评论内容
+ * @param parentId 父评论ID（用于回复功能）
+ * @returns 更新后的文章或null
+ */
+export const addComment = (
+  postId: string, 
+  content: string,
+  parentId?: string
+): Post | null => {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    return null;
+  }
+  
+  const post = db.getById<Post>(Tables.POSTS, postId);
+  if (!post) {
+    return null;
+  }
+  
+  // 如果提供了父评论ID，检查它是否存在
+  if (parentId && !post.comments.some(comment => comment.id === parentId)) {
     return null;
   }
   
@@ -294,6 +488,7 @@ export const addComment = (postId: string, content: string): Post | null => {
       username: currentUser.username,
     },
     createdAt: new Date(),
+    parentId
   };
   
   const updatedComments = [...post.comments, newComment];
@@ -303,7 +498,12 @@ export const addComment = (postId: string, content: string): Post | null => {
   });
 };
 
-// 删除评论
+/**
+ * 删除评论
+ * @param postId 文章ID
+ * @param commentId 评论ID
+ * @returns 更新后的文章或null
+ */
 export const deleteComment = (postId: string, commentId: string): Post | null => {
   const currentUser = getCurrentUser();
   if (!currentUser) {
@@ -329,9 +529,56 @@ export const deleteComment = (postId: string, commentId: string): Post | null =>
     return null;
   }
   
-  const updatedComments = post.comments.filter(c => c.id !== commentId);
+  // 找出所有需要删除的评论（当前评论及其所有回复）
+  const commentsToDelete = [commentId];
+  
+  // 递归查找所有子评论
+  const findChildComments = (parentId: string) => {
+    post.comments.forEach(c => {
+      if (c.parentId === parentId) {
+        commentsToDelete.push(c.id);
+        findChildComments(c.id);
+      }
+    });
+  };
+  
+  findChildComments(commentId);
+  
+  // 过滤掉所有需要删除的评论
+  const updatedComments = post.comments.filter(c => !commentsToDelete.includes(c.id));
   
   return db.update<Post>(Tables.POSTS, postId, {
     comments: updatedComments,
   });
+};
+
+/**
+ * 获取热门文章
+ * @param limit 返回数量限制
+ * @returns 热门文章数组
+ */
+export const getPopularPosts = (limit: number = 5): Post[] => {
+  return getAllPosts(['published'])
+    .sort((a, b) => b.views - a.views)
+    .slice(0, limit);
+};
+
+/**
+ * 搜索文章
+ * @param query 搜索关键词
+ * @returns 符合条件的文章数组
+ */
+export const searchPosts = (query: string): Post[] => {
+  if (!query.trim()) {
+    return [];
+  }
+  
+  const lowerQuery = query.toLowerCase();
+  
+  return getAllPosts(['published']).filter(post => 
+    post.title.toLowerCase().includes(lowerQuery) || 
+    post.content.toLowerCase().includes(lowerQuery) || 
+    post.excerpt.toLowerCase().includes(lowerQuery) || 
+    post.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
+  );
 };

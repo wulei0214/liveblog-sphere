@@ -14,13 +14,16 @@ export interface UserTable {
   id: string;         // 用户唯一标识
   username: string;   // 用户名
   password: string;   // 密码（实际应用中应该加密存储）
-  role: string;       // 用户角色（admin/user）
+  role: string;       // 用户角色（admin/user/editor）
   createdAt: Date;    // 创建时间
   updatedAt: Date;    // 更新时间
-  lastLogin: Date;    // 最后登录时间
-  email?: string;     // 电子邮件（可选）
-  avatar?: string;    // 头像URL（可选）
-  bio?: string;       // 个人简介（可选）
+  lastLogin?: Date;   // 最后登录时间
+  email?: string;     // 电子邮件
+  phone?: string;     // 手机号码
+  avatar?: string;    // 头像URL
+  bio?: string;       // 个人简介
+  following?: string[]; // 关注的用户ID列表
+  followers?: string[]; // 粉丝ID列表
 }
 
 /**
@@ -28,18 +31,25 @@ export interface UserTable {
  * 存储博客文章
  */
 export interface PostTable {
-  id: string;         // 文章唯一标识
-  title: string;      // 文章标题
-  content: string;    // 文章内容
-  excerpt: string;    // 文章摘要
-  date: string;       // 发布日期
-  readTime: string;   // 阅读时间
-  image?: string;     // 特色图片URL（可选）
-  authorId: string;   // 作者ID（关联用户表）
-  createdAt: Date;    // 创建时间
-  updatedAt: Date;    // 更新时间
-  status: string;     // 状态（draft/published）
-  viewCount: number;  // 浏览次数
+  id: string;           // 文章唯一标识
+  title: string;        // 文章标题
+  content: string;      // 文章内容
+  excerpt: string;      // 文章摘要
+  author: {             // 作者信息
+    id: string;         // 作者ID
+    username: string;   // 作者用户名
+  };
+  createdAt: Date;      // 创建时间
+  updatedAt: Date;      // 更新时间
+  tags: string[];       // 标签列表
+  categoryId?: string;  // 分类ID
+  image?: string;       // 特色图片URL
+  readTime?: number;    // 阅读时间（分钟）
+  views: number;        // 浏览次数
+  likes: string[];      // 点赞用户ID列表
+  comments: CommentTable[]; // 评论列表
+  status: 'published' | 'draft' | 'scheduled'; // 文章状态
+  scheduledAt?: Date;   // 定时发布时间
 }
 
 /**
@@ -48,13 +58,27 @@ export interface PostTable {
  */
 export interface CommentTable {
   id: string;         // 评论唯一标识
-  postId: string;     // 关联文章ID
-  userId: string;     // 评论者用户ID
   content: string;    // 评论内容
-  date: string;       // 评论日期
+  author: {           // 评论作者
+    id: string;       // 作者ID
+    username: string; // 作者用户名
+  };
+  createdAt: Date;    // 创建时间
+  parentId?: string;  // 父评论ID（用于回复功能）
+}
+
+/**
+ * 分类表结构
+ * 存储文章分类
+ */
+export interface CategoryTable {
+  id: string;         // 分类唯一标识
+  name: string;       // 分类名称
+  slug: string;       // URL友好的别名
+  description?: string; // 分类描述
+  parentId?: string;  // 父分类ID（用于多级分类）
   createdAt: Date;    // 创建时间
   updatedAt: Date;    // 更新时间
-  parentId?: string;  // 父评论ID（用于回复功能，可选）
 }
 
 /**
@@ -64,17 +88,8 @@ export interface CommentTable {
 export interface TagTable {
   id: string;         // 标签唯一标识
   name: string;       // 标签名称
-  slug: string;       // 标签别名（URL友好）
+  slug: string;       // URL友好的别名
   createdAt: Date;    // 创建时间
-}
-
-/**
- * 文章-标签关联表结构
- * 管理文章和标签的多对多关系
- */
-export interface PostTagTable {
-  postId: string;     // 文章ID
-  tagId: string;      // 标签ID
 }
 
 /**
@@ -98,8 +113,35 @@ export interface ActivityLogTable {
   userId: string;     // 用户ID
   action: string;     // 操作类型
   details: string;    // 详细信息
-  ip?: string;        // IP地址（可选）
-  userAgent?: string; // 用户代理（可选）
+  ip?: string;        // IP地址
+  userAgent?: string; // 用户代理
+  createdAt: Date;    // 创建时间
+}
+
+/**
+ * 通知表结构
+ * 存储用户通知
+ */
+export interface NotificationTable {
+  id: string;         // 通知唯一标识
+  userId: string;     // 接收通知的用户ID
+  type: string;       // 通知类型（comment, like, follow等）
+  content: string;    // 通知内容
+  isRead: boolean;    // 是否已读
+  relatedId?: string; // 相关内容ID（如评论ID、文章ID等）
+  createdAt: Date;    // 创建时间
+}
+
+/**
+ * 消息表结构
+ * 存储用户私信
+ */
+export interface MessageTable {
+  id: string;         // 消息唯一标识
+  senderId: string;   // 发送者ID
+  receiverId: string; // 接收者ID
+  content: string;    // 消息内容
+  isRead: boolean;    // 是否已读
   createdAt: Date;    // 创建时间
 }
 
@@ -109,107 +151,16 @@ export interface ActivityLogTable {
 export enum Tables {
   USERS = 'users',
   POSTS = 'posts',
-  COMMENTS = 'comments',
+  CATEGORIES = 'categories',
   TAGS = 'tags',
-  POST_TAGS = 'post_tags',
   SETTINGS = 'settings',
-  ACTIVITY_LOGS = 'activity_logs'
+  ACTIVITY_LOGS = 'activity_logs',
+  NOTIFICATIONS = 'notifications',
+  MESSAGES = 'messages'
 }
 
 /**
- * 数据库表创建SQL语句
- * 适用于SQLite或MySQL等关系型数据库
- */
-export const DATABASE_SCHEMA = {
-  [Tables.USERS]: `
-    CREATE TABLE IF NOT EXISTS ${Tables.USERS} (
-      id VARCHAR(36) PRIMARY KEY,
-      username VARCHAR(100) NOT NULL UNIQUE,
-      password VARCHAR(255) NOT NULL,
-      role VARCHAR(50) NOT NULL DEFAULT 'user',
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      last_login TIMESTAMP,
-      email VARCHAR(255) UNIQUE,
-      avatar TEXT,
-      bio TEXT
-    );
-  `,
-  [Tables.POSTS]: `
-    CREATE TABLE IF NOT EXISTS ${Tables.POSTS} (
-      id VARCHAR(36) PRIMARY KEY,
-      title VARCHAR(255) NOT NULL,
-      content TEXT NOT NULL,
-      excerpt TEXT NOT NULL,
-      date VARCHAR(50) NOT NULL,
-      read_time VARCHAR(50) NOT NULL,
-      image TEXT,
-      author_id VARCHAR(36) NOT NULL,
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      status VARCHAR(50) NOT NULL DEFAULT 'published',
-      view_count INTEGER NOT NULL DEFAULT 0,
-      FOREIGN KEY (author_id) REFERENCES ${Tables.USERS}(id) ON DELETE CASCADE
-    );
-  `,
-  [Tables.COMMENTS]: `
-    CREATE TABLE IF NOT EXISTS ${Tables.COMMENTS} (
-      id VARCHAR(36) PRIMARY KEY,
-      post_id VARCHAR(36) NOT NULL,
-      user_id VARCHAR(36) NOT NULL,
-      content TEXT NOT NULL,
-      date VARCHAR(50) NOT NULL,
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      parent_id VARCHAR(36),
-      FOREIGN KEY (post_id) REFERENCES ${Tables.POSTS}(id) ON DELETE CASCADE,
-      FOREIGN KEY (user_id) REFERENCES ${Tables.USERS}(id) ON DELETE CASCADE,
-      FOREIGN KEY (parent_id) REFERENCES ${Tables.COMMENTS}(id) ON DELETE SET NULL
-    );
-  `,
-  [Tables.TAGS]: `
-    CREATE TABLE IF NOT EXISTS ${Tables.TAGS} (
-      id VARCHAR(36) PRIMARY KEY,
-      name VARCHAR(100) NOT NULL UNIQUE,
-      slug VARCHAR(100) NOT NULL UNIQUE,
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-  `,
-  [Tables.POST_TAGS]: `
-    CREATE TABLE IF NOT EXISTS ${Tables.POST_TAGS} (
-      post_id VARCHAR(36) NOT NULL,
-      tag_id VARCHAR(36) NOT NULL,
-      PRIMARY KEY (post_id, tag_id),
-      FOREIGN KEY (post_id) REFERENCES ${Tables.POSTS}(id) ON DELETE CASCADE,
-      FOREIGN KEY (tag_id) REFERENCES ${Tables.TAGS}(id) ON DELETE CASCADE
-    );
-  `,
-  [Tables.SETTINGS]: `
-    CREATE TABLE IF NOT EXISTS ${Tables.SETTINGS} (
-      key VARCHAR(100) PRIMARY KEY,
-      value TEXT NOT NULL,
-      type VARCHAR(50) NOT NULL,
-      description TEXT NOT NULL,
-      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-  `,
-  [Tables.ACTIVITY_LOGS]: `
-    CREATE TABLE IF NOT EXISTS ${Tables.ACTIVITY_LOGS} (
-      id VARCHAR(36) PRIMARY KEY,
-      user_id VARCHAR(36) NOT NULL,
-      action VARCHAR(100) NOT NULL,
-      details TEXT NOT NULL,
-      ip VARCHAR(50),
-      user_agent TEXT,
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES ${Tables.USERS}(id) ON DELETE CASCADE
-    );
-  `
-};
-
-/**
- * 数据库初始化函数（模拟实现）
- * 未来可以替换为实际的数据库连接和初始化逻辑
+ * 数据库初始化函数
  */
 export const initializeDatabase = () => {
   console.log('初始化数据库...');
