@@ -2,7 +2,6 @@
 // 重定向到用户存储库，保持向后兼容
 export { 
   UserRole, 
-  User,
   loginUser, 
   registerUser, 
   getCurrentUser, 
@@ -12,3 +11,6 @@ export {
   isAdmin,
   updateUser
 } from '../repositories/userRepository';
+
+// 正确导出类型
+export type { User } from '../repositories/userRepository';

@@ -1,62 +1,75 @@
-
 import { Tables } from '../lib/databaseSchema';
 import * as db from '../lib/database';
-import { getCurrentUser } from '../lib/auth';
+import { getCurrentUser } from './userRepository';
 
 /**
  * 文章数据存储库
- * 提供文章相关的数据操作方法
+ * 提供文章和评论相关的数据操作方法
  */
 
-export interface Comment {
-  id: string;
-  postId: string;
-  userId: string;
-  username: string;
-  content: string;
-  date: string;
-}
-
+// 文章类型定义
 export interface Post {
   id: string;
   title: string;
   content: string;
   excerpt: string;
-  date: string;
-  readTime: string;
+  author: {
+    id: string;
+    username: string;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+  tags: string[];
   image?: string;
-  authorId: string;
-  authorName: string;
+  readTime?: number; // 添加阅读时间字段
+  views: number;
+  likes: string[]; // 存储点赞用户的ID
   comments: Comment[];
+}
+
+// 评论类型定义
+export interface Comment {
+  id: string;
+  content: string;
+  author: {
+    id: string;
+    username: string;
+  };
+  createdAt: Date;
 }
 
 // 初始化文章数据
 const initializePostsIfEmpty = () => {
   const posts = db.getAll<Post>(Tables.POSTS);
+  
   if (posts.length === 0) {
-    // 从localStorage中检查是否有旧数据
-    const storedPosts = localStorage.getItem('blogs');
+    // 检查老数据
+    const storedPosts = localStorage.getItem('posts');
     if (storedPosts) {
       try {
-        const parsedPosts = JSON.parse(storedPosts);
+        const parsedPosts = JSON.parse(storedPosts, (key, value) => {
+          if (key === 'createdAt' || key === 'updatedAt') return new Date(value);
+          return value;
+        });
+        
         // 将旧数据导入到新的数据库结构
         db.createMany<Post>(Tables.POSTS, parsedPosts);
         console.log('已从旧存储导入文章数据');
       } catch (error) {
         console.error('导入旧文章数据失败', error);
-        // 如果导入失败，创建默认文章
-        createDefaultPosts();
+        // 如果导入失败，创建样例文章数据
+        createSamplePosts();
       }
     } else {
-      // 没有旧数据，创建默认文章
-      createDefaultPosts();
+      // 没有旧数据，创建样例文章数据
+      createSamplePosts();
     }
   }
 };
 
-// 创建默认文章数据
-const createDefaultPosts = () => {
-  const defaultPosts: Post[] = [
+// 创建样例文章
+const createSamplePosts = () => {
+  const samplePosts: Post[] = [
     {
       id: '1',
       title: '极简主义：如何简化你的生活和思维',
@@ -86,11 +99,17 @@ const createDefaultPosts = () => {
 极简主义是一段旅程，而不是目的地。它是关于不断审视和调整你的生活，以确保你的时间和精力用在最有意义的事情上。
       `,
       excerpt: '探索极简主义如何帮助你减少生活中的杂乱，专注于真正重要的事物，提升生活质量和内心平静。',
-      date: '2023-06-15',
-      readTime: '5 分钟',
+      author: {
+        id: '1',
+        username: 'admin',
+      },
+      createdAt: new Date('2023-06-15'),
+      updatedAt: new Date('2023-06-15'),
+      tags: [],
       image: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?ixlib=rb-1.2.1&auto=format&fit=crop&w=1347&q=80',
-      authorId: '1',
-      authorName: 'admin',
+      readTime: 5,
+      views: 0,
+      likes: [],
       comments: []
     },
     {
@@ -128,17 +147,23 @@ const createDefaultPosts = () => {
 在这个注意力经济时代，学会保护和培养你的专注力是成功的关键因素。通过有意识地管理你的数字生活，你可以重获对注意力的控制，提高生产力和幸福感。
       `,
       excerpt: '在信息爆炸的时代，我们的注意力不断被分散。本文分享了保持专注、避免数字干扰的实用技巧。',
-      date: '2023-07-22',
-      readTime: '6 分钟',
+      author: {
+        id: '1',
+        username: 'admin',
+      },
+      createdAt: new Date('2023-07-22'),
+      updatedAt: new Date('2023-07-22'),
+      tags: [],
       image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-      authorId: '1',
-      authorName: 'admin',
+      readTime: 6,
+      views: 0,
+      likes: [],
       comments: []
     },
   ];
   
-  db.createMany<Post>(Tables.POSTS, defaultPosts);
-  console.log('已创建默认文章数据');
+  db.createMany<Post>(Tables.POSTS, samplePosts);
+  console.log('已创建样例文章');
 };
 
 // 确保文章数据存在
@@ -146,29 +171,50 @@ initializePostsIfEmpty();
 
 // 获取所有文章
 export const getAllPosts = (): Post[] => {
-  return db.getAll<Post>(Tables.POSTS);
+  return db.getAll<Post>(Tables.POSTS).sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 };
 
 // 获取单个文章
-export const getPostById = (id: string): Post | undefined => {
+export const getPostById = (id: string): Post | null => {
   return db.getById<Post>(Tables.POSTS, id);
 };
 
 // 添加新文章
-export const addPost = (post: Omit<Post, 'id' | 'date' | 'readTime' | 'authorId' | 'authorName' | 'comments'>): Post => {
+export const addPost = (
+  title: string, 
+  content: string, 
+  excerpt: string, 
+  tags: string[] = [],
+  image?: string
+): Post | null => {
   const currentUser = getCurrentUser();
   if (!currentUser) {
-    throw new Error('用户未登录');
+    return null;
   }
   
+  // 计算阅读时间（假设每分钟阅读200字）
+  const wordCount = content.trim().split(/\s+/).length;
+  const readTime = Math.max(1, Math.ceil(wordCount / 200));
+  
   const newPost: Post = {
-    ...post,
-    id: Math.random().toString(36).substring(2, 9),
-    date: new Date().toISOString().split('T')[0],
-    readTime: `${Math.ceil(post.content.length / 1000)} 分钟`,
-    authorId: currentUser.id,
-    authorName: currentUser.username,
-    comments: []
+    id: Date.now().toString(),
+    title,
+    content,
+    excerpt,
+    author: {
+      id: currentUser.id,
+      username: currentUser.username,
+    },
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    tags,
+    image,
+    readTime,
+    views: 0,
+    likes: [],
+    comments: [],
   };
   
   return db.create<Post>(Tables.POSTS, newPost);
@@ -176,97 +222,116 @@ export const addPost = (post: Omit<Post, 'id' | 'date' | 'readTime' | 'authorId'
 
 // 更新文章
 export const updatePost = (
-  postId: string, 
-  updates: Partial<Pick<Post, 'title' | 'content' | 'excerpt' | 'image'>>
+  id: string, 
+  updates: Partial<Pick<Post, 'title' | 'content' | 'excerpt' | 'image' | 'tags'>>
 ): Post | null => {
   const currentUser = getCurrentUser();
   if (!currentUser) {
-    throw new Error('用户未登录');
+    return null;
   }
   
-  const post = getPostById(postId);
-  if (!post) return null;
-  
-  // 检查是否是作者或管理员
-  if (post.authorId !== currentUser.id && currentUser.role !== 'admin') {
-    throw new Error('没有权限编辑此文章');
+  const post = db.getById<Post>(Tables.POSTS, id);
+  if (!post) {
+    return null;
   }
   
-  // 如果内容更新了，重新计算阅读时间
+  // 检查是否为作者或管理员
+  if (post.author.id !== currentUser.id && currentUser.role !== 'admin') {
+    return null;
+  }
+  
+  // 如果更新了内容，重新计算阅读时间
+  let readTime = post.readTime;
   if (updates.content) {
-    updates.readTime = `${Math.ceil(updates.content.length / 1000)} 分钟`;
+    const wordCount = updates.content.trim().split(/\s+/).length;
+    readTime = Math.max(1, Math.ceil(wordCount / 200));
   }
   
-  return db.update<Post>(Tables.POSTS, postId, updates);
+  return db.update<Post>(Tables.POSTS, id, {
+    ...updates,
+    readTime,
+    updatedAt: new Date(),
+  });
 };
 
 // 删除文章
-export const deletePost = (postId: string): boolean => {
+export const deletePost = (id: string): boolean => {
   const currentUser = getCurrentUser();
   if (!currentUser) {
-    throw new Error('用户未登录');
+    return false;
   }
   
-  const post = getPostById(postId);
-  if (!post) return false;
-  
-  // 检查是否是作者或管理员
-  if (post.authorId !== currentUser.id && currentUser.role !== 'admin') {
-    throw new Error('没有权限删除此文章');
+  const post = db.getById<Post>(Tables.POSTS, id);
+  if (!post) {
+    return false;
   }
   
-  return db.remove(Tables.POSTS, postId);
+  // 检查是否为作者或管理员
+  if (post.author.id !== currentUser.id && currentUser.role !== 'admin') {
+    return false;
+  }
+  
+  return db.remove(Tables.POSTS, id);
 };
 
 // 添加评论
-export const addComment = (postId: string, content: string): Comment | null => {
+export const addComment = (postId: string, content: string): Post | null => {
   const currentUser = getCurrentUser();
   if (!currentUser) {
-    throw new Error('用户未登录');
+    return null;
   }
   
-  const post = getPostById(postId);
-  if (!post) return null;
+  const post = db.getById<Post>(Tables.POSTS, postId);
+  if (!post) {
+    return null;
+  }
   
   const newComment: Comment = {
-    id: Math.random().toString(36).substring(2, 9),
-    postId,
-    userId: currentUser.id,
-    username: currentUser.username,
+    id: Date.now().toString(),
     content,
-    date: new Date().toISOString().split('T')[0]
+    author: {
+      id: currentUser.id,
+      username: currentUser.username,
+    },
+    createdAt: new Date(),
   };
   
-  post.comments.push(newComment);
+  const updatedComments = [...post.comments, newComment];
   
-  db.update<Post>(Tables.POSTS, postId, { comments: post.comments });
-  
-  return newComment;
+  return db.update<Post>(Tables.POSTS, postId, {
+    comments: updatedComments,
+  });
 };
 
 // 删除评论
-export const deleteComment = (postId: string, commentId: string): boolean => {
+export const deleteComment = (postId: string, commentId: string): Post | null => {
   const currentUser = getCurrentUser();
   if (!currentUser) {
-    throw new Error('用户未登录');
+    return null;
   }
   
-  const post = getPostById(postId);
-  if (!post) return false;
-  
-  const commentIndex = post.comments.findIndex(c => c.id === commentId);
-  if (commentIndex === -1) return false;
-  
-  const comment = post.comments[commentIndex];
-  
-  // 只有评论作者和管理员可以删除评论
-  if (comment.userId !== currentUser.id && currentUser.role !== 'admin') {
-    throw new Error('没有权限删除此评论');
+  const post = db.getById<Post>(Tables.POSTS, postId);
+  if (!post) {
+    return null;
   }
   
-  post.comments.splice(commentIndex, 1);
+  const comment = post.comments.find(c => c.id === commentId);
+  if (!comment) {
+    return null;
+  }
   
-  db.update<Post>(Tables.POSTS, postId, { comments: post.comments });
+  // 检查是否为评论作者、文章作者或管理员
+  if (
+    comment.author.id !== currentUser.id && 
+    post.author.id !== currentUser.id && 
+    currentUser.role !== 'admin'
+  ) {
+    return null;
+  }
   
-  return true;
+  const updatedComments = post.comments.filter(c => c.id !== commentId);
+  
+  return db.update<Post>(Tables.POSTS, postId, {
+    comments: updatedComments,
+  });
 };
