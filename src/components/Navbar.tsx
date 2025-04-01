@@ -18,7 +18,8 @@ import {
   Music,
   FileEdit,
   LogOut,
-  UserCircle
+  UserCircle,
+  Globe // 导入 Globe 图标
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -76,12 +77,13 @@ const Navbar = () => {
     >
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* 网站Logo/名称 */}
+          {/* 网站Logo/名称 - 使用 Globe 图标替换文字 */}
           <Link
             to="/"
-            className="text-xl font-serif font-semibold transition-colors hover:text-primary"
+            className="text-xl font-serif font-semibold transition-colors hover:text-primary flex items-center"
           >
-            Yuan Xin
+            <Globe className="h-6 w-6 mr-1" />
+            <span className="sr-only">首页</span>
           </Link>
 
           {/* 桌面导航 */}

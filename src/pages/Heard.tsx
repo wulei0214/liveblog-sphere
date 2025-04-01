@@ -11,6 +11,10 @@ import Navbar from '../components/Navbar';
 import WeiboComponent from '../components/WeiboComponent';
 import { useAuth } from '../contexts/AuthContext';
 
+/**
+ * 微博页面组件
+ * 展示微博热搜和内容
+ */
 const Heard = () => {
   const { isAuthenticated } = useAuth();
   

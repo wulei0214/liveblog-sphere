@@ -40,16 +40,27 @@ const App = () => (
         <BrowserRouter>
           <AnimatePresence mode="wait">
             <Routes>
+              {/* 首页路由 */}
               <Route path="/" element={<Index />} />
+              {/* 文章详情页路由 */}
               <Route path="/post/:id" element={<Post />} />
+              {/* 创建文章页路由 */}
               <Route path="/create" element={<Create />} />
+              {/* 编辑文章页路由 */}
               <Route path="/edit/:id" element={<Edit />} />
+              {/* 登录页路由 */}
               <Route path="/login" element={<Login />} />
+              {/* 用户管理页路由 */}
               <Route path="/admin/users" element={<UserManagement />} />
+              {/* 管理后台页路由 */}
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              {/* 微博页路由 */}
               <Route path="/heard" element={<Heard />} />
+              {/* 音乐页路由 */}
               <Route path="/music" element={<Music />} />
+              {/* QQ音乐登录页路由 */}
               <Route path="/music/login-qq" element={<MusicLoginQQ />} />
+              {/* 404页面路由 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>
