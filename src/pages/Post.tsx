@@ -1,17 +1,16 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import AnimatedTransition from '../components/AnimatedTransition';
-import { getPostById, deletePost, addComment, deleteComment } from '../lib/data';
-import { Calendar, Clock, ArrowLeft, MessageSquare, Share2, Edit, Trash2, Send } from 'lucide-react';
+import { getPostById, deletePost, addComment, deleteComment, likePost, hasLiked } from '../lib/data';
+import { Calendar, Clock, ArrowLeft, MessageSquare, Share2, Edit, Trash2, Send, Heart, ThumbsUp } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../contexts/AuthContext';
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,11 +30,15 @@ const Post = () => {
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
   
   useEffect(() => {
     window.scrollTo(0, 0);
     // 每次参数或组件更新时刷新文章数据
-    setPost(getPostById(id || ''));
+    if (id) {
+      setPost(getPostById(id));
+      setIsLiked(hasLiked(id));
+    }
   }, [id]);
 
   if (!post) {
@@ -49,16 +52,25 @@ const Post = () => {
     );
   }
 
-  // Format date for display
-  const formattedDate = new Date(post.createdAt).toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-
-  const isAuthor = user && user.id === post.author.id;
+  const isAuthor = user && user.id === post?.author.id;
   const isAdmin = user && user.role === 'admin';
   const canModify = isAuthor || isAdmin;
+
+  const handleLike = () => {
+    if (!isAuthenticated) {
+      toast.error('请先登录后再点赞');
+      return;
+    }
+    
+    if (id) {
+      const updatedPost = likePost(id);
+      if (updatedPost) {
+        setPost(updatedPost);
+        setIsLiked(!isLiked);
+        toast.success(isLiked ? '已取消点赞' : '已点赞');
+      }
+    }
+  };
 
   const handleShare = () => {
     if (navigator.share) {
@@ -112,7 +124,6 @@ const Post = () => {
       if (newComment) {
         toast.success('评论已发布');
         setComment('');
-        // 刷新文章数据以显示新评论
         setPost(getPostById(id || ''));
       }
     } catch (error) {
@@ -133,7 +144,6 @@ const Post = () => {
       const success = deleteComment(id, commentId);
       if (success) {
         toast.success('评论已删除');
-        // 刷新文章数据以更新评论列表
         setPost(getPostById(id || ''));
       } else {
         toast.error('删除失败，评论可能已不存在');
@@ -171,14 +181,25 @@ const Post = () => {
               <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                 <div className="flex items-center">
                   <Calendar size={16} className="mr-1" />
-                  <span>{formattedDate}</span>
+                  <span>{post && new Date(post.createdAt).toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}</span>
                 </div>
                 <div className="flex items-center">
                   <Clock size={16} className="mr-1" />
-                  <span>{post.readTime ? `${post.readTime} 分钟阅读` : '5 分钟阅读'}</span>
+                  <span>{post?.readTime ? `${post.readTime} 分钟阅读` : '5 分钟阅读'}</span>
                 </div>
                 <div className="text-sm">
-                  作者: {post.author.username}
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="p-0 h-auto font-normal"
+                    onClick={() => post?.author?.id && navigate(`/profile/${post.author.id}`)}
+                  >
+                    作者: {post?.author.username}
+                  </Button>
                 </div>
               </div>
               
@@ -188,7 +209,7 @@ const Post = () => {
                     variant="outline" 
                     size="sm"
                     className="flex items-center"
-                    onClick={() => navigate(`/edit/${post.id}`)}
+                    onClick={() => navigate(`/edit/${post?.id}`)}
                   >
                     <Edit size={16} className="mr-1" />
                     编辑
@@ -208,10 +229,10 @@ const Post = () => {
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-semibold mb-6">
-              {post.title}
+              {post?.title}
             </h1>
             
-            {post.image && (
+            {post?.image && (
               <div className="relative w-full h-[300px] md:h-[400px] rounded-xl overflow-hidden mb-8">
                 <img
                   src={post.image}
@@ -223,12 +244,41 @@ const Post = () => {
 
             <div className="prose prose-lg dark:prose-invert mx-auto mb-8">
               <ReactMarkdown>
-                {post.content}
+                {post?.content || ''}
               </ReactMarkdown>
             </div>
 
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-8">
-              <h3 className="text-xl font-semibold mb-6">评论 ({post.comments.length})</h3>
+            <div className="flex justify-between items-center mt-8 mb-6 border-t border-b border-gray-200 dark:border-gray-700 py-4">
+              <div className="flex space-x-4">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={`flex items-center space-x-1 ${isLiked ? 'text-red-500' : ''}`}
+                  onClick={handleLike}
+                >
+                  <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
+                  <span>{post?.likes?.length || 0} 点赞</span>
+                </Button>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="flex items-center space-x-1"
+                  onClick={() => document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  <MessageSquare size={18} />
+                  <span>{post?.comments?.length || 0} 评论</span>
+                </Button>
+              </div>
+              
+              <Button variant="ghost" size="sm" className="flex items-center space-x-1" onClick={handleShare}>
+                <Share2 size={18} />
+                <span>分享</span>
+              </Button>
+            </div>
+
+            <div id="comments-section" className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-8">
+              <h3 className="text-xl font-semibold mb-6">评论 ({post?.comments?.length || 0})</h3>
               
               {isAuthenticated ? (
                 <div className="mb-8">
@@ -262,10 +312,9 @@ const Post = () => {
                 </div>
               )}
               
-              {post.comments.length > 0 ? (
+              {post?.comments && post.comments.length > 0 ? (
                 <div className="space-y-6">
                   {post.comments.map((comment) => {
-                    // Format comment date
                     const commentDate = new Date(comment.createdAt).toLocaleDateString('zh-CN', {
                       year: 'numeric',
                       month: 'long',
@@ -274,7 +323,10 @@ const Post = () => {
                     
                     return (
                       <div key={comment.id} className="flex space-x-4 border-b border-gray-100 dark:border-gray-800 pb-6">
-                        <Avatar>
+                        <Avatar 
+                          className="cursor-pointer" 
+                          onClick={() => navigate(`/profile/${comment.author.id}`)}
+                        >
                           <AvatarFallback className="bg-primary/10 text-primary">
                             {comment.author.username.charAt(0).toUpperCase()}
                           </AvatarFallback>
@@ -282,7 +334,14 @@ const Post = () => {
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="font-medium">{comment.author.username}</p>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="p-0 h-auto font-medium"
+                                onClick={() => navigate(`/profile/${comment.author.id}`)}
+                              >
+                                {comment.author.username}
+                              </Button>
                               <p className="text-sm text-gray-500">{commentDate}</p>
                             </div>
                             {(user?.id === comment.author.id || isAdmin) && (
@@ -305,15 +364,6 @@ const Post = () => {
               ) : (
                 <p className="text-center text-gray-500 my-8">暂无评论</p>
               )}
-              
-              <div className="flex justify-between items-center mt-8">
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" className="flex items-center space-x-1" onClick={handleShare}>
-                    <Share2 size={16} />
-                    <span>分享</span>
-                  </Button>
-                </div>
-              </div>
             </div>
           </motion.div>
         </div>

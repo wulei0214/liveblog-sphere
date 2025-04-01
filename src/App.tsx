@@ -1,73 +1,59 @@
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from './contexts/AuthContext';
 
-/**
- * 应用程序入口组件
- * 配置路由和全局提供者
- */
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
-import { AuthProvider } from "./contexts/AuthContext";
+// 页面导入
+import Index from './pages/Index';
+import Login from './pages/Login';
+import Post from './pages/Post';
+import Create from './pages/Create';
+import Edit from './pages/Edit';
+import Profile from './pages/Profile';
+import AdminDashboard from './pages/AdminDashboard';
+import UserManagement from './pages/UserManagement';
+import NotFound from './pages/NotFound';
+import Music from './pages/Music';
+import Heard from './pages/Heard';
+import MusicLoginQQ from './pages/MusicLoginQQ';
+import { useTheme } from './contexts/ThemeContext';
 
-// 页面组件
-import Index from "./pages/Index";
-import Post from "./pages/Post";
-import Create from "./pages/Create";
-import Edit from "./pages/Edit";
-import Login from "./pages/Login";
-import UserManagement from "./pages/UserManagement";
-import AdminDashboard from "./pages/AdminDashboard";
-import NotFound from "./pages/NotFound";
-import Heard from "./pages/Heard";
-import Music from "./pages/Music";
-import MusicLoginQQ from "./pages/MusicLoginQQ";
+function App() {
+  const { theme } = useTheme();
 
-// 创建React Query客户端
-const queryClient = new QueryClient();
+  useEffect(() => {
+    // 在组件挂载时从 localStorage 中加载主题
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme) {
+      document.documentElement.classList.toggle('dark', storedTheme === 'dark');
+    }
+  }, []);
 
-/**
- * 应用程序入口组件
- * 配置路由和全局提供者
- */
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AnimatePresence mode="wait">
+  return (
+    <div className={`${theme === 'dark' ? 'dark' : ''}`}>
+      <div className="min-h-screen bg-background text-foreground">
+        <AuthProvider>
+          <BrowserRouter>
             <Routes>
-              {/* 首页路由 */}
               <Route path="/" element={<Index />} />
-              {/* 文章详情页路由 */}
-              <Route path="/post/:id" element={<Post />} />
-              {/* 创建文章页路由 */}
-              <Route path="/create" element={<Create />} />
-              {/* 编辑文章页路由 */}
-              <Route path="/edit/:id" element={<Edit />} />
-              {/* 登录页路由 */}
               <Route path="/login" element={<Login />} />
-              {/* 用户管理页路由 */}
-              <Route path="/admin/users" element={<UserManagement />} />
-              {/* 管理后台页路由 */}
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              {/* 微博页路由 */}
-              <Route path="/heard" element={<Heard />} />
-              {/* 音乐页路由 */}
+              <Route path="/post/:id" element={<Post />} />
+              <Route path="/create" element={<Create />} />
+              <Route path="/edit/:id" element={<Edit />} />
+              <Route path="/profile/:id" element={<Profile />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/users" element={<UserManagement />} />
               <Route path="/music" element={<Music />} />
-              {/* QQ音乐登录页路由 */}
-              <Route path="/music/login-qq" element={<MusicLoginQQ />} />
-              {/* 404页面路由 */}
+              <Route path="/heard" element={<Heard />} />
+              <Route path="/music-login-qq" element={<MusicLoginQQ />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </AnimatePresence>
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+            <Toaster />
+          </BrowserRouter>
+        </AuthProvider>
+      </div>
+    </div>
+  );
+}
 
 export default App;
