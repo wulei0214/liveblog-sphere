@@ -1,4 +1,8 @@
 
+/**
+ * 应用程序入口组件
+ * 配置路由和全局提供者
+ */
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";

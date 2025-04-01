@@ -5,28 +5,32 @@
 
 import { getCurrentUser } from './auth';
 
-// 微博热搜类型定义
+/**
+ * 微博热搜话题接口定义
+ */
 export interface WeiboHotTopic {
-  id: number;
-  title: string;
-  hot: number;
-  category: string;
-  url: string;
+  id: number;          // 话题ID
+  title: string;       // 话题标题  
+  hot: number;         // 热度值
+  category: string;    // 话题分类
+  url: string;         // 话题链接
 }
 
-// 微博帖子类型定义
+/**
+ * 微博帖子接口定义
+ */
 export interface WeiboPost {
-  id: number;
-  username: string;
-  handle: string;
-  verified: boolean;
-  avatar: string;
-  time: string;
-  content: string;
-  images: string[];
-  likes: number;
-  comments: number;
-  reposts: number;
+  id: number;          // 帖子ID
+  username: string;    // 用户名
+  handle: string;      // 用户账号
+  verified: boolean;   // 是否认证
+  avatar: string;      // 头像地址
+  time: string;        // 发布时间
+  content: string;     // 内容
+  images: string[];    // 图片列表
+  likes: number;       // 点赞数
+  comments: number;    // 评论数
+  reposts: number;     // 转发数
 }
 
 // 模拟微博热搜数据

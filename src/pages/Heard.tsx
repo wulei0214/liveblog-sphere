@@ -1,4 +1,9 @@
 
+/**
+ * 微博页面
+ * 展示微博内容，包括热搜和微博帖子
+ * 登录用户可以查看关注的信息，未登录用户可以查看热搜榜
+ */
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import AnimatedTransition from '../components/AnimatedTransition';
@@ -6,11 +11,6 @@ import Navbar from '../components/Navbar';
 import WeiboComponent from '../components/WeiboComponent';
 import { useAuth } from '../contexts/AuthContext';
 
-/**
- * 听到页面
- * 展示微博内容，包括热搜和微博帖子
- * 登录用户可以查看关注的信息，未登录用户可以查看热搜榜
- */
 const Heard = () => {
   const { isAuthenticated } = useAuth();
   
@@ -31,7 +31,7 @@ const Heard = () => {
             className="max-w-4xl mx-auto px-4"
           >
             <h1 className="text-3xl md:text-4xl font-serif font-semibold mb-8 text-center">
-              听到
+              微博
               <span className="text-lg text-gray-500 block mt-2">
                 {isAuthenticated ? '你关注的实时动态' : '发现实时热点话题'}
               </span>

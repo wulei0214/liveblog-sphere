@@ -1,4 +1,8 @@
 
+/**
+ * 网站首页组件
+ * 展示博客文章列表和其他功能入口
+ */
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -7,7 +11,7 @@ import AnimatedTransition from '../components/AnimatedTransition';
 import { getAllPosts } from '../lib/data';
 import Navbar from '../components/Navbar';
 import { Button } from '@/components/ui/button';
-import { Newspaper, Music, HeadphonesIcon, BarChart } from 'lucide-react';
+import { Newspaper, Music, Twitter, BarChart } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 /**
@@ -35,9 +39,6 @@ const Index = () => {
             className="max-w-6xl mx-auto px-4"
           >
             <div className="mb-16 text-center">
-              <span className="inline-block text-sm font-medium text-primary px-3 py-1 rounded-full bg-primary/10 mb-4">
-                个人博客
-              </span>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold mb-6">
                 Yuan Xin
               </h1>
@@ -49,8 +50,8 @@ const Index = () => {
               <div className="flex flex-wrap justify-center gap-4 mt-6">
                 <Link to="/heard">
                   <Button variant="outline" className="flex items-center gap-2">
-                    <HeadphonesIcon className="h-4 w-4" />
-                    <span>听到微博热搜</span>
+                    <Twitter className="h-4 w-4" />
+                    <span>微博热搜</span>
                   </Button>
                 </Link>
                 <Link to="/music">

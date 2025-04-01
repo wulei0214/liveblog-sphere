@@ -1,24 +1,36 @@
 
+/**
+ * PostCard 组件
+ * 用于在列表中展示博客文章的卡片
+ * 显示文章标题、摘要、发布日期和阅读时间
+ */
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, Clock } from 'lucide-react';
 import { Post } from '../repositories/postRepository';
 
+/**
+ * PostCard组件的属性接口
+ */
 interface PostCardProps {
-  post: Post;
-  index: number;
+  post: Post;  // 文章数据
+  index: number;  // 文章在列表中的索引，用于动画延迟
 }
 
+/**
+ * 文章卡片组件
+ * 展示文章信息和缩略图，点击可跳转到文章详情页
+ */
 const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
-  // Format date for display
+  // 格式化日期显示
   const formattedDate = new Date(post.createdAt).toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
   
-  // Format read time
+  // 格式化阅读时间
   const formattedReadTime = `${post.readTime || 5} 分钟阅读`;
 
   return (

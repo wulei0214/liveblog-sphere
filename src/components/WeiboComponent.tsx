@@ -1,4 +1,8 @@
 
+/**
+ * 微博组件
+ * 展示微博热搜和微博内容，支持已登录和未登录两种状态
+ */
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,11 +12,8 @@ import { Twitter, Heart, MessageCircle, RefreshCw, Share2, ExternalLink, Trendin
 import { getWeiboHotTopics, getWeiboPosts, isLoggedInToWeibo, WeiboHotTopic, WeiboPost } from '../lib/weiboService';
 import { useAuth } from '../contexts/AuthContext';
 
-/**
- * 微博组件
- * 展示微博热搜和微博内容，支持已登录和未登录两种状态
- */
 const WeiboComponent: React.FC = () => {
+  // 状态定义
   const [hotTopics, setHotTopics] = useState<WeiboHotTopic[]>([]);
   const [posts, setPosts] = useState<WeiboPost[]>([]);
   const [activeTab, setActiveTab] = useState("posts");
