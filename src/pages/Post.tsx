@@ -49,7 +49,14 @@ const Post = () => {
     );
   }
 
-  const isAuthor = user && user.id === post.authorId;
+  // Format date for display
+  const formattedDate = new Date(post.createdAt).toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const isAuthor = user && user.id === post.author.id;
   const isAdmin = user && user.role === 'admin';
   const canModify = isAuthor || isAdmin;
 
@@ -164,14 +171,14 @@ const Post = () => {
               <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                 <div className="flex items-center">
                   <Calendar size={16} className="mr-1" />
-                  <span>{post.date}</span>
+                  <span>{formattedDate}</span>
                 </div>
                 <div className="flex items-center">
                   <Clock size={16} className="mr-1" />
-                  <span>{post.readTime}</span>
+                  <span>{post.readTime ? `${post.readTime} 分钟阅读` : '5 分钟阅读'}</span>
                 </div>
                 <div className="text-sm">
-                  作者: {post.authorName}
+                  作者: {post.author.username}
                 </div>
               </div>
               
@@ -257,34 +264,43 @@ const Post = () => {
               
               {post.comments.length > 0 ? (
                 <div className="space-y-6">
-                  {post.comments.map((comment) => (
-                    <div key={comment.id} className="flex space-x-4 border-b border-gray-100 dark:border-gray-800 pb-6">
-                      <Avatar>
-                        <AvatarFallback className="bg-primary/10 text-primary">
-                          {comment.username.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">{comment.username}</p>
-                            <p className="text-sm text-gray-500">{comment.date}</p>
+                  {post.comments.map((comment) => {
+                    // Format comment date
+                    const commentDate = new Date(comment.createdAt).toLocaleDateString('zh-CN', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    });
+                    
+                    return (
+                      <div key={comment.id} className="flex space-x-4 border-b border-gray-100 dark:border-gray-800 pb-6">
+                        <Avatar>
+                          <AvatarFallback className="bg-primary/10 text-primary">
+                            {comment.author.username.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-medium">{comment.author.username}</p>
+                              <p className="text-sm text-gray-500">{commentDate}</p>
+                            </div>
+                            {(user?.id === comment.author.id || isAdmin) && (
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="text-red-500 hover:text-red-600"
+                                onClick={() => handleDeleteComment(comment.id)}
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            )}
                           </div>
-                          {(user?.id === comment.userId || isAdmin) && (
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="text-red-500 hover:text-red-600"
-                              onClick={() => handleDeleteComment(comment.id)}
-                            >
-                              <Trash2 size={14} />
-                            </Button>
-                          )}
+                          <p className="mt-2">{comment.content}</p>
                         </div>
-                        <p className="mt-2">{comment.content}</p>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-center text-gray-500 my-8">暂无评论</p>

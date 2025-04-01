@@ -1,5 +1,5 @@
 
-import { getAllPosts } from '../repositories/postRepository';
+import { getAllPosts, type Post } from '../repositories/postRepository';
 import { getAllUsers, UserRole } from '../repositories/userRepository';
 
 /**
@@ -90,14 +90,14 @@ export const getPostStats = (): PostStats => {
   
   const totalComments = posts.reduce((acc, post) => acc + post.comments.length, 0);
   
-  // 假设文章的日期格式为 YYYY-MM-DD
+  // Fix: Use createdAt instead of date for posts
   const postsLast30Days = posts.filter(post => {
-    const postDate = new Date(post.date);
+    const postDate = new Date(post.createdAt);
     return postDate >= thirtyDaysAgo;
   }).length;
   
   const postsLast7Days = posts.filter(post => {
-    const postDate = new Date(post.date);
+    const postDate = new Date(post.createdAt);
     return postDate >= sevenDaysAgo;
   }).length;
   
@@ -129,7 +129,7 @@ export const getSystemStats = (): SystemStats => {
  */
 export const getUserPostCount = (userId: string): number => {
   const posts = getAllPosts();
-  return posts.filter(post => post.authorId === userId).length;
+  return posts.filter(post => post.author.id === userId).length;
 };
 
 /**
@@ -142,7 +142,7 @@ export const getUserCommentCount = (userId: string): number => {
   let commentCount = 0;
   
   posts.forEach(post => {
-    commentCount += post.comments.filter(comment => comment.userId === userId).length;
+    commentCount += post.comments.filter(comment => comment.author.id === userId).length;
   });
   
   return commentCount;

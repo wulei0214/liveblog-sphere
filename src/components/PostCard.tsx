@@ -3,20 +3,24 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, Clock } from 'lucide-react';
+import { Post } from '../repositories/postRepository';
 
 interface PostCardProps {
-  post: {
-    id: string;
-    title: string;
-    excerpt: string;
-    date: string;
-    readTime: string;
-    image?: string;
-  };
+  post: Post;
   index: number;
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
+  // Format date for display
+  const formattedDate = new Date(post.createdAt).toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  
+  // Format read time
+  const formattedReadTime = `${post.readTime || 5} 分钟阅读`;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -38,11 +42,11 @@ const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
           <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
             <div className="flex items-center">
               <Calendar size={14} className="mr-1" />
-              <span>{post.date}</span>
+              <span>{formattedDate}</span>
             </div>
             <div className="flex items-center">
               <Clock size={14} className="mr-1" />
-              <span>{post.readTime}</span>
+              <span>{formattedReadTime}</span>
             </div>
           </div>
           

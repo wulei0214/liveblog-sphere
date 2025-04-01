@@ -40,15 +40,21 @@ const Create = () => {
     setIsSubmitting(true);
     
     try {
-      const newPost = addPost({
-        title: title.trim(),
-        content: content.trim(),
-        excerpt: excerpt.trim(),
-        image: image.trim() || undefined
-      });
+      const newPost = addPost(
+        title.trim(), 
+        content.trim(), 
+        excerpt.trim(), 
+        [], // tags array
+        image.trim() || undefined
+      );
       
-      toast.success('文章已发布');
-      navigate(`/post/${newPost.id}`);
+      if (newPost) {
+        toast.success('文章已发布');
+        navigate(`/post/${newPost.id}`);
+      } else {
+        toast.error('发布失败，请确保已登录');
+        setIsSubmitting(false);
+      }
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);

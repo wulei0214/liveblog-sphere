@@ -32,7 +32,7 @@ const Edit = () => {
     }
     
     // 检查当前用户是否有权限编辑
-    if (!user || (user.id !== post.authorId && user.role !== 'admin')) {
+    if (!user || (user.id !== post.author.id && user.role !== 'admin')) {
       toast.error('您没有权限编辑此文章');
       navigate(`/post/${id}`);
       return;
