@@ -25,7 +25,7 @@ const PostContent = ({ post }: PostContentProps) => {
         </div>
       )}
 
-      <div className="prose prose-lg dark:prose-invert mx-auto mb-8">
+      <div className="prose prose-lg dark:prose-invert max-w-none mb-8">
         <ReactMarkdown>
           {post?.content || ''}
         </ReactMarkdown>

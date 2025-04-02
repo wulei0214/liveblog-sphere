@@ -14,12 +14,10 @@ import {
   Users,
   BarChart,
   Home,
-  Twitter,
-  Music,
   FileEdit,
   LogOut,
   UserCircle,
-  Globe // 导入 Globe 图标
+  Globe
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -94,20 +92,6 @@ const Navbar = () => {
             >
               <Home className="mr-1 h-4 w-4" />
               首页
-            </Link>
-            <Link
-              to="/heard"
-              className="text-sm font-medium transition-colors hover:text-primary flex items-center"
-            >
-              <Twitter className="mr-1 h-4 w-4" />
-              微博
-            </Link>
-            <Link
-              to="/music"
-              className="text-sm font-medium transition-colors hover:text-primary flex items-center"
-            >
-              <Music className="mr-1 h-4 w-4" />
-              音乐
             </Link>
             {isAuthenticated ? (
               <>
@@ -213,22 +197,6 @@ const Navbar = () => {
               >
                 <Home className="mr-1 h-4 w-4" />
                 首页
-              </Link>
-              <Link
-                to="/heard"
-                className="block text-sm font-medium transition-colors hover:text-primary flex items-center"
-                onClick={closeMenu}
-              >
-                <Twitter className="mr-1 h-4 w-4" />
-                微博
-              </Link>
-              <Link
-                to="/music"
-                className="block text-sm font-medium transition-colors hover:text-primary flex items-center"
-                onClick={closeMenu}
-              >
-                <Music className="mr-1 h-4 w-4" />
-                音乐
               </Link>
               {isAuthenticated ? (
                 <>

@@ -10,9 +10,7 @@ import PostCard from '../components/PostCard';
 import AnimatedTransition from '../components/AnimatedTransition';
 import { getAllPosts, getAllCategories, getPopularTags } from '../lib/data';
 import Navbar from '../components/Navbar';
-import { Button } from '@/components/ui/button';
-import { BarChart, Music, Twitter, Search, Tag } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { Search, Tag } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 /**
@@ -23,7 +21,6 @@ const Index = () => {
   const posts = getAllPosts();
   const categories = getAllCategories();
   const popularTags = getPopularTags(10);
-  const { isAdminUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredPosts, setFilteredPosts] = useState(posts);
   
@@ -78,30 +75,6 @@ const Index = () => {
                     className="pl-10"
                   />
                 </div>
-              </div>
-              
-              {/* 功能快捷入口 */}
-              <div className="flex flex-wrap justify-center gap-4 mt-6">
-                <Link to="/heard">
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Twitter className="h-4 w-4" />
-                    <span>微博热搜</span>
-                  </Button>
-                </Link>
-                <Link to="/music">
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Music className="h-4 w-4" />
-                    <span>音乐</span>
-                  </Button>
-                </Link>
-                {isAdminUser && (
-                  <Link to="/admin/dashboard">
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <BarChart className="h-4 w-4" />
-                      <span>管理后台</span>
-                    </Button>
-                  </Link>
-                )}
               </div>
             </div>
 
