@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -30,23 +29,19 @@ const Profile = () => {
   const isOwnProfile = currentUser && id === currentUser.id;
 
   useEffect(() => {
-    // 获取用户信息
     if (id) {
       const userData = getUserById(id);
       setUser(userData);
       
-      // 获取用户文章列表
       const posts = getPostsByUser(id);
       setUserPosts(posts);
       
-      // 检查当前用户是否关注了该用户
       if (currentUser && id !== currentUser.id) {
         setIsUserFollowing(isFollowing(id));
       }
     }
   }, [id, currentUser]);
 
-  // 处理关注/取消关注
   const handleFollowToggle = () => {
     if (!isAuthenticated) {
       toast.error('请先登录后再关注');
@@ -56,13 +51,11 @@ const Profile = () => {
     if (!id) return;
 
     if (isUserFollowing) {
-      // 取消关注
       if (unfollowUser(id)) {
         setIsUserFollowing(false);
         toast.success('已取消关注');
       }
     } else {
-      // 关注
       if (followUser(id)) {
         setIsUserFollowing(true);
         toast.success('关注成功');
@@ -70,7 +63,6 @@ const Profile = () => {
     }
   };
 
-  // 处理个人资料更新
   const handleProfileUpdate = (updatedData: any) => {
     if (!currentUser || !id) return;
     
@@ -90,7 +82,6 @@ const Profile = () => {
     }
   };
 
-  // 如果用户不存在
   if (!user) {
     return (
       <>
@@ -105,7 +96,6 @@ const Profile = () => {
     );
   }
 
-  // 格式化注册日期
   const formattedJoinDate = new Date(user.createdAt).toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: 'long',
@@ -122,13 +112,9 @@ const Profile = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {/* 个人资料卡片 */}
             <Card className="mb-8">
               <CardHeader className="relative pb-0">
-                {/* 背景封面 */}
                 <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-r from-blue-500 to-purple-500 rounded-t-lg"></div>
-                
-                {/* 头像和操作按钮 */}
                 <div className="relative pt-20 flex justify-between items-end">
                   <Avatar className="w-24 h-24 border-4 border-background">
                     <AvatarFallback className="text-2xl bg-primary/10">
@@ -136,56 +122,45 @@ const Profile = () => {
                     </AvatarFallback>
                     {user.avatar && <AvatarImage src={user.avatar} alt={user.username} />}
                   </Avatar>
-                  
-                  <div className="flex space-x-2">
-                    {isOwnProfile ? (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="flex items-center"
-                        onClick={() => setIsEditDialogOpen(true)}
-                      >
-                        <Edit size={16} className="mr-1" />
-                        编辑资料
-                      </Button>
-                    ) : (
-                      <Button
-                        variant={isUserFollowing ? "outline" : "default"}
-                        size="sm"
-                        className="flex items-center"
-                        onClick={handleFollowToggle}
-                      >
-                        <Users size={16} className="mr-1" />
-                        {isUserFollowing ? '已关注' : '关注'}
-                      </Button>
-                    )}
-                  </div>
+                  {isOwnProfile ? (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="flex items-center"
+                      onClick={() => setIsEditDialogOpen(true)}
+                    >
+                      <Edit size={16} className="mr-1" />
+                      编辑资料
+                    </Button>
+                  ) : (
+                    <Button
+                      variant={isUserFollowing ? "outline" : "default"}
+                      size="sm"
+                      className="flex items-center"
+                      onClick={handleFollowToggle}
+                    >
+                      <Users size={16} className="mr-1" />
+                      {isUserFollowing ? '已关注' : '关注'}
+                    </Button>
+                  )}
                 </div>
-                
-                {/* 用户名和角色 */}
                 <CardTitle className="mt-4 flex items-center">
                   {user.username}
                   <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
                     {user.role === 'admin' ? '管理员' : user.role === 'editor' ? '编辑' : '用户'}
                   </span>
                 </CardTitle>
-                
                 <CardDescription className="flex items-center mt-1">
                   <Calendar size={14} className="mr-1" />
                   加入于 {formattedJoinDate}
                 </CardDescription>
               </CardHeader>
-              
               <CardContent className="pt-4">
-                {/* 个人简介 */}
                 <div className="mb-4">
                   <p className="text-sm text-gray-500 dark:text-gray-400">个人简介</p>
                   <p className="mt-1">{user.bio || '这个人很懒，还没有填写个人简介'}</p>
                 </div>
-                
                 <Separator className="my-4" />
-                
-                {/* 联系方式 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {user.email && (
                     <div className="flex items-center text-sm">
@@ -193,7 +168,6 @@ const Profile = () => {
                       <span>{user.email}</span>
                     </div>
                   )}
-                  
                   {user.phone && (
                     <div className="flex items-center text-sm">
                       <Phone size={14} className="mr-2 text-gray-500" />
@@ -202,19 +176,16 @@ const Profile = () => {
                   )}
                 </div>
               </CardContent>
-              
               <CardFooter className="border-t pt-4">
                 <div className="flex justify-between w-full">
                   <div className="text-center">
                     <p className="text-sm text-gray-500">文章</p>
                     <p className="text-lg font-semibold">{userPosts.length}</p>
                   </div>
-                  
                   <div className="text-center cursor-pointer" onClick={() => setActiveTab('following')}>
                     <p className="text-sm text-gray-500">关注</p>
                     <p className="text-lg font-semibold">{user.following?.length || 0}</p>
                   </div>
-                  
                   <div className="text-center cursor-pointer" onClick={() => setActiveTab('followers')}>
                     <p className="text-sm text-gray-500">粉丝</p>
                     <p className="text-lg font-semibold">{user.followers?.length || 0}</p>
@@ -222,8 +193,6 @@ const Profile = () => {
                 </div>
               </CardFooter>
             </Card>
-            
-            {/* 选项卡：文章、关注、粉丝 */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="posts" className="flex items-center">
@@ -239,13 +208,11 @@ const Profile = () => {
                   粉丝
                 </TabsTrigger>
               </TabsList>
-              
-              {/* 文章列表 */}
               <TabsContent value="posts" className="mt-6">
                 {userPosts.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {userPosts.map(post => (
-                      <PostCard key={post.id} post={post} />
+                    {userPosts.map((post, index) => (
+                      <PostCard key={post.id} post={post} index={index} />
                     ))}
                   </div>
                 ) : (
@@ -254,8 +221,6 @@ const Profile = () => {
                   </div>
                 )}
               </TabsContent>
-              
-              {/* 关注列表 */}
               <TabsContent value="following" className="mt-6">
                 {user.following && user.following.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -287,8 +252,6 @@ const Profile = () => {
                   </div>
                 )}
               </TabsContent>
-              
-              {/* 粉丝列表 */}
               <TabsContent value="followers" className="mt-6">
                 {user.followers && user.followers.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -324,8 +287,6 @@ const Profile = () => {
           </motion.div>
         </div>
       </AnimatedTransition>
-      
-      {/* 编辑个人资料对话框 */}
       <ProfileEditDialog 
         open={isEditDialogOpen} 
         onOpenChange={setIsEditDialogOpen}
