@@ -1,34 +1,27 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import AnimatedTransition from '../components/AnimatedTransition';
-import { getPostById, deletePost, addComment, deleteComment, likePost, hasLiked } from '../lib/data';
-import { Calendar, Clock, ArrowLeft, MessageSquare, Share2, Edit, Trash2, Send, Heart, ThumbsUp } from 'lucide-react';
-import Navbar from '../components/Navbar';
+import { ArrowLeft } from 'lucide-react';
+import { getPostById, deletePost, likePost, hasLiked } from '../lib/data';
 import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
-import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../contexts/AuthContext';
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import Navbar from '../components/Navbar';
+
+// Import the new components
+import PostHeader from '../components/post/PostHeader';
+import PostContent from '../components/post/PostContent';
+import PostActions from '../components/post/PostActions';
+import CommentSection from '../components/post/CommentSection';
+import DeletePostAlert from '../components/post/DeletePostAlert';
 
 const Post = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const [post, setPost] = useState(getPostById(id || ''));
-  const [comment, setComment] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   
@@ -72,20 +65,6 @@ const Post = () => {
     }
   };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: post.title,
-        text: post.excerpt,
-        url: window.location.href,
-      })
-      .catch((error) => console.log('分享失败:', error));
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast('链接已复制到剪贴板');
-    }
-  };
-
   const handleDelete = async () => {
     if (!id) return;
     
@@ -106,55 +85,15 @@ const Post = () => {
     }
   };
 
-  const handleSubmitComment = async () => {
-    if (!isAuthenticated) {
-      toast.error('请先登录后再评论');
-      return;
-    }
-    
-    if (!comment.trim()) {
-      toast.error('评论内容不能为空');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    try {
-      const newComment = addComment(post.id, comment.trim());
-      if (newComment) {
-        toast.success('评论已发布');
-        setComment('');
-        setPost(getPostById(id || ''));
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error('评论发布失败，请重试');
-      }
-    } finally {
-      setIsSubmitting(false);
+  const handleCommentChange = () => {
+    // 刷新文章数据以获取最新的评论
+    if (id) {
+      setPost(getPostById(id));
     }
   };
 
-  const handleDeleteComment = async (commentId: string) => {
-    if (!id) return;
-    
-    try {
-      const success = deleteComment(id, commentId);
-      if (success) {
-        toast.success('评论已删除');
-        setPost(getPostById(id || ''));
-      } else {
-        toast.error('删除失败，评论可能已不存在');
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error('删除失败，请重试');
-      }
-    }
+  const scrollToComments = () => {
+    document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -177,217 +116,46 @@ const Post = () => {
               返回首页
             </Button>
 
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                <div className="flex items-center">
-                  <Calendar size={16} className="mr-1" />
-                  <span>{post && new Date(post.createdAt).toLocaleDateString('zh-CN', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}</span>
-                </div>
-                <div className="flex items-center">
-                  <Clock size={16} className="mr-1" />
-                  <span>{post?.readTime ? `${post.readTime} 分钟阅读` : '5 分钟阅读'}</span>
-                </div>
-                <div className="text-sm">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="p-0 h-auto font-normal"
-                    onClick={() => post?.author?.id && navigate(`/profile/${post.author.id}`)}
-                  >
-                    作者: {post?.author.username}
-                  </Button>
-                </div>
-              </div>
-              
-              {canModify && (
-                <div className="flex space-x-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="flex items-center"
-                    onClick={() => navigate(`/edit/${post?.id}`)}
-                  >
-                    <Edit size={16} className="mr-1" />
-                    编辑
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="flex items-center text-red-500 hover:text-red-600"
-                    onClick={() => setShowDeleteAlert(true)}
-                  >
-                    <Trash2 size={16} className="mr-1" />
-                    删除
-                  </Button>
-                </div>
-              )}
-            </div>
+            {/* Post Header Component */}
+            <PostHeader 
+              post={post} 
+              canModify={canModify} 
+              onEdit={() => navigate(`/edit/${post?.id}`)} 
+              onDelete={() => setShowDeleteAlert(true)} 
+            />
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-semibold mb-6">
-              {post?.title}
-            </h1>
-            
-            {post?.image && (
-              <div className="relative w-full h-[300px] md:h-[400px] rounded-xl overflow-hidden mb-8">
-                <img
-                  src={post.image}
-                  alt={post.title}
-                  className="w-full h-full object-cover object-center"
-                />
-              </div>
-            )}
+            {/* Post Content Component */}
+            <PostContent post={post} />
 
-            <div className="prose prose-lg dark:prose-invert mx-auto mb-8">
-              <ReactMarkdown>
-                {post?.content || ''}
-              </ReactMarkdown>
-            </div>
+            {/* Post Actions Component */}
+            <PostActions 
+              postId={post.id} 
+              likesCount={post.likes?.length || 0} 
+              commentsCount={post.comments?.length || 0} 
+              isLiked={isLiked} 
+              onLike={handleLike} 
+              scrollToComments={scrollToComments} 
+            />
 
-            <div className="flex justify-between items-center mt-8 mb-6 border-t border-b border-gray-200 dark:border-gray-700 py-4">
-              <div className="flex space-x-4">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className={`flex items-center space-x-1 ${isLiked ? 'text-red-500' : ''}`}
-                  onClick={handleLike}
-                >
-                  <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
-                  <span>{post?.likes?.length || 0} 点赞</span>
-                </Button>
-                
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="flex items-center space-x-1"
-                  onClick={() => document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth' })}
-                >
-                  <MessageSquare size={18} />
-                  <span>{post?.comments?.length || 0} 评论</span>
-                </Button>
-              </div>
-              
-              <Button variant="ghost" size="sm" className="flex items-center space-x-1" onClick={handleShare}>
-                <Share2 size={18} />
-                <span>分享</span>
-              </Button>
-            </div>
-
-            <div id="comments-section" className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-8">
-              <h3 className="text-xl font-semibold mb-6">评论 ({post?.comments?.length || 0})</h3>
-              
-              {isAuthenticated ? (
-                <div className="mb-8">
-                  <Textarea
-                    placeholder="发表你的评论..."
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="w-full mb-2"
-                    rows={3}
-                  />
-                  <div className="flex justify-end">
-                    <Button 
-                      onClick={handleSubmitComment}
-                      disabled={isSubmitting}
-                      className="flex items-center"
-                    >
-                      <Send size={16} className="mr-2" />
-                      {isSubmitting ? '发布中...' : '发布评论'}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md mb-8 text-center">
-                  <p className="mb-2">登录后才能发表评论</p>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => navigate('/login')}
-                  >
-                    去登录
-                  </Button>
-                </div>
-              )}
-              
-              {post?.comments && post.comments.length > 0 ? (
-                <div className="space-y-6">
-                  {post.comments.map((comment) => {
-                    const commentDate = new Date(comment.createdAt).toLocaleDateString('zh-CN', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    });
-                    
-                    return (
-                      <div key={comment.id} className="flex space-x-4 border-b border-gray-100 dark:border-gray-800 pb-6">
-                        <Avatar 
-                          className="cursor-pointer" 
-                          onClick={() => navigate(`/profile/${comment.author.id}`)}
-                        >
-                          <AvatarFallback className="bg-primary/10 text-primary">
-                            {comment.author.username.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="p-0 h-auto font-medium"
-                                onClick={() => navigate(`/profile/${comment.author.id}`)}
-                              >
-                                {comment.author.username}
-                              </Button>
-                              <p className="text-sm text-gray-500">{commentDate}</p>
-                            </div>
-                            {(user?.id === comment.author.id || isAdmin) && (
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                className="text-red-500 hover:text-red-600"
-                                onClick={() => handleDeleteComment(comment.id)}
-                              >
-                                <Trash2 size={14} />
-                              </Button>
-                            )}
-                          </div>
-                          <p className="mt-2">{comment.content}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-center text-gray-500 my-8">暂无评论</p>
-              )}
-            </div>
+            {/* Comments Section Component */}
+            <CommentSection 
+              postId={post.id} 
+              comments={post.comments} 
+              currentUserId={user?.id} 
+              isAdmin={isAdmin} 
+              isAuthenticated={isAuthenticated}
+              onCommentChange={handleCommentChange} 
+            />
           </motion.div>
         </div>
       </AnimatedTransition>
       
-      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>确认删除</AlertDialogTitle>
-            <AlertDialogDescription>
-              确定要删除这篇文章吗？此操作不可撤销。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction 
-              className="bg-red-500 hover:bg-red-600"
-              onClick={handleDelete}
-            >
-              删除
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Delete Post Alert Component */}
+      <DeletePostAlert 
+        open={showDeleteAlert} 
+        onOpenChange={setShowDeleteAlert} 
+        onConfirm={handleDelete} 
+      />
     </>
   );
 };

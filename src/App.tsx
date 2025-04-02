@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 
 // 页面导入
 import Index from './pages/Index';
@@ -16,18 +18,9 @@ import NotFound from './pages/NotFound';
 import Music from './pages/Music';
 import Heard from './pages/Heard';
 import MusicLoginQQ from './pages/MusicLoginQQ';
-import { useTheme } from './contexts/ThemeContext';
 
-function App() {
+function AppContent() {
   const { theme } = useTheme();
-
-  useEffect(() => {
-    // 在组件挂载时从 localStorage 中加载主题
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme) {
-      document.documentElement.classList.toggle('dark', storedTheme === 'dark');
-    }
-  }, []);
 
   return (
     <div className={`${theme === 'dark' ? 'dark' : ''}`}>
@@ -53,6 +46,14 @@ function App() {
         </AuthProvider>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }
 
