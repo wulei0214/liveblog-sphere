@@ -17,7 +17,9 @@ import {
   FileEdit,
   LogOut,
   UserCircle,
-  Globe
+  Globe,
+  Music,
+  Twitter
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -93,6 +95,23 @@ const Navbar = () => {
               <Home className="mr-1 h-4 w-4" />
               首页
             </Link>
+            
+            <Link
+              to="/heard"
+              className="text-sm font-medium transition-colors hover:text-primary flex items-center"
+            >
+              <Twitter className="mr-1 h-4 w-4" />
+              微博热搜
+            </Link>
+            
+            <Link
+              to="/music"
+              className="text-sm font-medium transition-colors hover:text-primary flex items-center"
+            >
+              <Music className="mr-1 h-4 w-4" />
+              音乐
+            </Link>
+            
             {isAuthenticated ? (
               <>
                 <Link
@@ -198,6 +217,25 @@ const Navbar = () => {
                 <Home className="mr-1 h-4 w-4" />
                 首页
               </Link>
+              
+              <Link
+                to="/heard"
+                className="block text-sm font-medium transition-colors hover:text-primary flex items-center"
+                onClick={closeMenu}
+              >
+                <Twitter className="mr-1 h-4 w-4" />
+                微博热搜
+              </Link>
+              
+              <Link
+                to="/music"
+                className="block text-sm font-medium transition-colors hover:text-primary flex items-center"
+                onClick={closeMenu}
+              >
+                <Music className="mr-1 h-4 w-4" />
+                音乐
+              </Link>
+              
               {isAuthenticated ? (
                 <>
                   <Link
