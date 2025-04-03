@@ -81,7 +81,7 @@ const Navbar = () => {
             className="text-xl font-serif font-semibold transition-colors hover:text-primary flex items-center"
           >
             <Globe className="h-6 w-6 mr-1" />
-            <span className="sr-only">首页</span>
+            <span>首页</span>
           </Link>
 
           {/* 桌面导航 */}
