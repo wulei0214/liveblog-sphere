@@ -29,7 +29,16 @@ const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
   const { isAdminUser } = useAuth();
   
   // 获取主要标签（最多显示2个）
-  const tags = post.tags.slice(0, 2).map(tagId => getTagById(tagId)).filter(tag => tag !== null);
+  const tags = post.tags && post.tags.length > 0 
+    ? post.tags.slice(0, 2).map(tagId => getTagById(tagId)).filter(Boolean)
+    : [];
+  
+  // 确保创建日期是Date对象
+  const createdAt = post.createdAt instanceof Date 
+    ? post.createdAt 
+    : new Date(post.createdAt);
+  
+  console.log(`Rendering post: ${post.id} - ${post.title}`);
   
   return (
     <motion.article
@@ -83,7 +92,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
             <div className="flex items-center">
               <Calendar className="h-3 w-3 mr-1" />
               <span>
-                {formatDistanceToNow(new Date(post.createdAt), { 
+                {formatDistanceToNow(createdAt, { 
                   addSuffix: true,
                   locale: zhCN
                 })}
@@ -93,7 +102,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
             {/* 阅读时间 */}
             <div className="flex items-center">
               <Clock className="h-3 w-3 mr-1" />
-              <span>{post.readTime} 分钟</span>
+              <span>{post.readTime || 5} 分钟</span>
             </div>
           </div>
           

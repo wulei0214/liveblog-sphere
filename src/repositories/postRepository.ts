@@ -52,6 +52,7 @@ export interface Comment {
  */
 const initializePostsIfEmpty = () => {
   const posts = db.getAll<Post>(Tables.POSTS);
+  console.log('初始化检查: 当前数据库中的文章数量:', posts.length);
   
   if (posts.length === 0) {
     // 检查老数据
@@ -73,8 +74,18 @@ const initializePostsIfEmpty = () => {
       }
     } else {
       // 没有旧数据，创建样例文章数据
+      console.log('没有旧数据，开始创建样例文章');
       createSamplePosts();
     }
+  } else {
+    console.log('数据库已有文章，跳过初始化');
+    // 强制重新创建样例数据用于测试
+    // 清除现有数据并重新创建
+    posts.forEach(post => {
+      db.remove(Tables.POSTS, post.id);
+    });
+    createSamplePosts();
+    console.log('已重新创建所有样例文章数据');
   }
 };
 
@@ -395,6 +406,11 @@ const createSamplePosts = () => {
       status: 'published'
     }
   ];
+  
+  console.log('创建样例文章数量:', samplePosts.length);
+  samplePosts.forEach(post => {
+    console.log(`创建文章: ${post.id} - ${post.title} (状态: ${post.status})`);
+  });
   
   db.createMany<Post>(Tables.POSTS, samplePosts);
   console.log('已创建样例文章');

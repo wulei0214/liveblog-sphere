@@ -28,9 +28,16 @@ const Index = () => {
   const [filteredPosts, setFilteredPosts] = useState(posts);
   const { isAdminUser } = useAuth();
   
-  // 页面加载时滚动到顶部
+  // 页面加载时滚动到顶部并检查是否有所有文章
   useEffect(() => {
     window.scrollTo(0, 0);
+    
+    // 强制刷新数据 - 这是一个测试调试方法
+    setTimeout(() => {
+      console.log("所有文章:", getAllPosts().length);
+      console.log("文章标题列表:", getAllPosts().map(p => `${p.id} - ${p.title}`));
+      setFilteredPosts(getAllPosts());
+    }, 100);
   }, []);
 
   // 处理搜索
@@ -45,6 +52,8 @@ const Index = () => {
       );
       setFilteredPosts(filtered);
     }
+    
+    console.log("过滤后的文章数量:", filteredPosts.length);
   }, [searchQuery, posts]);
 
   return (

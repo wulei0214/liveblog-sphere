@@ -103,3 +103,27 @@ export {
 
 // 导出消息相关类型
 export type { Message } from '../repositories/messageRepository';
+
+// 在初次加载时强制创建样例数据
+import { Tables } from './databaseSchema';
+import * as db from './database';
+import { Post } from '../repositories/postRepository';
+
+// 确保首次加载时有5篇文章
+(function ensureSamplePosts() {
+  const posts = db.getAll<Post>(Tables.POSTS);
+  if (posts.length !== 5) {
+    console.log('检测到文章数量不足5篇，重新初始化...');
+    // 清空现有数据
+    posts.forEach(post => {
+      db.remove(Tables.POSTS, post.id);
+    });
+    
+    // 触发postRepository中的初始化
+    import('../repositories/postRepository').then(repo => {
+      console.log('触发文章存储库初始化完成');
+    });
+  } else {
+    console.log('检测到已有5篇文章，无需重新初始化');
+  }
+})();
