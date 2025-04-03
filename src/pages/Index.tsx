@@ -10,8 +10,11 @@ import PostCard from '../components/PostCard';
 import AnimatedTransition from '../components/AnimatedTransition';
 import { getAllPosts, getAllCategories, getPopularTags } from '../lib/data';
 import Navbar from '../components/Navbar';
-import { Search, Tag } from 'lucide-react';
+import { Eye, Lock, Pencil, Search, Tag } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '../contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 /**
  * 网站首页
@@ -23,6 +26,7 @@ const Index = () => {
   const popularTags = getPopularTags(10);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredPosts, setFilteredPosts] = useState(posts);
+  const { isAdminUser } = useAuth();
   
   // 页面加载时滚动到顶部
   useEffect(() => {
@@ -76,6 +80,18 @@ const Index = () => {
                   />
                 </div>
               </div>
+              
+              {/* 管理员可见的创建按钮 */}
+              {isAdminUser && (
+                <div className="mt-4">
+                  <Link to="/create">
+                    <Button className="flex items-center gap-2">
+                      <Pencil size={16} />
+                      创建新文章
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* 内容布局：左侧边栏 + 右侧主内容 */}
@@ -117,14 +133,38 @@ const Index = () => {
                     ))}
                   </div>
                 </div>
+                
+                {/* 访问权限说明 */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mt-6">
+                  <h3 className="text-lg font-medium mb-3 border-b pb-2 dark:border-gray-700 flex items-center">
+                    <Lock className="h-4 w-4 mr-2" />
+                    访问权限
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Eye size={16} /> 
+                      <span>所有访客可以查看文章</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Pencil size={16} />
+                      <span>只有管理员可以编辑文章</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* 右侧主内容：文章列表 */}
               <div className="md:w-3/4">
-                <h2 className="text-2xl font-serif font-semibold mb-6">
-                  博客文章
-                  {searchQuery && <span className="text-lg ml-2 text-gray-500">搜索结果: {filteredPosts.length}</span>}
-                </h2>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-serif font-semibold">
+                    博客文章
+                    {searchQuery && <span className="text-lg ml-2 text-gray-500">搜索结果: {filteredPosts.length}</span>}
+                  </h2>
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <Eye size={14} />
+                    预览模式
+                  </Badge>
+                </div>
 
                 {filteredPosts.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">

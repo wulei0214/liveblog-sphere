@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock, Eye, Lock } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Post } from '../../lib/data';
+import { Badge } from '@/components/ui/badge';
 
 interface PostHeaderProps {
   post: Post;
@@ -41,6 +42,20 @@ const PostHeader = ({ post, canModify, onEdit, onDelete }: PostHeaderProps) => {
               作者: {post?.author.username}
             </Button>
           </div>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Eye size={14} />
+            预览模式
+          </Badge>
+          
+          {!canModify && (
+            <Badge variant="secondary" className="flex items-center gap-1">
+              <Lock size={14} />
+              管理员专属编辑
+            </Badge>
+          )}
         </div>
         
         {canModify && (

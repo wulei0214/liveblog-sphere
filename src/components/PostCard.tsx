@@ -6,10 +6,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Tag as TagIcon } from 'lucide-react';
+import { Calendar, Clock, Eye, Pencil, Tag as TagIcon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { Post, getCategoryById, getTagById } from '../lib/data';
+import { useAuth } from '../contexts/AuthContext';
+import { Button } from '@/components/ui/button';
 
 interface PostCardProps {
   post: Post;
@@ -24,6 +26,7 @@ interface PostCardProps {
 const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
   // 获取分类信息
   const category = post.categoryId ? getCategoryById(post.categoryId) : null;
+  const { isAdminUser } = useAuth();
   
   // 获取主要标签（最多显示2个）
   const tags = post.tags.slice(0, 2).map(tagId => getTagById(tagId)).filter(tag => tag !== null);
@@ -108,6 +111,25 @@ const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
                 ))}
               </div>
             </div>
+          )}
+        </div>
+        
+        {/* 操作按钮 - 只对管理员显示编辑按钮，对其他人显示预览按钮 */}
+        <div className="flex justify-end mt-3 gap-2">
+          <Link to={`/post/${post.id}`}>
+            <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <Eye size={14} />
+              预览
+            </Button>
+          </Link>
+          
+          {isAdminUser && (
+            <Link to={`/edit/${post.id}`}>
+              <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <Pencil size={14} />
+                编辑
+              </Button>
+            </Link>
           )}
         </div>
       </div>
