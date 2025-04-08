@@ -73,8 +73,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     }
     localStorage.setItem('useSystemTheme', String(isSystemTheme));
     
-    // 更新文档根元素类名以应用主题样式
-    document.documentElement.classList.toggle('dark', theme === 'dark');
+    // 统一更新文档根元素类名，确保背景颜色统一
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(theme);
   }, [theme, isSystemTheme]);
 
   // 切换亮色/深色主题

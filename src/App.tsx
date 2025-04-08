@@ -10,7 +10,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // 页面导入
 import Index from './pages/Index';
@@ -28,35 +28,30 @@ import MusicLoginQQ from './pages/MusicLoginQQ';
 
 /**
  * 应用内容组件
- * 使用ThemeProvider提供的主题状态
- * 设置全局暗色模式类和背景
+ * 在ThemeProvider内部使用，不再需要手动添加主题类
  */
 function AppContent() {
-  const { theme } = useTheme();
-
   return (
-    <div className={`${theme === 'dark' ? 'dark' : ''}`}>
-      <div className="min-h-screen bg-background text-foreground">
-        <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/post/:id" element={<Post />} />
-              <Route path="/create" element={<Create />} />
-              <Route path="/edit/:id" element={<Edit />} />
-              <Route path="/profile/:id" element={<Profile />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/users" element={<UserManagement />} />
-              <Route path="/music" element={<Music />} />
-              <Route path="/heard" element={<Heard />} />
-              <Route path="/music-login-qq" element={<MusicLoginQQ />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </BrowserRouter>
-        </AuthProvider>
-      </div>
+    <div className="min-h-screen bg-background text-foreground">
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/post/:id" element={<Post />} />
+            <Route path="/create" element={<Create />} />
+            <Route path="/edit/:id" element={<Edit />} />
+            <Route path="/profile/:id" element={<Profile />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/users" element={<UserManagement />} />
+            <Route path="/music" element={<Music />} />
+            <Route path="/heard" element={<Heard />} />
+            <Route path="/music-login-qq" element={<MusicLoginQQ />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+        </BrowserRouter>
+      </AuthProvider>
     </div>
   );
 }
