@@ -28,7 +28,8 @@ import MusicLoginQQ from './pages/MusicLoginQQ';
 
 /**
  * 应用内容组件
- * 在ThemeProvider内部使用，不再需要手动添加主题类
+ * 包含应用的主要内容及路由配置
+ * 已包装在ThemeProvider内，不需要手动添加主题类
  */
 function AppContent() {
   return (
@@ -58,7 +59,7 @@ function AppContent() {
 
 /**
  * 应用程序根组件
- * 包装整个应用，提供主题管理功能
+ * 通过ThemeProvider包装整个应用，提供主题管理功能
  */
 function App() {
   return (

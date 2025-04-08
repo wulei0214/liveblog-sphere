@@ -76,6 +76,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     // 统一更新文档根元素类名，确保背景颜色统一
     document.documentElement.classList.remove('light', 'dark');
     document.documentElement.classList.add(theme);
+    
+    // 确保body也拥有相同的背景色
+    document.body.className = theme === 'dark' ? 'bg-background dark' : 'bg-background';
   }, [theme, isSystemTheme]);
 
   // 切换亮色/深色主题
