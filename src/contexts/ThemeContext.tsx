@@ -81,13 +81,17 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       document.documentElement.classList.add('dark');
       document.body.classList.add('dark');
       
-      // 为深色模式设置统一的深灰色背景
-      document.documentElement.style.backgroundColor = '#222222';
-      document.body.style.backgroundColor = '#222222';
+      // 为深色模式设置统一的深色背景
+      document.documentElement.style.backgroundColor = '#1a1d2d';
+      document.body.style.backgroundColor = '#1a1d2d';
+      document.documentElement.style.color = 'white';
+      document.body.style.color = 'white';
     } else {
-      // 亮色模式恢复默认背景
+      // 亮色模式恢复默认背景和文字颜色
       document.documentElement.style.backgroundColor = '';
       document.body.style.backgroundColor = '';
+      document.documentElement.style.color = '';
+      document.body.style.color = '';
     }
   }, [theme, isSystemTheme]);
 

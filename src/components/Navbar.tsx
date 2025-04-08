@@ -19,7 +19,8 @@ import {
   UserCircle,
   Globe,
   Music,
-  Twitter
+  Twitter,
+  Search
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -71,17 +72,13 @@ const Navbar = () => {
   };
 
   // 根据主题和滚动状态确定导航栏样式
-  const navbarBgClass = isScrolled
-    ? theme === 'dark'
-      ? "bg-gray-900/90 backdrop-blur-md shadow-md border-b border-gray-800"
-      : "bg-white/90 backdrop-blur-md shadow-md"
-    : theme === 'dark'
-      ? "bg-transparent"
-      : "bg-transparent";
+  const navbarBgClass = theme === 'dark'
+    ? "bg-[#1a1d2d] border-b border-gray-800"
+    : "bg-white/90 backdrop-blur-md shadow-md";
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navbarBgClass}`}
+      className={`fixed top-0 left-0 right-0 z-50 ${navbarBgClass}`}
     >
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
@@ -161,6 +158,16 @@ const Navbar = () => {
             )}
           </nav>
 
+          {/* 搜索框 */}
+          <div className="hidden md:flex items-center bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-1 flex-1 max-w-xs mx-4">
+            <Search className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <input 
+              type="text" 
+              placeholder="搜索文章..." 
+              className="bg-transparent border-none focus:outline-none ml-2 text-sm w-full"
+            />
+          </div>
+
           {/* 右侧工具栏 */}
           <div className="flex items-center gap-2">
             {/* 主题切换 */}
@@ -230,11 +237,21 @@ const Navbar = () => {
             transition={{ duration: 0.2 }}
             className={`md:hidden shadow-lg ${
               theme === 'dark' 
-                ? 'bg-gray-900 border-t border-gray-800' 
+                ? 'bg-[#1a1d2d] border-t border-gray-800' 
                 : 'bg-white border-t border-gray-100'
             }`}
           >
             <div className="px-4 py-3 space-y-3">
+              {/* 移动端搜索框 */}
+              <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-2">
+                <Search className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <input 
+                  type="text" 
+                  placeholder="搜索文章..." 
+                  className="bg-transparent border-none focus:outline-none ml-2 text-sm w-full"
+                />
+              </div>
+              
               <Link
                 to="/"
                 className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"

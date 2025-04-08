@@ -48,7 +48,7 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 223 47% 11%;
     --foreground: 210 40% 98%;
 
     --card: 222.2 84% 4.9%;
@@ -109,10 +109,24 @@
   }
 
   .page-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 py-8 min-h-[calc(100vh-80px)];
+    @apply max-w-7xl mx-auto px-4 sm:px-6 py-8 min-h-[calc(100vh-64px)] mt-16;
   }
 
   .glassmorphism {
     @apply bg-white/60 backdrop-blur-md border border-white/20;
+  }
+  
+  .dark .glassmorphism {
+    @apply bg-black/60 backdrop-blur-md border border-gray-800;
+  }
+  
+  /* 搜索框样式 */
+  input::placeholder {
+    @apply text-gray-400 dark:text-gray-500;
+  }
+
+  /* 添加自定义暗色模式背景，确保整个页面统一 */
+  .dark body {
+    @apply bg-[#1a1d2d] text-white;
   }
 }
