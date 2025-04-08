@@ -73,12 +73,22 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     }
     localStorage.setItem('useSystemTheme', String(isSystemTheme));
     
-    // 统一更新文档根元素类名，确保背景颜色统一
+    // 统一更新文档根元素和body类名，确保背景颜色统一
     document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(theme);
+    document.body.classList.remove('light', 'dark');
     
-    // 确保body也拥有相同的背景色
-    document.body.className = theme === 'dark' ? 'bg-background dark' : 'bg-background';
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
+      
+      // 为深色模式设置统一的深灰色背景
+      document.documentElement.style.backgroundColor = '#222222';
+      document.body.style.backgroundColor = '#222222';
+    } else {
+      // 亮色模式恢复默认背景
+      document.documentElement.style.backgroundColor = '';
+      document.body.style.backgroundColor = '';
+    }
   }, [theme, isSystemTheme]);
 
   // 切换亮色/深色主题

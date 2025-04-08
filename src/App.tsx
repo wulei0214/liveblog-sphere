@@ -33,7 +33,7 @@ import MusicLoginQQ from './pages/MusicLoginQQ';
  */
 function AppContent() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background">
       <AuthProvider>
         <BrowserRouter>
           <Routes>
