@@ -317,7 +317,8 @@ const Navbar = () => {
                     退出
                   </Button>
                 </>
-              ) : (
+              )}
+              {!isAuthenticated && (
                 <Button
                   variant="default"
                   size="sm"
