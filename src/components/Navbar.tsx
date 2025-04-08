@@ -20,7 +20,6 @@ import {
   Globe,
   Music,
   Twitter,
-  Search
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -41,20 +40,9 @@ import { useTheme } from "../contexts/ThemeContext";
 const Navbar = () => {
   const { user, isAuthenticated, isAdminUser, logout } = useAuth();
   const { theme } = useTheme();
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // 监听滚动事件，改变导航栏样式
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // 关闭移动端菜单
   const closeMenu = () => {
@@ -71,7 +59,7 @@ const Navbar = () => {
     });
   };
 
-  // 根据主题和滚动状态确定导航栏样式
+  // 根据主题确定导航栏样式
   const navbarBgClass = theme === 'dark'
     ? "bg-[#1a1d2d] border-b border-gray-800"
     : "bg-white/90 backdrop-blur-md shadow-md";
@@ -83,48 +71,43 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* 网站Logo/名称 */}
-          <Link
-            to="/"
+          <div
             className="text-xl font-serif font-semibold transition-colors hover:text-primary flex items-center"
           >
             <Globe className="h-6 w-6 mr-2" />
             <span className="hidden sm:inline">知识分享</span>
-          </Link>
+          </div>
 
-          {/* 桌面导航 */}
+          {/* 桌面导航 - 非可点击 */}
           <nav className="hidden md:flex items-center space-x-1">
-            <Link
-              to="/"
+            <div
               className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
             >
               <Home className="mr-1 h-4 w-4" />
               首页
-            </Link>
+            </div>
             
-            <Link
-              to="/heard"
+            <div
               className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
             >
               <Twitter className="mr-1 h-4 w-4" />
               热搜
-            </Link>
+            </div>
             
-            <Link
-              to="/music"
+            <div
               className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
             >
               <Music className="mr-1 h-4 w-4" />
               音乐
-            </Link>
+            </div>
             
             {isAuthenticated && (
-              <Link
-                to="/create"
+              <div
                 className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
               >
                 <FileEdit className="mr-1 h-4 w-4" />
                 创建
-              </Link>
+              </div>
             )}
             
             {isAdminUser && (
@@ -141,32 +124,22 @@ const Navbar = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-40">
-                  <DropdownMenuItem asChild>
-                    <Link to="/admin/dashboard" className="cursor-pointer">
+                  <DropdownMenuItem>
+                    <div className="cursor-pointer flex items-center">
                       <BarChart className="h-4 w-4 mr-2" />
                       <span>管理后台</span>
-                    </Link>
+                    </div>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/admin/users" className="cursor-pointer">
+                  <DropdownMenuItem>
+                    <div className="cursor-pointer flex items-center">
                       <Users className="h-4 w-4 mr-2" />
                       <span>用户管理</span>
-                    </Link>
+                    </div>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
           </nav>
-
-          {/* 搜索框 */}
-          <div className="hidden md:flex items-center bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-1 flex-1 max-w-xs mx-4">
-            <Search className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="搜索文章..." 
-              className="bg-transparent border-none focus:outline-none ml-2 text-sm w-full"
-            />
-          </div>
 
           {/* 右侧工具栏 */}
           <div className="flex items-center gap-2">
@@ -242,72 +215,56 @@ const Navbar = () => {
             }`}
           >
             <div className="px-4 py-3 space-y-3">
-              {/* 移动端搜索框 */}
-              <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-2">
-                <Search className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <input 
-                  type="text" 
-                  placeholder="搜索文章..." 
-                  className="bg-transparent border-none focus:outline-none ml-2 text-sm w-full"
-                />
-              </div>
-              
-              <Link
-                to="/"
+              <div
                 className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
                 onClick={closeMenu}
               >
                 <Home className="mr-2 h-4 w-4" />
                 首页
-              </Link>
+              </div>
               
-              <Link
-                to="/heard"
+              <div
                 className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
                 onClick={closeMenu}
               >
                 <Twitter className="mr-2 h-4 w-4" />
                 微博热搜
-              </Link>
+              </div>
               
-              <Link
-                to="/music"
+              <div
                 className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
                 onClick={closeMenu}
               >
                 <Music className="mr-2 h-4 w-4" />
                 音乐
-              </Link>
+              </div>
               
               {isAuthenticated && (
                 <>
-                  <Link
-                    to="/create"
+                  <div
                     className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
                     onClick={closeMenu}
                   >
                     <FileEdit className="mr-2 h-4 w-4" />
                     创建文章
-                  </Link>
+                  </div>
                   
                   {isAdminUser && (
                     <>
-                      <Link
-                        to="/admin/dashboard"
+                      <div
                         className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
                         onClick={closeMenu}
                       >
                         <BarChart className="h-4 w-4 mr-2" />
                         管理后台
-                      </Link>
-                      <Link
-                        to="/admin/users"
+                      </div>
+                      <div
                         className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
                         onClick={closeMenu}
                       >
                         <Users className="h-4 w-4 mr-2" />
                         用户管理
-                      </Link>
+                      </div>
                     </>
                   )}
                   

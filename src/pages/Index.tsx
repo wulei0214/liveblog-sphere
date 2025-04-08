@@ -107,11 +107,14 @@ const Index = () => {
                 </div>
               </div>
               
-              {/* 管理员可见的创建按钮 */}
+              {/* 管理员可见的创建按钮 - 唯一可点击跳转的按钮 */}
               {isAdminUser && (
                 <div className="mt-6">
                   <Link to="/create">
-                    <Button size="lg" className="rounded-full flex items-center gap-2">
+                    <Button 
+                      size="lg" 
+                      className="rounded-full flex items-center gap-2 bg-[#222222] hover:bg-[#333333]"
+                    >
                       <FileEdit size={16} />
                       创建新文章
                     </Button>
@@ -135,8 +138,7 @@ const Index = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2 pt-0">
-                    <Link 
-                      to="/"
+                    <div 
                       className={`block px-3 py-2 rounded-md text-sm transition-colors ${
                         theme === 'dark'
                           ? 'hover:bg-gray-800'
@@ -144,11 +146,10 @@ const Index = () => {
                       }`}
                     >
                       首页
-                    </Link>
+                    </div>
                     {categories.map((category) => (
-                      <Link 
+                      <div 
                         key={category.id}
-                        to={`/category/${category.slug}`}
                         className={`block px-3 py-2 rounded-md text-sm transition-colors ${
                           theme === 'dark'
                             ? 'hover:bg-gray-800'
@@ -156,7 +157,7 @@ const Index = () => {
                         }`}
                       >
                         {category.name}
-                      </Link>
+                      </div>
                     ))}
                   </CardContent>
                 </Card>
@@ -172,14 +173,13 @@ const Index = () => {
                   <CardContent className="pt-0">
                     <div className="flex flex-wrap gap-2">
                       {popularTags.map(tag => (
-                        <Link 
+                        <Badge 
                           key={tag.id}
-                          to={`/tag/${tag.slug}`}
+                          variant="outline" 
+                          className="rounded-full hover:bg-primary/10"
                         >
-                          <Badge variant="outline" className="rounded-full hover:bg-primary/10">
-                            {tag.name}
-                          </Badge>
-                        </Link>
+                          {tag.name}
+                        </Badge>
                       ))}
                     </div>
                   </CardContent>
@@ -231,11 +231,13 @@ const Index = () => {
                   </Badge>
                 </div>
 
-                {/* 文章列表 */}
+                {/* 文章列表 - 非可点击 */}
                 {filteredPosts.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
                     {filteredPosts.map((post, index) => (
-                      <PostCard key={post.id} post={post} index={index} />
+                      <div key={post.id}>
+                        <PostCard post={post} index={index} />
+                      </div>
                     ))}
                   </div>
                 ) : (
