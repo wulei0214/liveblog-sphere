@@ -1,7 +1,9 @@
 
 /**
  * 文章卡片组件
+ * 
  * 在首页和分类页面中显示文章预览卡片
+ * 包含文章标题、摘要、元数据和操作按钮
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -14,14 +16,17 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '../contexts/ThemeContext';
 
+// 组件属性接口
 interface PostCardProps {
-  post: Post;
-  index: number;
+  post: Post;         // 文章数据
+  index: number;      // 卡片索引，用于动画延迟
 }
 
 /**
  * 文章卡片组件
- * @param post 文章数据
+ * 展示文章预览信息，提供链接和操作按钮
+ * 
+ * @param post 文章数据对象
  * @param index 卡片索引，用于动画延迟
  */
 const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
@@ -56,7 +61,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
           : 'bg-white border border-gray-100'
       }`}
     >
-      {/* 文章图片 */}
+      {/* 文章特色图片 */}
       {post.image && (
         <Link to={`/post/${post.id}`} className="block overflow-hidden">
           <div className="relative h-48 overflow-hidden group">
@@ -114,7 +119,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
             </div>
           </div>
           
-          {/* 标签 */}
+          {/* 文章标签 */}
           {tags.length > 0 && (
             <div className="flex mt-2 md:mt-0 items-center">
               <TagIcon className="h-3 w-3 mr-1" />

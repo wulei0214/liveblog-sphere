@@ -1,5 +1,12 @@
 
-import React, { useEffect } from 'react';
+/**
+ * 应用程序根组件
+ * 
+ * 配置应用程序的全局状态提供者和路由结构
+ * 整合了主题管理、认证系统和路由导航
+ */
+
+import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from './contexts/AuthContext';
@@ -19,6 +26,11 @@ import Music from './pages/Music';
 import Heard from './pages/Heard';
 import MusicLoginQQ from './pages/MusicLoginQQ';
 
+/**
+ * 应用内容组件
+ * 使用ThemeProvider提供的主题状态
+ * 设置全局暗色模式类和背景
+ */
 function AppContent() {
   const { theme } = useTheme();
 
@@ -49,6 +61,10 @@ function AppContent() {
   );
 }
 
+/**
+ * 应用程序根组件
+ * 包装整个应用，提供主题管理功能
+ */
 function App() {
   return (
     <ThemeProvider>
