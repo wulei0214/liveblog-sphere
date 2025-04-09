@@ -4,7 +4,7 @@ import { Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import PostCard from '../PostCard';
-import { Post } from '../../models/Post';
+import type { Post } from '../../repositories/postRepository';
 
 interface PostListProps {
   posts: Post[];

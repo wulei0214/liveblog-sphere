@@ -5,7 +5,7 @@
  */
 
 // 导出模型定义
-export { Post, Comment } from '../models/Post';
+export type { Post, Comment } from '../models/Post';
 
 // 导出初始化函数
 import { initializePostsIfEmpty } from './postInitialization';
