@@ -3,60 +3,29 @@
  * Navbar 组件
  * 网站顶部导航栏，提供各页面的导航链接和用户登录状态显示
  */
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Menu,
-  X,
-  Settings,
-  ChevronDown,
-  Users,
-  BarChart,
-  Home,
-  FileEdit,
-  LogOut,
-  UserCircle,
-  Globe,
-  Music,
-  Twitter,
-} from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import ThemeToggle from "./ThemeToggle";
+import React, { useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import { Menu, X } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
+import { Button } from "@/components/ui/button";
+
+// 导入拆分的子组件
+import NavbarBrand from "./navbar/NavbarBrand";
+import DesktopNav from "./navbar/DesktopNav";
+import UserMenu from "./navbar/UserMenu";
+import MobileMenu from "./navbar/MobileMenu";
+import ThemeToggle from "./ThemeToggle";
 
 /**
  * 页面顶部导航栏组件
  */
 const Navbar = () => {
-  const { user, isAuthenticated, isAdminUser, logout } = useAuth();
   const { theme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
   // 关闭移动端菜单
   const closeMenu = () => {
     setIsMenuOpen(false);
-  };
-
-  // 退出登录处理
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-    toast({
-      title: "退出成功",
-      description: "您已成功退出登录",
-    });
   };
 
   // 根据主题确定导航栏样式
@@ -71,75 +40,10 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* 网站Logo/名称 */}
-          <div
-            className="text-xl font-serif font-semibold transition-colors hover:text-primary flex items-center"
-          >
-            <Globe className="h-6 w-6 mr-2" />
-            <span className="hidden sm:inline">知识分享</span>
-          </div>
+          <NavbarBrand />
 
           {/* 桌面导航 */}
-          <nav className="hidden md:flex items-center space-x-1">
-            <div
-              className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
-            >
-              <Home className="mr-1 h-4 w-4" />
-              首页
-            </div>
-            
-            <div
-              className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
-            >
-              <Twitter className="mr-1 h-4 w-4" />
-              热搜
-            </div>
-            
-            <div
-              className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
-            >
-              <Music className="mr-1 h-4 w-4" />
-              音乐
-            </div>
-            
-            {isAuthenticated && (
-              <div
-                className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
-              >
-                <FileEdit className="mr-1 h-4 w-4" />
-                创建
-              </div>
-            )}
-            
-            {isAdminUser && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex items-center gap-1 -my-1"
-                  >
-                    <Settings className="h-4 w-4" />
-                    管理
-                    <ChevronDown className="h-3 w-3 ml-1 opacity-70" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
-                  <DropdownMenuItem>
-                    <div className="cursor-pointer flex items-center">
-                      <BarChart className="h-4 w-4 mr-2" />
-                      <span>管理后台</span>
-                    </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <div className="cursor-pointer flex items-center">
-                      <Users className="h-4 w-4 mr-2" />
-                      <span>用户管理</span>
-                    </div>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </nav>
+          <DesktopNav />
 
           {/* 右侧工具栏 */}
           <div className="flex items-center gap-2">
@@ -147,41 +51,7 @@ const Navbar = () => {
             <ThemeToggle />
             
             {/* 用户状态 */}
-            <div className="hidden md:block">
-              {isAuthenticated ? (
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium flex items-center">
-                    <UserCircle className="mr-1 h-4 w-4" />
-                    {user?.username}
-                    {isAdminUser && (
-                      <Badge className="ml-2 bg-primary/10 text-primary text-xs">
-                        管理员
-                      </Badge>
-                    )}
-                  </span>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleLogout}
-                    className="text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center"
-                  >
-                    <LogOut className="mr-1 h-4 w-4" />
-                    退出
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={() => navigate("/login")}
-                  className="flex items-center"
-                >
-                  <UserCircle className="mr-1 h-4 w-4" />
-                  登录/注册
-                </Button>
-              )}
-            </div>
+            <UserMenu />
             
             {/* 移动端菜单按钮 */}
             <Button
@@ -202,107 +72,7 @@ const Navbar = () => {
 
       {/* 移动端导航菜单 */}
       <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className={`md:hidden shadow-lg ${
-              theme === 'dark' 
-                ? 'bg-[#1a1d2d] border-t border-gray-800' 
-                : 'bg-white border-t border-gray-100'
-            }`}
-          >
-            <div className="px-4 py-3 space-y-3">
-              <div
-                className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
-              >
-                <Home className="mr-2 h-4 w-4" />
-                首页
-              </div>
-              
-              <div
-                className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
-              >
-                <Twitter className="mr-2 h-4 w-4" />
-                微博热搜
-              </div>
-              
-              <div
-                className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
-              >
-                <Music className="mr-2 h-4 w-4" />
-                音乐
-              </div>
-              
-              {isAuthenticated && (
-                <>
-                  <div
-                    className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
-                  >
-                    <FileEdit className="mr-2 h-4 w-4" />
-                    创建文章
-                  </div>
-                  
-                  {isAdminUser && (
-                    <>
-                      <div
-                        className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
-                      >
-                        <BarChart className="h-4 w-4 mr-2" />
-                        管理后台
-                      </div>
-                      <div
-                        className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
-                      >
-                        <Users className="h-4 w-4 mr-2" />
-                        用户管理
-                      </div>
-                    </>
-                  )}
-                  
-                  <div className="text-sm font-medium flex items-center py-2">
-                    <UserCircle className="mr-2 h-4 w-4" />
-                    {user?.username}
-                    {isAdminUser && (
-                      <Badge className="ml-2 bg-primary/20 text-primary text-xs">
-                        管理员
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      handleLogout();
-                      closeMenu();
-                    }}
-                    className="w-full justify-start text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    退出
-                  </Button>
-                </>
-              )}
-              {!isAuthenticated && (
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="w-full flex items-center justify-center"
-                  onClick={() => {
-                    navigate("/login");
-                    closeMenu();
-                  }}
-                >
-                  <UserCircle className="mr-1 h-4 w-4" />
-                  登录/注册
-                </Button>
-              )}
-            </div>
-          </motion.div>
-        )}
+        {isMenuOpen && <MobileMenu isOpen={isMenuOpen} onClose={closeMenu} />}
       </AnimatePresence>
     </div>
   );
