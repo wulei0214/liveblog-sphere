@@ -1,4 +1,3 @@
-
 /**
  * 网站首页组件
  * 展示博客文章列表和其他功能入口
@@ -113,7 +112,11 @@ const Index = () => {
                   <Link to="/create">
                     <Button 
                       size="lg" 
-                      className="rounded-full flex items-center gap-2 bg-[#222222] hover:bg-[#333333]"
+                      className={`rounded-full flex items-center gap-2 ${
+                        theme === 'dark' 
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white border border-blue-500'
+                          : 'bg-[#222222] hover:bg-[#333333] text-white'
+                      }`}
                     >
                       <FileEdit size={16} />
                       创建新文章
