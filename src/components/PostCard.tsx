@@ -16,6 +16,7 @@ import type { Post } from '../repositories/postRepository';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '../contexts/ThemeContext';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
 // 组件属性接口
 interface PostCardProps {
@@ -46,26 +47,20 @@ const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
     ? post.createdAt 
     : new Date(post.createdAt);
   
-  console.log(`Rendering post: ${post.id} - ${post.title}`);
-  
   return (
-    <motion.article
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ 
         duration: 0.5,
         delay: index * 0.1
       }}
-      className={`overflow-hidden rounded-xl shadow-md transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${
-        theme === 'dark' 
-          ? 'bg-gray-800 border border-gray-700' 
-          : 'bg-white border border-gray-100'
-      }`}
+      className="h-full"
     >
-      {/* 文章特色图片 */}
-      {post.image && (
-        <Link to={`/post/${post.id}`} className="block overflow-hidden">
-          <div className="relative h-48 overflow-hidden group">
+      <Card className={`h-full flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1`}>
+        {/* 文章特色图片 */}
+        {post.image && (
+          <div className="relative w-full h-48 overflow-hidden">
             <img 
               src={post.image} 
               alt={post.title} 
@@ -81,89 +76,93 @@ const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
               </div>
             )}
           </div>
-        </Link>
-      )}
-      
-      <div className="p-5">
-        {/* 文章标题 */}
-        <Link to={`/post/${post.id}`}>
-          <h3 className="text-xl font-bold mb-2 hover:text-primary transition-colors line-clamp-2">
-            {post.title}
-          </h3>
-        </Link>
+        )}
         
-        {/* 文章摘要 */}
-        <p className={`mb-4 line-clamp-2 text-sm ${
-          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-        }`}>
-          {post.excerpt}
-        </p>
+        <CardHeader className="pb-2">
+          {/* 文章标题 */}
+          <Link to={`/post/${post.id}`}>
+            <h3 className="text-xl font-bold hover:text-primary transition-colors line-clamp-2 min-h-[3.5rem]">
+              {post.title}
+            </h3>
+          </Link>
+        </CardHeader>
         
-        <div className="flex flex-wrap items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-4">
-          {/* 文章元信息 */}
-          <div className="flex items-center space-x-4">
-            {/* 发布时间 */}
-            <div className="flex items-center">
-              <Calendar className="h-3 w-3 mr-1" />
-              <span>
-                {formatDistanceToNow(createdAt, { 
-                  addSuffix: true,
-                  locale: zhCN
-                })}
-              </span>
-            </div>
-            
-            {/* 阅读时间 */}
-            <div className="flex items-center">
-              <Clock className="h-3 w-3 mr-1" />
-              <span>{post.readTime || 5} 分钟</span>
-            </div>
-          </div>
+        <CardContent className="pb-2 flex-grow">
+          {/* 文章摘要 */}
+          <p className={`line-clamp-2 text-sm min-h-[2.5rem] ${
+            theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+          }`}>
+            {post.excerpt}
+          </p>
           
-          {/* 文章标签 */}
-          {tags.length > 0 && (
-            <div className="flex mt-2 md:mt-0 items-center">
-              <TagIcon className="h-3 w-3 mr-1" />
-              <div className="flex space-x-1">
-                {tags.map(tag => tag && (
-                  <Link key={tag.id} to={`/tag/${tag.slug}`}>
-                    <span className="text-xs hover:text-primary transition-colors">
-                      {tag.name}
-                    </span>
-                  </Link>
-                ))}
+          <div className="flex flex-wrap items-center justify-between text-xs text-gray-500 dark:text-gray-400 mt-4">
+            {/* 文章元信息 */}
+            <div className="flex items-center space-x-4">
+              {/* 发布时间 */}
+              <div className="flex items-center">
+                <Calendar className="h-3 w-3 mr-1" />
+                <span>
+                  {formatDistanceToNow(createdAt, { 
+                    addSuffix: true,
+                    locale: zhCN
+                  })}
+                </span>
+              </div>
+              
+              {/* 阅读时间 */}
+              <div className="flex items-center">
+                <Clock className="h-3 w-3 mr-1" />
+                <span>{post.readTime || 5} 分钟</span>
               </div>
             </div>
-          )}
-        </div>
-        
-        {/* 操作按钮 */}
-        <div className="flex justify-between items-center mt-3">
-          <Button variant="ghost" size="sm" className="text-gray-500 hover:text-primary">
-            <Bookmark size={14} className="mr-1" />
-            <span className="text-xs">收藏</span>
-          </Button>
-          
-          <div className="flex gap-2">
-            <Link to={`/post/${post.id}`}>
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
-                <Eye size={14} />
-                预览
-              </Button>
-            </Link>
             
-            {isAdminUser && (
-              <Link to={`/edit/${post.id}`}>
-                <Button variant="outline" size="sm" className="flex items-center gap-1">
-                  <Pencil size={14} />
-                  编辑
-                </Button>
-              </Link>
+            {/* 文章标签 */}
+            {tags.length > 0 && (
+              <div className="flex mt-2 md:mt-0 items-center">
+                <TagIcon className="h-3 w-3 mr-1" />
+                <div className="flex space-x-1">
+                  {tags.map(tag => tag && (
+                    <Link key={tag.id} to={`/tag/${tag.slug}`}>
+                      <span className="text-xs hover:text-primary transition-colors">
+                        {tag.name}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
-        </div>
-      </div>
-    </motion.article>
+        </CardContent>
+        
+        <CardFooter className="pt-2 mt-auto">
+          {/* 操作按钮 */}
+          <div className="flex justify-between items-center w-full">
+            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-primary">
+              <Bookmark size={14} className="mr-1" />
+              <span className="text-xs">收藏</span>
+            </Button>
+            
+            <div className="flex gap-2">
+              <Link to={`/post/${post.id}`}>
+                <Button variant="outline" size="sm" className="flex items-center gap-1">
+                  <Eye size={14} />
+                  预览
+                </Button>
+              </Link>
+              
+              {isAdminUser && (
+                <Link to={`/edit/${post.id}`}>
+                  <Button variant="outline" size="sm" className="flex items-center gap-1">
+                    <Pencil size={14} />
+                    编辑
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        </CardFooter>
+      </Card>
+    </motion.div>
   );
 };
 

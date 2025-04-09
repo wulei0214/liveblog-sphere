@@ -46,7 +46,7 @@ const PostList: React.FC<PostListProps> = ({
       {filteredPosts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
           {filteredPosts.map((post, index) => (
-            <div key={post.id}>
+            <div key={post.id} className="h-full">
               <PostCard post={post} index={index} />
             </div>
           ))}
