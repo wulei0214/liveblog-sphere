@@ -71,43 +71,43 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* 网站Logo/名称 */}
-          <div
+          <Link to="/"
             className="text-xl font-serif font-semibold transition-colors hover:text-primary flex items-center"
           >
             <Globe className="h-6 w-6 mr-2" />
             <span className="hidden sm:inline">知识分享</span>
-          </div>
+          </Link>
 
-          {/* 桌面导航 - 非可点击 */}
+          {/* 桌面导航 */}
           <nav className="hidden md:flex items-center space-x-1">
-            <div
+            <Link to="/"
               className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
             >
               <Home className="mr-1 h-4 w-4" />
               首页
-            </div>
+            </Link>
             
-            <div
+            <Link to="/heard"
               className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
             >
               <Twitter className="mr-1 h-4 w-4" />
               热搜
-            </div>
+            </Link>
             
-            <div
+            <Link to="/music"
               className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
             >
               <Music className="mr-1 h-4 w-4" />
               音乐
-            </div>
+            </Link>
             
             {isAuthenticated && (
-              <div
+              <Link to="/create"
                 className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
               >
                 <FileEdit className="mr-1 h-4 w-4" />
                 创建
-              </div>
+              </Link>
             )}
             
             {isAdminUser && (
@@ -124,13 +124,13 @@ const Navbar = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-40">
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/admin")}>
                     <div className="cursor-pointer flex items-center">
                       <BarChart className="h-4 w-4 mr-2" />
                       <span>管理后台</span>
                     </div>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/users")}>
                     <div className="cursor-pointer flex items-center">
                       <Users className="h-4 w-4 mr-2" />
                       <span>用户管理</span>
@@ -215,56 +215,56 @@ const Navbar = () => {
             }`}
           >
             <div className="px-4 py-3 space-y-3">
-              <div
+              <Link to="/"
                 className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
                 onClick={closeMenu}
               >
                 <Home className="mr-2 h-4 w-4" />
                 首页
-              </div>
+              </Link>
               
-              <div
+              <Link to="/heard"
                 className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
                 onClick={closeMenu}
               >
                 <Twitter className="mr-2 h-4 w-4" />
                 微博热搜
-              </div>
+              </Link>
               
-              <div
+              <Link to="/music"
                 className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
                 onClick={closeMenu}
               >
                 <Music className="mr-2 h-4 w-4" />
                 音乐
-              </div>
+              </Link>
               
               {isAuthenticated && (
                 <>
-                  <div
+                  <Link to="/create"
                     className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
                     onClick={closeMenu}
                   >
                     <FileEdit className="mr-2 h-4 w-4" />
                     创建文章
-                  </div>
+                  </Link>
                   
                   {isAdminUser && (
                     <>
-                      <div
+                      <Link to="/admin"
                         className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
                         onClick={closeMenu}
                       >
                         <BarChart className="h-4 w-4 mr-2" />
                         管理后台
-                      </div>
-                      <div
+                      </Link>
+                      <Link to="/users"
                         className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
                         onClick={closeMenu}
                       >
                         <Users className="h-4 w-4 mr-2" />
                         用户管理
-                      </div>
+                      </Link>
                     </>
                   )}
                   
