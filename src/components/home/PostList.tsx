@@ -4,14 +4,7 @@ import { Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import PostCard from '../PostCard';
-
-interface Post {
-  id: string;
-  title: string;
-  excerpt: string;
-  // 其他属性
-  [key: string]: any;
-}
+import { Post } from '../../repositories/postRepository';
 
 interface PostListProps {
   posts: Post[];
