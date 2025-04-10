@@ -1,4 +1,3 @@
-
 /**
  * 数据库架构定义
  * 
@@ -146,6 +145,22 @@ export interface MessageTable {
 }
 
 /**
+ * 留言板表结构
+ * 存储用户留言
+ */
+export interface MessageBoardTable {
+  id: string;         // 留言唯一标识
+  content: string;    // 留言内容
+  author: {           // 留言作者
+    id: string;       // 作者ID
+    username: string; // 作者用户名
+  };
+  createdAt: Date;    // 创建时间
+  type: 'normal' | 'danmaku'; // 留言类型：普通或弹幕
+  color?: string;     // 弹幕颜色
+}
+
+/**
  * 数据库表名映射
  */
 export enum Tables {
@@ -156,7 +171,8 @@ export enum Tables {
   SETTINGS = 'settings',
   ACTIVITY_LOGS = 'activity_logs',
   NOTIFICATIONS = 'notifications',
-  MESSAGES = 'messages'
+  MESSAGES = 'messages',
+  MESSAGE_BOARD = 'message_board'  // 新增留言板表
 }
 
 /**

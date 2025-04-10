@@ -1,87 +1,45 @@
 
-import React from "react";
-import { Link } from "react-router-dom";
-import { Home, Twitter, Music, FileEdit, Settings, ChevronDown, BarChart, Users } from "lucide-react";
-import { useAuth } from "../../contexts/AuthContext";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Home, BookOpen, Music, Radio, MessageSquare } from 'lucide-react';
 
-/**
- * 桌面端导航菜单组件
- */
+// 导航链接数据
+const navLinks = [
+  {
+    name: '首页',
+    path: '/',
+    icon: <Home size={18} />
+  },
+  {
+    name: '音乐',
+    path: '/music',
+    icon: <Music size={18} />
+  },
+  {
+    name: '听闻',
+    path: '/heard',
+    icon: <Radio size={18} />
+  },
+  {
+    name: '留言板',
+    path: '/message-board',
+    icon: <MessageSquare size={18} />
+  }
+];
+
 const DesktopNav = () => {
-  const { isAuthenticated, isAdminUser } = useAuth();
-
   return (
     <nav className="hidden md:flex items-center space-x-1">
-      <Link
-        to="/"
-        className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
-      >
-        <Home className="mr-1 h-4 w-4" />
-        首页
-      </Link>
-      
-      <Link
-        to="/heard"
-        className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
-      >
-        <Twitter className="mr-1 h-4 w-4" />
-        热搜
-      </Link>
-      
-      <Link
-        to="/music"
-        className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
-      >
-        <Music className="mr-1 h-4 w-4" />
-        音乐
-      </Link>
-      
-      {isAuthenticated && (
+      {navLinks.map((link) => (
         <Link
-          to="/create"
-          className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/5 flex items-center"
+          key={link.path}
+          to={link.path}
+          className="flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-accent"
         >
-          <FileEdit className="mr-1 h-4 w-4" />
-          创建
+          <span className="mr-1.5">{link.icon}</span>
+          {link.name}
         </Link>
-      )}
-      
-      {isAdminUser && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex items-center gap-1 -my-1"
-            >
-              <Settings className="h-4 w-4" />
-              管理
-              <ChevronDown className="h-3 w-3 ml-1 opacity-70" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem>
-              <Link to="/admin" className="cursor-pointer flex items-center w-full">
-                <BarChart className="h-4 w-4 mr-2" />
-                <span>管理后台</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link to="/users" className="cursor-pointer flex items-center w-full">
-                <Users className="h-4 w-4 mr-2" />
-                <span>用户管理</span>
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      ))}
     </nav>
   );
 };

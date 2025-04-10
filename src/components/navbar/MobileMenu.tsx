@@ -1,153 +1,150 @@
 
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Home, Twitter, Music, FileEdit, BarChart, Users, UserCircle, LogOut } from "lucide-react";
-import { useAuth } from "../../contexts/AuthContext";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { useTheme } from "../../contexts/ThemeContext";
-import { useToast } from "@/hooks/use-toast";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Home, BookOpen, Music, Radio, Settings, User, LogOut, MessageSquare } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Menu } from 'lucide-react';
+
+// 普通导航链接
+const navLinks = [
+  {
+    name: '首页',
+    path: '/',
+    icon: <Home size={18} />
+  },
+  {
+    name: '音乐',
+    path: '/music',
+    icon: <Music size={18} />
+  },
+  {
+    name: '听闻',
+    path: '/heard',
+    icon: <Radio size={18} />
+  },
+  {
+    name: '留言板',
+    path: '/message-board',
+    icon: <MessageSquare size={18} />
+  }
+];
 
 interface MobileMenuProps {
-  isOpen: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
+  open: boolean;
 }
 
-/**
- * 移动端菜单组件
- */
-const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
-  const { user, isAuthenticated, isAdminUser, logout } = useAuth();
-  const { theme } = useTheme();
+const MobileMenu = ({ open, onOpenChange }: MobileMenuProps) => {
+  const { user, logout, isAuthenticated, isAdminUser } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
-  // 处理退出登录
   const handleLogout = () => {
     logout();
-    navigate("/");
-    onClose();
-    toast({
-      title: "退出成功",
-      description: "您已成功退出登录",
-    });
+    onOpenChange(false);
+    navigate('/');
   };
-
-  // 处理链接点击
-  const handleLinkClick = () => {
-    onClose();
-  };
-
-  if (!isOpen) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.2 }}
-      className={`md:hidden shadow-lg ${
-        theme === 'dark' 
-          ? 'bg-[#1a1d2d] border-t border-gray-800' 
-          : 'bg-white border-t border-gray-100'
-      }`}
-    >
-      <div className="px-4 py-3 space-y-3">
-        <Link 
-          to="/"
-          className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
-          onClick={handleLinkClick}
-        >
-          <Home className="mr-2 h-4 w-4" />
-          首页
-        </Link>
-        
-        <Link
-          to="/heard" 
-          className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
-          onClick={handleLinkClick}
-        >
-          <Twitter className="mr-2 h-4 w-4" />
-          微博热搜
-        </Link>
-        
-        <Link
-          to="/music"
-          className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
-          onClick={handleLinkClick}
-        >
-          <Music className="mr-2 h-4 w-4" />
-          音乐
-        </Link>
-        
-        {isAuthenticated && (
-          <>
-            <Link
-              to="/create"
-              className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
-              onClick={handleLinkClick}
-            >
-              <FileEdit className="mr-2 h-4 w-4" />
-              创建文章
-            </Link>
-            
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className="md:hidden">
+          <Menu />
+          <span className="sr-only">Menu</span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-[300px]">
+        <SheetHeader>
+          <SheetTitle>导航</SheetTitle>
+        </SheetHeader>
+        <div className="flex flex-col justify-between h-full mt-4">
+          <div className="space-y-1.5">
+            {/* 用户头像和信息 */}
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3 mb-6 p-2">
+                <Avatar>
+                  <AvatarFallback>{user?.username.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <span className="font-medium">{user?.username}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {isAdminUser ? '管理员' : '用户'}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex space-x-2 mb-6 p-2">
+                <Link to="/login" onClick={() => onOpenChange(false)} className="w-full">
+                  <Button variant="outline" className="w-full">登录</Button>
+                </Link>
+              </div>
+            )}
+
+            {/* 主导航链接 */}
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                onClick={() => onOpenChange(false)}
+                className="flex items-center py-3 px-4 rounded-md hover:bg-accent"
+              >
+                <span className="mr-3 text-muted-foreground">{link.icon}</span>
+                {link.name}
+              </Link>
+            ))}
+
+            {/* 管理员特殊链接 */}
             {isAdminUser && (
               <>
+                <div className="mt-4 mb-2 px-4 text-xs font-semibold text-muted-foreground">
+                  管理员功能
+                </div>
                 <Link
                   to="/admin"
-                  className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
-                  onClick={handleLinkClick}
+                  onClick={() => onOpenChange(false)}
+                  className="flex items-center py-3 px-4 rounded-md hover:bg-accent"
                 >
-                  <BarChart className="h-4 w-4 mr-2" />
-                  管理后台
+                  <Settings size={18} className="mr-3 text-muted-foreground" />
+                  后台管理
                 </Link>
                 <Link
                   to="/users"
-                  className="block text-sm font-medium transition-colors hover:text-primary flex items-center py-2"
-                  onClick={handleLinkClick}
+                  onClick={() => onOpenChange(false)}
+                  className="flex items-center py-3 px-4 rounded-md hover:bg-accent"
                 >
-                  <Users className="h-4 w-4 mr-2" />
+                  <User size={18} className="mr-3 text-muted-foreground" />
                   用户管理
                 </Link>
               </>
             )}
-            
-            <div className="text-sm font-medium flex items-center py-2">
-              <UserCircle className="mr-2 h-4 w-4" />
-              {user?.username}
-              {isAdminUser && (
-                <Badge className="ml-2 bg-primary/20 text-primary text-xs">
-                  管理员
-                </Badge>
-              )}
+          </div>
+
+          {/* 底部操作区 */}
+          {isAuthenticated && (
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 pb-6">
+              <Button
+                variant="ghost"
+                className="flex items-center w-full justify-start px-4"
+                onClick={handleLogout}
+              >
+                <LogOut size={18} className="mr-3" />
+                退出登录
+              </Button>
             </div>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="w-full justify-start text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              退出
-            </Button>
-          </>
-        )}
-        {!isAuthenticated && (
-          <Link to="/login" onClick={handleLinkClick}>
-            <Button
-              variant="default"
-              size="sm"
-              className="w-full flex items-center justify-center"
-            >
-              <UserCircle className="mr-1 h-4 w-4" />
-              登录/注册
-            </Button>
-          </Link>
-        )}
-      </div>
-    </motion.div>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 };
 
