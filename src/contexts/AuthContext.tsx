@@ -3,11 +3,11 @@
  * 身份验证上下文
  * 管理用户登录状态和身份验证相关功能
  */
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { AuthContextType } from '@/types/auth';
-import { useAuthState } from '@/hooks/useAuthState';
-import { isAdminUser, isEditorUser, logoutUser } from '@/services/authService';
+import { getCurrentUser, logoutUser as logout, UserRole } from '@/lib/auth';
+import type { User } from '@/lib/auth';
 
 // 创建认证上下文
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,22 +17,29 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  */
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { toast } = useToast();
-  const { 
-    user, 
-    supabaseUser, 
-    isLoading, 
-    refreshUser,
-    setUser 
-  } = useAuthState();
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // 初始化时从会话存储获取当前用户
+  useEffect(() => {
+    try {
+      const currentUser = getCurrentUser();
+      setUser(currentUser);
+    } catch (error) {
+      console.error('获取当前用户失败', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
   
   /**
    * 退出登录函数
    */
-  const logout = async () => {
+  const handleLogout = async () => {
     try {
-      await logoutUser();
-      
+      logout();
       setUser(null);
+      
       toast({
         title: "已登出",
         description: "您已成功退出登录",
@@ -46,15 +53,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
   
+  /**
+   * 刷新用户信息
+   */
+  const refreshUser = () => {
+    try {
+      const currentUser = getCurrentUser();
+      setUser(currentUser);
+    } catch (error) {
+      console.error('刷新用户信息失败', error);
+    }
+  };
+  
   // 上下文提供的值
   const value: AuthContextType = {
     user,
-    supabaseUser,
+    supabaseUser: null, // 不使用supabase
     isLoading,
     isAuthenticated: !!user,
-    isAdminUser: isAdminUser(user),
-    isEditorUser: isEditorUser(user),
-    logout,
+    isAdminUser: user?.role === UserRole.ADMIN,
+    isEditorUser: user?.role === UserRole.ADMIN || user?.role === UserRole.EDITOR,
+    logout: handleLogout,
     refreshUser,
   };
   

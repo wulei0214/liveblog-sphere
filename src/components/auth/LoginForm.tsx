@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Phone } from 'lucide-react';
+import { loginUser } from '@/lib/auth';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -46,13 +46,10 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: username.trim() + '@example.com', // 使用用户名模拟邮箱
-        password: password.trim(),
-      });
+      const user = loginUser(username.trim(), password.trim());
       
-      if (error) {
-        throw error;
+      if (!user) {
+        throw new Error("用户名或密码不正确");
       }
       
       toast({

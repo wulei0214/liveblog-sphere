@@ -18,25 +18,23 @@ import PostList from '../components/home/PostList';
  * 展示博客文章列表和其他功能入口
  */
 const Index = () => {
-  const posts = getAllPosts();
-  const categories = getAllCategories();
-  const popularTags = getPopularTags(10);
+  const [posts, setPosts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [popularTags, setPopularTags] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredPosts, setFilteredPosts] = useState(posts);
+  const [filteredPosts, setFilteredPosts] = useState([]);
   
-  // 页面加载时滚动到顶部并检查是否有所有文章
+  // 页面加载时滚动到顶部并加载数据
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    // 强制刷新数据 - 这是一个测试调试方法
-    setTimeout(() => {
-      console.log("所有文章:", getAllPosts().length);
-      console.log("文章标题列表:", getAllPosts().map(p => `${p.id} - ${p.title}`));
-      setFilteredPosts(getAllPosts());
-    }, 100);
+    // 加载所有数据
+    setPosts(getAllPosts());
+    setCategories(getAllCategories());
+    setPopularTags(getPopularTags(10));
   }, []);
 
-  // 处理搜索
+  // 处理搜索，仅当posts或searchQuery变化时执行
   useEffect(() => {
     if (searchQuery.trim() === '') {
       setFilteredPosts(posts);
@@ -48,8 +46,6 @@ const Index = () => {
       );
       setFilteredPosts(filtered);
     }
-    
-    console.log("过滤后的文章数量:", filteredPosts.length);
   }, [searchQuery, posts]);
 
   return (

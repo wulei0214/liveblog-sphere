@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { registerUser } from '@/lib/auth';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -17,6 +17,8 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
     username: '',
     password: '',
     confirmPassword: '',
+    email: '',
+    phone: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   
@@ -32,7 +34,7 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
   // 处理注册提交
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { username, password, confirmPassword } = registerData;
+    const { username, password, confirmPassword, email, phone } = registerData;
     
     if (!username.trim() || !password.trim()) {
       toast({
@@ -55,19 +57,10 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.signUp({
-        email: username.trim() + '@example.com', // 使用用户名模拟邮箱
-        password: password.trim(),
-        options: {
-          data: {
-            username: username.trim(),
-            role: 'user',
-          }
-        }
-      });
+      const user = registerUser(username.trim(), password.trim(), email.trim(), phone.trim());
       
-      if (error) {
-        throw error;
+      if (!user) {
+        throw new Error("用户名已存在或信息有误");
       }
       
       toast({
@@ -103,6 +96,36 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
           onChange={handleChange}
           required
           placeholder="请输入用户名"
+          disabled={isLoading}
+        />
+      </div>
+      
+      <div>
+        <label htmlFor="register-email" className="block text-sm font-medium mb-1">
+          邮箱 (选填)
+        </label>
+        <Input
+          id="register-email"
+          name="email"
+          type="email"
+          value={registerData.email}
+          onChange={handleChange}
+          placeholder="请输入邮箱"
+          disabled={isLoading}
+        />
+      </div>
+      
+      <div>
+        <label htmlFor="register-phone" className="block text-sm font-medium mb-1">
+          手机号码 (选填)
+        </label>
+        <Input
+          id="register-phone"
+          name="phone"
+          type="tel"
+          value={registerData.phone}
+          onChange={handleChange}
+          placeholder="请输入手机号码"
           disabled={isLoading}
         />
       </div>
