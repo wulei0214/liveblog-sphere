@@ -2,10 +2,18 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { UserCircle, LogOut } from "lucide-react";
+import { UserCircle, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 /**
  * 用户菜单组件，显示登录状态和用户信息
@@ -28,27 +36,49 @@ const UserMenu = () => {
   return (
     <div className="hidden md:block">
       {isAuthenticated ? (
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium flex items-center">
-            <UserCircle className="mr-1 h-4 w-4" />
-            {user?.username}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="flex items-center gap-2">
+              <UserCircle className="h-4 w-4" />
+              <span className="text-sm font-medium">
+                {user?.username}
+                {isAdminUser && (
+                  <Badge className="ml-2 bg-primary/10 text-primary text-xs">
+                    管理员
+                  </Badge>
+                )}
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel>用户选项</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            
+            {/* 管理员专用选项 */}
             {isAdminUser && (
-              <Badge className="ml-2 bg-primary/10 text-primary text-xs">
-                管理员
-              </Badge>
+              <>
+                <DropdownMenuItem asChild>
+                  <Link to="/admin" className="flex cursor-pointer items-center">
+                    <Settings className="mr-2 h-4 w-4" />
+                    后台管理
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/users" className="flex cursor-pointer items-center">
+                    <UserCircle className="mr-2 h-4 w-4" />
+                    用户管理
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
             )}
-          </span>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLogout}
-            className="text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center"
-          >
-            <LogOut className="mr-1 h-4 w-4" />
-            退出
-          </Button>
-        </div>
+            
+            <DropdownMenuItem onClick={handleLogout} className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
+              <LogOut className="mr-2 h-4 w-4" />
+              退出登录
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ) : (
         <Link to="/login">
           <Button
