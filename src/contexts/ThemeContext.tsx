@@ -3,7 +3,7 @@
  * 主题上下文模块
  * 提供全局主题管理功能，支持亮色/深色模式切换和系统主题跟随
  */
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import * as React from 'react';
 
 // 主题类型定义
 type Theme = 'light' | 'dark';
@@ -18,7 +18,7 @@ interface ThemeContextType {
 }
 
 // 创建主题上下文
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
 
 /**
  * 主题提供者组件
@@ -27,13 +27,13 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
  */
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   // 初始化是否使用系统主题，优先从localStorage获取
-  const [isSystemTheme, setIsSystemTheme] = useState<boolean>(() => {
+  const [isSystemTheme, setIsSystemTheme] = React.useState<boolean>(() => {
     const savedPreference = localStorage.getItem('useSystemTheme');
     return savedPreference ? savedPreference === 'true' : true;
   });
   
   // 初始化主题状态
-  const [theme, setTheme] = useState<Theme>(() => {
+  const [theme, setTheme] = React.useState<Theme>(() => {
     // 首先检查是否启用系统主题
     const savedSystemPreference = localStorage.getItem('useSystemTheme');
     const useSystemTheme = savedSystemPreference ? savedSystemPreference === 'true' : true;
@@ -53,7 +53,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   // 监听系统主题变化
-  useEffect(() => {
+  React.useEffect(() => {
     if (!isSystemTheme) return;
     
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -67,7 +67,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, [isSystemTheme]);
 
   // 更新localStorage和文档类名
-  useEffect(() => {
+  React.useEffect(() => {
     if (!isSystemTheme) {
       localStorage.setItem('theme', theme);
     }
@@ -126,7 +126,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
  * @throws 如果在ThemeProvider外使用则抛出错误
  */
 export const useTheme = (): ThemeContextType => {
-  const context = useContext(ThemeContext);
+  const context = React.useContext(ThemeContext);
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }

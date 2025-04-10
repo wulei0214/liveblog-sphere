@@ -5,7 +5,7 @@
  * 使用DropdownMenu实现菜单选择，根据选择的主题显示对应图标
  */
 
-import React from 'react';
+import * as React from 'react';
 import { Moon, Sun, MonitorSmartphone } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { Button } from '@/components/ui/button';

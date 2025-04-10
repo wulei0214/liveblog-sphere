@@ -5,6 +5,7 @@
  * 负责初始化React应用，将根组件渲染到DOM中
  * 使用createRoot API来支持React 18的并发模式特性
  */
+import * as React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'

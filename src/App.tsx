@@ -6,7 +6,7 @@
  * 整合了主题管理、认证系统和路由导航
  */
 
-import React from 'react';
+import * as React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from './contexts/AuthContext';
