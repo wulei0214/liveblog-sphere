@@ -15,6 +15,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 // 页面导入
 import Index from './pages/Index';
 import Login from './pages/Login';
+import AuthPhone from './pages/AuthPhone';
 import Post from './pages/Post';
 import Create from './pages/Create';
 import Edit from './pages/Edit';
@@ -39,6 +40,7 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/auth-phone" element={<AuthPhone />} />
             <Route path="/post/:id" element={<Post />} />
             <Route path="/create" element={<Create />} />
             <Route path="/edit/:id" element={<Edit />} />

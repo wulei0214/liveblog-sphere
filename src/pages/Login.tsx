@@ -1,15 +1,17 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import AnimatedTransition from '../components/AnimatedTransition';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, UserPlus, LogIn } from 'lucide-react';
+import { User, UserPlus, LogIn, Phone } from 'lucide-react';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, register, isAuthenticated } = useAuth();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<string>('login');
   
   // 登录表单状态
@@ -24,6 +26,15 @@ const Login = () => {
     password: '',
     confirmPassword: '',
   });
+  
+  // 检查是否已登录
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        navigate('/');
+      }
+    });
+  }, [navigate]);
   
   // 处理登录表单变化
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,9 +59,36 @@ const Login = () => {
     e.preventDefault();
     const { username, password } = loginData;
     
-    const success = await login(username, password);
-    if (success) {
+    if (!username.trim() || !password.trim()) {
+      toast({
+        title: "登录失败",
+        description: "用户名和密码不能为空",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: username.trim() + '@example.com', // 使用用户名模拟邮箱
+        password: password.trim(),
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "登录成功",
+        description: "欢迎回来！",
+      });
       navigate('/');
+    } catch (error) {
+      toast({
+        title: "登录失败",
+        description: error.message || "用户名或密码不正确",
+        variant: "destructive",
+      });
     }
   };
   
@@ -59,27 +97,63 @@ const Login = () => {
     e.preventDefault();
     const { username, password, confirmPassword } = registerData;
     
-    if (password !== confirmPassword) {
-      alert('两次输入的密码不一致');
+    if (!username.trim() || !password.trim()) {
+      toast({
+        title: "注册失败",
+        description: "用户名和密码不能为空",
+        variant: "destructive",
+      });
       return;
     }
     
-    const success = await register(username, password);
-    if (success) {
+    if (password !== confirmPassword) {
+      toast({
+        title: "注册失败",
+        description: "两次输入的密码不一致",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: username.trim() + '@example.com', // 使用用户名模拟邮箱
+        password: password.trim(),
+        options: {
+          data: {
+            username: username.trim(),
+            role: 'user',
+          }
+        }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "注册成功",
+        description: "您可以现在登录了",
+      });
+      
       setActiveTab('login');
       setLoginData({
         username: username.trim(),
         password: '',
       });
+    } catch (error) {
+      toast({
+        title: "注册失败",
+        description: error.message || "用户名已存在或信息有误",
+        variant: "destructive",
+      });
     }
   };
   
-  // 如果已登录，重定向到首页
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/');
-    }
-  }, [isAuthenticated, navigate]);
+  // 跳转到手机登录
+  const handlePhoneLogin = () => {
+    navigate('/auth-phone');
+  };
   
   return (
     <AnimatedTransition>
@@ -138,6 +212,22 @@ const Login = () => {
                   <Button type="submit" className="w-full">
                     登录
                   </Button>
+
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      或使用其他方式
+                    </span>
+                  </div>
+                  
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={handlePhoneLogin}
+                  >
+                    <Phone size={16} className="mr-2" />
+                    手机号码登录
+                  </Button>
                 </form>
               </TabsContent>
               
@@ -191,6 +281,10 @@ const Login = () => {
                   <Button type="submit" className="w-full">
                     注册
                   </Button>
+
+                  <div className="text-center text-sm">
+                    <p>或者使用<Button variant="link" className="p-0" onClick={handlePhoneLogin}>手机号码</Button>注册</p>
+                  </div>
                 </form>
               </TabsContent>
             </Tabs>
