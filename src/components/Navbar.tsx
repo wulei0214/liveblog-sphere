@@ -23,11 +23,6 @@ const Navbar = () => {
   const { theme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // 关闭移动端菜单
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
-
   // 根据主题确定导航栏样式
   const navbarBgClass = theme === 'dark'
     ? "bg-[#1a1d2d] border-b border-gray-800"
@@ -72,7 +67,7 @@ const Navbar = () => {
 
       {/* 移动端导航菜单 */}
       <AnimatePresence>
-        {isMenuOpen && <MobileMenu isOpen={isMenuOpen} onClose={closeMenu} />}
+        {isMenuOpen && <MobileMenu open={isMenuOpen} onOpenChange={setIsMenuOpen} />}
       </AnimatePresence>
     </div>
   );
