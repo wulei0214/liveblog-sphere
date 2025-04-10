@@ -1,3 +1,4 @@
+
 /**
  * 数据访问层
  * 
@@ -105,16 +106,6 @@ export {
 
 // 导出消息相关类型
 export type { Message } from '../repositories/messageRepository';
-
-// 留言板相关方法导出
-export {
-  getAllBoardMessages,
-  addBoardMessage,
-  deleteBoardMessage
-} from '../repositories/messageBoardRepository';
-
-// 导出留言板相关类型
-export type { BoardMessage } from '../models/Message';
 
 // 数据初始化和样例数据管理
 import { Tables } from './databaseSchema';

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Home, BookOpen, Music, Radio, Settings, User, LogOut, MessageSquare } from 'lucide-react';
+import { Home, BookOpen, Music, Radio, Settings, User, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -32,11 +32,6 @@ const navLinks = [
     name: '听闻',
     path: '/heard',
     icon: <Radio size={18} />
-  },
-  {
-    name: '留言板',
-    path: '/message-board',
-    icon: <MessageSquare size={18} />
   }
 ];
 

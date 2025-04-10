@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Home, BookOpen, Music, Radio, MessageSquare } from 'lucide-react';
+import { Home, BookOpen, Music, Radio } from 'lucide-react';
 
 // 导航链接数据
 const navLinks = [
@@ -19,11 +19,6 @@ const navLinks = [
     name: '听闻',
     path: '/heard',
     icon: <Radio size={18} />
-  },
-  {
-    name: '留言板',
-    path: '/message-board',
-    icon: <MessageSquare size={18} />
   }
 ];
 

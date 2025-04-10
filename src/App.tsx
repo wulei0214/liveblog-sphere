@@ -25,7 +25,6 @@ import NotFound from './pages/NotFound';
 import Music from './pages/Music';
 import Heard from './pages/Heard';
 import MusicLoginQQ from './pages/MusicLoginQQ';
-import MessageBoard from './pages/MessageBoard'; // 新增留言板页面
 
 /**
  * 应用内容组件
@@ -49,7 +48,6 @@ function AppContent() {
             <Route path="/music" element={<Music />} />
             <Route path="/heard" element={<Heard />} />
             <Route path="/music-login-qq" element={<MusicLoginQQ />} />
-            <Route path="/message-board" element={<MessageBoard />} /> {/* 新增留言板路由 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
