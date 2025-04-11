@@ -150,7 +150,7 @@ export const deletePost = (id: string): boolean => {
 /**
  * 增加文章浏览次数
  * @param id 文章ID
- * @returns 更新后的文章或null
+ * @returns 更新后的文章���null
  */
 export const incrementViews = (id: string): Post | null => {
   const post = db.getById<Post>(Tables.POSTS, id);
