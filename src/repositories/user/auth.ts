@@ -4,7 +4,7 @@
  */
 import { Tables } from '../../lib/databaseSchema';
 import * as db from '../../lib/database';
-import { User } from './types';
+import { User, UserRole } from './types';
 
 /**
  * 用户登录服务
