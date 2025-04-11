@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, Lock } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Post } from '../../lib/data';
 import { Badge } from '@/components/ui/badge';
@@ -42,15 +42,6 @@ const PostHeader = ({ post, canModify, onEdit, onDelete }: PostHeaderProps) => {
               作者: {post?.author.username}
             </Button>
           </div>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          {!canModify && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              <Lock size={14} />
-              管理员专属编辑
-            </Badge>
-          )}
         </div>
         
         {canModify && (
