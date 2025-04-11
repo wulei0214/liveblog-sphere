@@ -20,8 +20,8 @@ import DeletePostAlert from '../components/post/DeletePostAlert';
 const Post = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
-  const [post, setPost] = useState(getPostById(id || ''));
+  const { user, isAuthenticated, isAdminUser } = useAuth();
+  const [post, setPost] = useState(null);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   
@@ -29,8 +29,9 @@ const Post = () => {
     window.scrollTo(0, 0);
     // 每次参数或组件更新时刷新文章数据
     if (id) {
-      setPost(getPostById(id));
-      setIsLiked(hasLiked(id));
+      const postData = getPostById(id);
+      setPost(postData);
+      setIsLiked(postData && hasLiked(id));
     }
   }, [id]);
 
@@ -46,8 +47,7 @@ const Post = () => {
   }
 
   const isAuthor = user && user.id === post?.author.id;
-  const isAdmin = user && user.role === 'admin';
-  const canModify = isAuthor || isAdmin;
+  const canModify = isAuthor || isAdminUser;
 
   const handleLike = () => {
     if (!isAuthenticated) {
@@ -142,7 +142,7 @@ const Post = () => {
               postId={post.id} 
               comments={post.comments} 
               currentUserId={user?.id} 
-              isAdmin={isAdmin} 
+              isAdmin={isAdminUser} 
               isAuthenticated={isAuthenticated}
               onCommentChange={handleCommentChange} 
             />

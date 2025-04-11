@@ -1,4 +1,3 @@
-
 /**
  * 文章修改相关操作
  */
@@ -66,7 +65,18 @@ export const addPost = (
     scheduledAt: status === 'scheduled' ? scheduledAt : undefined
   };
   
-  return db.create<Post>(Tables.POSTS, newPost);
+  // 创建新文章并确保保存到本地存储
+  const createdPost = db.create<Post>(Tables.POSTS, newPost);
+  
+  // 确保数据已保存
+  try {
+    const allPosts = db.getAll<Post>(Tables.POSTS);
+    console.log(`文章已保存，当前共有 ${allPosts.length} 篇文章`);
+  } catch (error) {
+    console.error('保存文章失败', error);
+  }
+  
+  return createdPost;
 };
 
 /**

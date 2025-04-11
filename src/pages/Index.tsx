@@ -23,6 +23,7 @@ const Index = () => {
   const [popularTags, setPopularTags] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredPosts, setFilteredPosts] = useState([]);
+  const [isLoaded, setIsLoaded] = useState(false);
   
   // 页面加载时滚动到顶部并加载数据
   useEffect(() => {
@@ -34,11 +35,12 @@ const Index = () => {
     setCategories(getAllCategories());
     setPopularTags(getPopularTags(10));
     setFilteredPosts(allPosts); // 初始化filteredPosts为所有文章
+    setIsLoaded(true);
   }, []);
 
   // 处理搜索，仅当searchQuery变化时执行
   useEffect(() => {
-    if (!posts.length) return; // 如果posts为空，不执行搜索
+    if (!isLoaded || !posts.length) return; // 如果posts为空或未加载，不执行搜索
     
     if (searchQuery.trim() === '') {
       setFilteredPosts(posts);
@@ -50,7 +52,7 @@ const Index = () => {
       );
       setFilteredPosts(filtered);
     }
-  }, [searchQuery, posts]);
+  }, [searchQuery, posts, isLoaded]);
 
   return (
     <>
