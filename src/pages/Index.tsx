@@ -29,13 +29,17 @@ const Index = () => {
     window.scrollTo(0, 0);
     
     // 加载所有数据
-    setPosts(getAllPosts());
+    const allPosts = getAllPosts();
+    setPosts(allPosts);
     setCategories(getAllCategories());
     setPopularTags(getPopularTags(10));
+    setFilteredPosts(allPosts); // 初始化filteredPosts为所有文章
   }, []);
 
-  // 处理搜索，仅当posts或searchQuery变化时执行
+  // 处理搜索，仅当searchQuery变化时执行
   useEffect(() => {
+    if (!posts.length) return; // 如果posts为空，不执行搜索
+    
     if (searchQuery.trim() === '') {
       setFilteredPosts(posts);
     } else {

@@ -17,7 +17,7 @@ interface BannerProps {
  * 首页顶部横幅组件
  */
 const Banner: React.FC<BannerProps> = ({ searchQuery, setSearchQuery }) => {
-  const { isAdminUser } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { theme } = useTheme();
   
   return (
@@ -63,8 +63,8 @@ const Banner: React.FC<BannerProps> = ({ searchQuery, setSearchQuery }) => {
           </div>
         </div>
         
-        {/* 管理员可见的创建按钮 */}
-        {isAdminUser && (
+        {/* 任何登录用户都可见的创建按钮 */}
+        {isAuthenticated && (
           <div className="mt-6 relative inline-block">
             <Link to="/create">
               <Button 

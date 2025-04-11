@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Phone } from 'lucide-react';
 import { loginUser } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -14,6 +15,7 @@ interface LoginFormProps {
 const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { refreshUser } = useAuth();
   const [loginData, setLoginData] = useState({
     username: '',
     password: '',
@@ -51,6 +53,9 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
       if (!user) {
         throw new Error("用户名或密码不正确");
       }
+      
+      // 更新认证上下文中的用户信息
+      refreshUser();
       
       toast({
         title: "登录成功",

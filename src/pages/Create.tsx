@@ -13,7 +13,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const Create = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [excerpt, setExcerpt] = useState('');
@@ -34,6 +34,11 @@ const Create = () => {
     // 验证表单输入
     if (!title.trim() || !content.trim() || !excerpt.trim()) {
       toast.error('请填写必填字段');
+      return;
+    }
+    
+    if (!user) {
+      toast.error('您需要登录才能发布文章');
       return;
     }
     
