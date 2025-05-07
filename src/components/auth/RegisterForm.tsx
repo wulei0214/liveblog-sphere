@@ -43,6 +43,14 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
     },
   });
   
+  // 处理手机号输入，只接受数字
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => {
+    const value = e.target.value;
+    // 只保留数字
+    const numericValue = value.replace(/[^\d]/g, '');
+    onChange(numericValue);
+  };
+  
   // 处理注册提交
   const handleSubmit = async (values: RegisterFormValues) => {
     setIsLoading(true);
@@ -89,6 +97,10 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
                   type="tel"
                   placeholder="请输入11位手机号码" 
                   disabled={isLoading}
+                  maxLength={11}
+                  pattern="\d*"
+                  inputMode="numeric"
+                  onChange={(e) => handlePhoneChange(e, field.onChange)}
                 />
               </FormControl>
               <FormMessage />

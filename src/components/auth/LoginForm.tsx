@@ -5,10 +5,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { loginUser } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 const LoginForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { refreshUser } = useAuth();
   const [loginData, setLoginData] = useState({
     phone: '',
     password: '',
@@ -18,10 +20,20 @@ const LoginForm = () => {
   // 处理登录表单变化
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setLoginData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    
+    // 如果是手机号码字段，只允许输入数字
+    if (name === 'phone' && value !== '') {
+      const numericValue = value.replace(/[^\d]/g, '');
+      setLoginData((prev) => ({
+        ...prev,
+        [name]: numericValue,
+      }));
+    } else {
+      setLoginData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
   
   // 处理登录提交
@@ -51,6 +63,8 @@ const LoginForm = () => {
         title: "登录成功",
         description: "欢迎回来",
       });
+      
+      refreshUser(); // 刷新用户信息
       
       // 检查用户是否需要设置昵称（用户名仍为手机号）
       if (user.username.match(/^1\d{10}$/)) {
@@ -84,6 +98,9 @@ const LoginForm = () => {
           required
           placeholder="请输入手机号码"
           disabled={isLoading}
+          maxLength={11}
+          pattern="\d*"
+          inputMode="numeric"
         />
       </div>
       

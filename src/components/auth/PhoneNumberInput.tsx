@@ -25,13 +25,21 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // 处理手机号输入，只接受数字
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // 只保留数字
+    const numericValue = value.replace(/[^\d]/g, '');
+    setPhone(numericValue);
+  };
+
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!phone || phone.length < 10) {
+    if (!phone || phone.length < 11) {
       toast({
         title: "无效的手机号码",
-        description: "请输入有效的手机号码",
+        description: "请输入有效的11位手机号码",
         variant: "destructive",
       });
       return;
@@ -73,19 +81,22 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
           type="tel"
           placeholder="请输入手机号码"
           value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          onChange={handlePhoneChange}
           disabled={isLoading}
           className="w-full"
+          maxLength={11}
+          pattern="\d*"
+          inputMode="numeric"
         />
         <p className="text-xs text-gray-500">
-          中国大陆手机号无需输入国家代码，其他地区需添加国际区号（如：+1）
+          请输入11位中国大陆手机号码
         </p>
       </div>
       
       <Button
         type="submit"
         className="w-full"
-        disabled={isLoading}
+        disabled={isLoading || phone.length !== 11}
       >
         {isLoading ? '发送中...' : '发送验证码'}
       </Button>

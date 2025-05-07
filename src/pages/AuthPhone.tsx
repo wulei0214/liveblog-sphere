@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import PhoneNumberInput from '@/components/auth/PhoneNumberInput';
 import OTPVerification from '@/components/auth/OTPVerification';
@@ -11,6 +12,7 @@ import { sendPhoneOTP } from '@/utils/phoneAuth';
 const AuthPhone = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { refreshUser } = useAuth();
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'verify'>('phone');
@@ -37,7 +39,7 @@ const AuthPhone = () => {
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!phone || phone.length < 10) {
+    if (!phone || phone.length < 11) {
       toast({
         title: "无效的手机号码",
         description: "请输入有效的手机号码",

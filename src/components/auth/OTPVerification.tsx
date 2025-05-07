@@ -10,6 +10,7 @@ import {
   InputOTPSlot 
 } from '@/components/ui/input-otp';
 import { sendPhoneOTP, verifyPhoneOTP } from '@/utils/phoneAuth';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface OTPVerificationProps {
   phone: string;
@@ -32,6 +33,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { refreshUser } = useAuth();
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,8 +61,17 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
         description: "欢迎回来",
       });
       
-      // 登录成功后导航到首页
-      navigate('/');
+      refreshUser(); // 刷新用户信息
+      
+      // 检查用户是否需要设置昵称（用户名与手机号相同）
+      const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+      if (currentUser && currentUser.username && currentUser.username.match(/^1\d{10}$/)) {
+        // 如果用户名是手机号格式，跳转到设置昵称页面
+        navigate('/set-nickname');
+      } else {
+        // 否则跳转到首页
+        navigate('/');
+      }
     } catch (error) {
       toast({
         title: "验证失败",

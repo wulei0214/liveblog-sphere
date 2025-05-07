@@ -26,6 +26,7 @@ export const initializeUsers = (): void => {
     createdAt: new Date(),
     lastLogin: new Date(),
     email: 'admin@example.com',
+    phone: 'admin', // 添加手机号以便能够通过手机号登录
     following: [],
     followers: []
   };
@@ -38,6 +39,7 @@ export const initializeUsers = (): void => {
     role: UserRole.USER,
     createdAt: new Date(),
     email: 'user@example.com',
+    phone: '13800138000', // 添加默认手机号
     following: [],
     followers: []
   };
