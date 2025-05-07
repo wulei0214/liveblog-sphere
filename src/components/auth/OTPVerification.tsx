@@ -1,4 +1,8 @@
 
+/**
+ * 验证码验证组件
+ * 用于短信验证码登录第二步：输入验证码进行验证
+ */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -35,9 +39,13 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
   const { toast } = useToast();
   const { refreshUser } = useAuth();
 
+  /**
+   * 验证OTP验证码
+   */
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // 验证输入的验证码格式
     if (!otp || otp.length !== 6) {
       toast({
         title: "无效的验证码",
@@ -50,6 +58,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
     setIsLoading(true);
     
     try {
+      // 验证OTP
       const { error } = await verifyPhoneOTP(phone, otp);
       
       if (error) {

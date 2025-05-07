@@ -1,6 +1,7 @@
 
 /**
- * 初始化用户数据
+ * 用户数据初始化模块
+ * 负责在应用首次启动时创建默认用户账号
  */
 import { Tables } from '../../lib/databaseSchema';
 import * as db from '../../lib/database';
@@ -8,6 +9,7 @@ import { User, UserRole } from './types';
 
 /**
  * 初始化默认用户数据
+ * 创建管理员账号和测试用户账号
  */
 export const initializeUsers = (): void => {
   const users = db.getAll<User>(Tables.USERS);
@@ -20,13 +22,13 @@ export const initializeUsers = (): void => {
   // 创建默认管理员账号
   const adminUser: User = {
     id: '1',
-    username: 'admin',
+    username: 'admin',  // 管理员用户名固定为admin
     password: 'admin123',
     role: UserRole.ADMIN,
     createdAt: new Date(),
     lastLogin: new Date(),
     email: 'admin@example.com',
-    phone: 'admin', // 添加手机号以便能够通过手机号登录
+    phone: 'admin',  // 管理员手机号固定为admin，用于特殊登录
     following: [],
     followers: []
   };
@@ -39,7 +41,7 @@ export const initializeUsers = (): void => {
     role: UserRole.USER,
     createdAt: new Date(),
     email: 'user@example.com',
-    phone: '13800138000', // 添加默认手机号
+    phone: '13800138000', // 测试用户默认手机号
     following: [],
     followers: []
   };

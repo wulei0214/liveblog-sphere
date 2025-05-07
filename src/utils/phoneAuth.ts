@@ -1,4 +1,8 @@
 
+/**
+ * 手机验证相关工具函数
+ * 提供手机号验证码发送、验证等功能
+ */
 import { supabase } from '@/integrations/supabase/client';
 import type { AuthOtpResponse, AuthResponse } from '@supabase/supabase-js';
 

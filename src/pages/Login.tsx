@@ -1,4 +1,10 @@
 
+/**
+ * 登录页面
+ * 
+ * 提供用户登录与注册的表单界面
+ * 使用Tabs组件实现登录/注册表单的切换
+ */
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,7 +18,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>('login');
   
-  // 检查是否已登录
+  // 检查是否已登录，如已登录则跳转到首页
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
@@ -21,6 +27,7 @@ const Login = () => {
     });
   }, [navigate]);
   
+  // 注册成功后切换到登录页
   const handleRegisterSuccess = () => {
     setActiveTab('login');
   };

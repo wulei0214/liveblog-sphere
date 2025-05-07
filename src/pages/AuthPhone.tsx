@@ -1,4 +1,11 @@
 
+/**
+ * 手机验证码登录页面
+ * 
+ * 提供两个步骤的验证码登录流程：
+ * 1. 输入手机号并获取验证码
+ * 2. 输入验证码进行验证登录
+ */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,7 +25,7 @@ const AuthPhone = () => {
   const [step, setStep] = useState<'phone' | 'verify'>('phone');
   const [isLoading, setIsLoading] = useState(false);
 
-  // 检查是否已登录
+  // 检查是否已登录，已登录则跳转到首页
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
@@ -35,10 +42,13 @@ const AuthPhone = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // 发送手机验证码
+  /**
+   * 发送手机验证码
+   */
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // 验证手机号格式
     if (!phone || phone.length < 11) {
       toast({
         title: "无效的手机号码",
@@ -51,6 +61,7 @@ const AuthPhone = () => {
     setIsLoading(true);
     
     try {
+      // 调用发送验证码API
       const { error } = await sendPhoneOTP(phone);
       
       if (error) {

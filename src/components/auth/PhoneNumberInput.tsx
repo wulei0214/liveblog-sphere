@@ -1,4 +1,8 @@
 
+/**
+ * 手机号输入组件
+ * 用于短信验证码登录第一步：输入手机号并发送验证码
+ */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -25,7 +29,10 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // 处理手机号输入，只接受数字
+  /**
+   * 处理手机号输入变化
+   * 只允许输入数字，过滤掉其他字符
+   */
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // 只保留数字
@@ -33,9 +40,13 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
     setPhone(numericValue);
   };
 
+  /**
+   * 发送验证码
+   */
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // 验证手机号格式
     if (!phone || phone.length < 11) {
       toast({
         title: "无效的手机号码",
@@ -48,6 +59,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
     setIsLoading(true);
     
     try {
+      // 发送验证码
       const { error } = await sendPhoneOTP(phone);
       
       if (error) {

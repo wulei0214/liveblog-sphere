@@ -1,4 +1,8 @@
 
+/**
+ * 用户注册表单组件
+ * 使用React Hook Form提供表单验证功能
+ */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -34,6 +38,7 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   
+  // 初始化表单
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -43,7 +48,9 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
     },
   });
   
-  // 处理手机号输入，只接受数字
+  /**
+   * 处理手机号输入，只接受数字
+   */
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => {
     const value = e.target.value;
     // 只保留数字
@@ -51,11 +58,14 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
     onChange(numericValue);
   };
   
-  // 处理注册提交
+  /**
+   * 处理注册提交
+   */
   const handleSubmit = async (values: RegisterFormValues) => {
     setIsLoading(true);
     
     try {
+      // 调用注册服务
       const user = registerUser(values.phone.trim(), values.password.trim());
       
       if (!user) {
@@ -67,6 +77,7 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
         description: "您可以现在登录了",
       });
       
+      // 注册成功后回调
       if (onSuccess) {
         onSuccess();
       }
