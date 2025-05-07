@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import AnimatedTransition from '../components/AnimatedTransition';
-import { addPost } from '../lib/data';
+import { addPost } from '../repositories/postRepository';
 import Navbar from '../components/Navbar';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,7 @@ const Create = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // 验证表单输入
@@ -45,13 +45,17 @@ const Create = () => {
     setIsSubmitting(true);
     
     try {
+      console.log('正在发布文章...');
       const newPost = addPost(
         title.trim(), 
         content.trim(), 
         excerpt.trim(), 
         [], // tags array
+        undefined, // categoryId
         image.trim() || undefined
       );
+      
+      console.log('发布结果:', newPost);
       
       if (newPost) {
         toast.success('文章已发布');
@@ -61,6 +65,7 @@ const Create = () => {
         setIsSubmitting(false);
       }
     } catch (error) {
+      console.error('发布文章错误:', error);
       if (error instanceof Error) {
         toast.error(error.message);
       } else {

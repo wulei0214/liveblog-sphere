@@ -26,6 +26,7 @@ import NotFound from './pages/NotFound';
 import Music from './pages/Music';
 import Heard from './pages/Heard';
 import MusicLoginQQ from './pages/MusicLoginQQ';
+import SetNickname from './pages/SetNickname';
 
 /**
  * 应用内容组件
@@ -41,6 +42,7 @@ function AppContent() {
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/auth-phone" element={<AuthPhone />} />
+            <Route path="/set-nickname" element={<SetNickname />} />
             <Route path="/post/:id" element={<Post />} />
             <Route path="/create" element={<Create />} />
             <Route path="/edit/:id" element={<Edit />} />

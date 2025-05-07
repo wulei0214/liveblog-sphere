@@ -4,24 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Phone } from 'lucide-react';
 import { loginUser } from '@/lib/auth';
-import { useAuth } from '@/contexts/AuthContext';
 
-interface LoginFormProps {
-  onSuccess?: () => void;
-}
-
-const LoginForm = ({ onSuccess }: LoginFormProps) => {
+const LoginForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { refreshUser } = useAuth();
   const [loginData, setLoginData] = useState({
-    username: '',
+    phone: '',
     password: '',
   });
   const [isLoading, setIsLoading] = useState(false);
-
+  
   // 处理登录表单变化
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -34,12 +27,12 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
   // 处理登录提交
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { username, password } = loginData;
+    const { phone, password } = loginData;
     
-    if (!username.trim() || !password.trim()) {
+    if (!phone.trim() || !password.trim()) {
       toast({
         title: "登录失败",
-        description: "用户名和密码不能为空",
+        description: "手机号和密码不能为空",
         variant: "destructive",
       });
       return;
@@ -48,29 +41,27 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
     setIsLoading(true);
     
     try {
-      const user = loginUser(username.trim(), password.trim());
+      const user = loginUser(phone.trim(), password.trim());
       
       if (!user) {
-        throw new Error("用户名或密码不正确");
+        throw new Error("手机号或密码错误");
       }
-      
-      // 更新认证上下文中的用户信息
-      refreshUser();
       
       toast({
         title: "登录成功",
-        description: "欢迎回来！",
+        description: "欢迎回来",
       });
       
-      if (onSuccess) {
-        onSuccess();
+      // 检查用户是否需要设置昵称（用户名仍为手机号）
+      if (user.username.match(/^1\d{10}$/)) {
+        navigate('/set-nickname');
       } else {
         navigate('/');
       }
     } catch (error) {
       toast({
         title: "登录失败",
-        description: error.message || "用户名或密码不正确",
+        description: error instanceof Error ? error.message : "手机号或密码错误",
         variant: "destructive",
       });
     } finally {
@@ -81,25 +72,30 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="login-username" className="block text-sm font-medium mb-1">
-          用户名
+        <label htmlFor="login-phone" className="block text-sm font-medium mb-1">
+          手机号码
         </label>
         <Input
-          id="login-username"
-          name="username"
-          type="text"
-          value={loginData.username}
+          id="login-phone"
+          name="phone"
+          type="tel"
+          value={loginData.phone}
           onChange={handleChange}
           required
-          placeholder="请输入用户名"
+          placeholder="请输入手机号码"
           disabled={isLoading}
         />
       </div>
       
       <div>
-        <label htmlFor="login-password" className="block text-sm font-medium mb-1">
-          密码
-        </label>
+        <div className="flex items-center justify-between mb-1">
+          <label htmlFor="login-password" className="block text-sm font-medium">
+            密码
+          </label>
+          <Button variant="link" size="sm" className="h-auto p-0">
+            忘记密码？
+          </Button>
+        </div>
         <Input
           id="login-password"
           name="password"
@@ -113,28 +109,18 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
       </div>
       
       <Button 
-        type="submit"
+        type="submit" 
         className="w-full"
         disabled={isLoading}
       >
         {isLoading ? '登录中...' : '登录'}
       </Button>
 
-      <div className="relative flex justify-center text-xs uppercase">
-        <span className="bg-background px-2 text-muted-foreground">
-          或使用其他方式
-        </span>
+      <div className="text-center text-sm">
+        <Button variant="link" className="p-0" onClick={() => navigate('/auth-phone')}>
+          使用短信验证码登录
+        </Button>
       </div>
-      
-      <Button 
-        type="button" 
-        variant="outline" 
-        className="w-full"
-        onClick={() => navigate('/auth-phone')}
-      >
-        <Phone size={16} className="mr-2" />
-        手机号码登录
-      </Button>
     </form>
   );
 };

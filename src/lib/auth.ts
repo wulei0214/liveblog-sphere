@@ -11,6 +11,7 @@ export {
   UserRole, 
   loginUser, 
   registerUser, 
+  updateUserNickname,
   getCurrentUser, 
   logoutUser, 
   getAllUsers, 

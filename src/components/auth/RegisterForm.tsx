@@ -4,63 +4,54 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { registerUser } from '@/lib/auth';
+import { registerUser } from '@/repositories/userRepository';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
 }
 
+// 定义表单验证模式
+const registerSchema = z.object({
+  phone: z.string()
+    .min(11, '请输入正确的手机号码')
+    .max(11, '请输入正确的手机号码')
+    .regex(/^1\d{10}$/, '请输入正确的手机号码格式'),
+  password: z.string().min(6, '密码至少需要6个字符'),
+  confirmPassword: z.string().min(6, '密码至少需要6个字符'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: '两次输入的密码不一致',
+  path: ['confirmPassword'],
+});
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
+
 const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [registerData, setRegisterData] = useState({
-    username: '',
-    password: '',
-    confirmPassword: '',
-    email: '',
-    phone: '',
-  });
   const [isLoading, setIsLoading] = useState(false);
   
-  // 处理注册表单变化
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setRegisterData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      phone: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
   
   // 处理注册提交
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const { username, password, confirmPassword, email, phone } = registerData;
-    
-    if (!username.trim() || !password.trim()) {
-      toast({
-        title: "注册失败",
-        description: "用户名和密码不能为空",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (password !== confirmPassword) {
-      toast({
-        title: "注册失败",
-        description: "两次输入的密码不一致",
-        variant: "destructive",
-      });
-      return;
-    }
-    
+  const handleSubmit = async (values: RegisterFormValues) => {
     setIsLoading(true);
     
     try {
-      const user = registerUser(username.trim(), password.trim(), email.trim(), phone.trim());
+      const user = registerUser(values.phone.trim(), values.password.trim());
       
       if (!user) {
-        throw new Error("用户名已存在或信息有误");
+        throw new Error("注册失败，该手机号可能已被注册");
       }
       
       toast({
@@ -72,9 +63,10 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
         onSuccess();
       }
     } catch (error) {
+      console.error("注册错误:", error);
       toast({
         title: "注册失败",
-        description: error.message || "用户名已存在或信息有误",
+        description: error instanceof Error ? error.message : "注册过程中发生错误",
         variant: "destructive",
       });
     } finally {
@@ -83,97 +75,78 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="register-username" className="block text-sm font-medium mb-1">
-          用户名
-        </label>
-        <Input
-          id="register-username"
-          name="username"
-          type="text"
-          value={registerData.username}
-          onChange={handleChange}
-          required
-          placeholder="请输入用户名"
-          disabled={isLoading}
-        />
-      </div>
-      
-      <div>
-        <label htmlFor="register-email" className="block text-sm font-medium mb-1">
-          邮箱 (选填)
-        </label>
-        <Input
-          id="register-email"
-          name="email"
-          type="email"
-          value={registerData.email}
-          onChange={handleChange}
-          placeholder="请输入邮箱"
-          disabled={isLoading}
-        />
-      </div>
-      
-      <div>
-        <label htmlFor="register-phone" className="block text-sm font-medium mb-1">
-          手机号码 (选填)
-        </label>
-        <Input
-          id="register-phone"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
           name="phone"
-          type="tel"
-          value={registerData.phone}
-          onChange={handleChange}
-          placeholder="请输入手机号码"
-          disabled={isLoading}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>手机号码</FormLabel>
+              <FormControl>
+                <Input 
+                  {...field}
+                  type="tel"
+                  placeholder="请输入11位手机号码" 
+                  disabled={isLoading}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </div>
-      
-      <div>
-        <label htmlFor="register-password" className="block text-sm font-medium mb-1">
-          密码
-        </label>
-        <Input
-          id="register-password"
+        
+        <FormField
+          control={form.control}
           name="password"
-          type="password"
-          value={registerData.password}
-          onChange={handleChange}
-          required
-          placeholder="请设置密码"
-          disabled={isLoading}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>密码</FormLabel>
+              <FormControl>
+                <Input 
+                  {...field}
+                  type="password"
+                  placeholder="请设置密码（至少6位）" 
+                  disabled={isLoading}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </div>
-      
-      <div>
-        <label htmlFor="confirm-password" className="block text-sm font-medium mb-1">
-          确认密码
-        </label>
-        <Input
-          id="confirm-password"
+        
+        <FormField
+          control={form.control}
           name="confirmPassword"
-          type="password"
-          value={registerData.confirmPassword}
-          onChange={handleChange}
-          required
-          placeholder="请再次输入密码"
-          disabled={isLoading}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>确认密码</FormLabel>
+              <FormControl>
+                <Input 
+                  {...field}
+                  type="password"
+                  placeholder="请再次输入密码" 
+                  disabled={isLoading}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </div>
-      
-      <Button 
-        type="submit" 
-        className="w-full"
-        disabled={isLoading}
-      >
-        {isLoading ? '注册中...' : '注册'}
-      </Button>
+        
+        <Button 
+          type="submit" 
+          className="w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? '注册中...' : '注册'}
+        </Button>
 
-      <div className="text-center text-sm">
-        <p>或者使用<Button variant="link" className="p-0" onClick={() => navigate('/auth-phone')}>手机号码</Button>注册</p>
-      </div>
-    </form>
+        <div className="text-center text-sm">
+          <p>注册即代表您同意我们的<Button variant="link" className="p-0">隐私政策</Button>和<Button variant="link" className="p-0">用户协议</Button></p>
+        </div>
+      </form>
+    </Form>
   );
 };
 
