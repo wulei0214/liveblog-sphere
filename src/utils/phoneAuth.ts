@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import type { AuthOtpResponse } from '@supabase/supabase-js';
+import type { AuthOtpResponse, AuthResponse } from '@supabase/supabase-js';
 
 /**
  * 发送手机号码验证码
@@ -22,7 +22,7 @@ export const sendPhoneOTP = async (phone: string): Promise<AuthOtpResponse> => {
  * @param otp 验证码
  * @returns 验证结果
  */
-export const verifyPhoneOTP = async (phone: string, otp: string): Promise<AuthOtpResponse> => {
+export const verifyPhoneOTP = async (phone: string, otp: string): Promise<AuthResponse> => {
   // 格式化手机号码为国际格式 (+86 for China)
   const formattedPhone = phone.startsWith('+') ? phone : `+86${phone}`;
   
