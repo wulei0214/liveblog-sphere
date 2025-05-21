@@ -59,16 +59,11 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
     setIsLoading(true);
     
     try {
-      // 发送验证码
-      const { error } = await sendPhoneOTP(phone);
-      
-      if (error) {
-        throw error;
-      }
-      
+      // 发送验证码 - 在测试阶段无需真实发送
+      // 直接提示使用万能验证码
       toast({
         title: "验证码已发送",
-        description: "请查看您的手机短信",
+        description: "审核阶段请使用万能验证码：123456",
       });
       
       // 进入验证步骤
@@ -103,6 +98,9 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
         <p className="text-xs text-gray-500">
           请输入11位中国大陆手机号码
         </p>
+        <p className="text-xs text-blue-500">
+          审核阶段：所有验证码均为 123456
+        </p>
       </div>
       
       <Button
@@ -110,7 +108,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
         className="w-full"
         disabled={isLoading || phone.length !== 11}
       >
-        {isLoading ? '发送中...' : '发送验证码'}
+        {isLoading ? '发送中...' : '获取验证码'}
       </Button>
       
       <div className="text-center mt-4">
