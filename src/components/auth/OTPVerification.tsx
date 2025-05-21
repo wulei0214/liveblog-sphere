@@ -117,7 +117,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
             render={({ slots }) => (
               <InputOTPGroup>
                 {slots.map((slot, i) => (
-                  <InputOTPSlot key={i} index={i} {...slot} />
+                  <InputOTPSlot key={i} {...slot} />
                 ))}
               </InputOTPGroup>
             )}
