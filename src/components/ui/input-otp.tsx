@@ -1,9 +1,16 @@
 
 import * as React from "react"
-import { OTPInput, SlotProps } from "input-otp"
+import { OTPInput } from "input-otp"
 import { Dot } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+
+// Define our own SlotProps type since @types/input-otp doesn't exist
+interface SlotProps {
+  char: string | null;
+  hasFakeCaret: boolean;
+  isActive: boolean;
+}
 
 const InputOTP = React.forwardRef<
   React.ElementRef<typeof OTPInput>,
