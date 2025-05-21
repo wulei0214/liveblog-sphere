@@ -1,3 +1,4 @@
+
 /**
  * 手机验证相关工具函数
  * 提供手机号验证码发送、验证等功能
@@ -21,8 +22,9 @@ export const sendPhoneOTP = async (phone: string): Promise<AuthOtpResponse> => {
   // 不实际发送验证码，统一使用123456作为万能验证码
   return {
     data: { 
-      message: "审核阶段：请使用万能验证码 123456",
-      id: "mock-verification-id"
+      user: null,
+      session: null,
+      messageId: "mock-verification-id"
     },
     error: null
   } as AuthOtpResponse;
