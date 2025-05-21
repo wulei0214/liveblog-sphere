@@ -29,6 +29,8 @@ export const initializeUsers = (): void => {
     lastLogin: new Date(),
     email: 'admin@example.com',
     phone: 'admin',  // 管理员手机号固定为admin，用于特殊登录
+    avatar: '/placeholder.svg', // 默认头像
+    bio: '系统管理员',
     following: [],
     followers: []
   };
@@ -36,12 +38,14 @@ export const initializeUsers = (): void => {
   // 创建默认测试账号
   const testUser: User = {
     id: '2',
-    username: 'user01',
+    username: '测试用户',
     password: 'password123',
     role: UserRole.USER,
     createdAt: new Date(),
     email: 'user@example.com',
     phone: '13800138000', // 测试用户默认手机号
+    avatar: '/placeholder.svg', // 默认头像
+    bio: '这是一个测试账号',
     following: [],
     followers: []
   };

@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { sendPhoneOTP } from '@/utils/phoneAuth';
+import { sendPhoneOTP, filterPhoneInput, isValidPhoneNumber } from '@/utils/phoneAuth';
 
 interface PhoneNumberInputProps {
   phone: string;
@@ -36,7 +36,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // 只保留数字
-    const numericValue = value.replace(/[^\d]/g, '');
+    const numericValue = filterPhoneInput(value);
     setPhone(numericValue);
   };
 
@@ -47,7 +47,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
     e.preventDefault();
     
     // 验证手机号格式
-    if (!phone || phone.length < 11) {
+    if (!isValidPhoneNumber(phone)) {
       toast({
         title: "无效的手机号码",
         description: "请输入有效的11位手机号码",
@@ -114,13 +114,26 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
       </Button>
       
       <div className="text-center mt-4">
-        <Button
-          type="button"
-          variant="link"
-          onClick={() => navigate('/login')}
-        >
-          返回登录页
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/login')}
+          >
+            返回登录页
+          </Button>
+          
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            onClick={() => navigate('/admin-login')}
+            className="text-xs opacity-70"
+          >
+            管理员入口
+          </Button>
+        </div>
       </div>
     </form>
   );

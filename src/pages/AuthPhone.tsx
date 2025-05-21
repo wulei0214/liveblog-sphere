@@ -8,9 +8,8 @@
  */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import AnimatedTransition from '@/components/AnimatedTransition';
 import PhoneNumberInput from '@/components/auth/PhoneNumberInput';
 import OTPVerification from '@/components/auth/OTPVerification';
@@ -19,7 +18,7 @@ import { sendPhoneOTP } from '@/utils/phoneAuth';
 const AuthPhone = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { refreshUser } = useAuth();
+  const { user } = useAuth();
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'verify'>('phone');
@@ -27,20 +26,10 @@ const AuthPhone = () => {
 
   // 检查是否已登录，已登录则跳转到首页
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        navigate('/');
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        navigate('/');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   /**
    * 发送手机验证码

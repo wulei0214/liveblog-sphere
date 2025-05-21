@@ -2,7 +2,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { UserCircle, LogOut, Settings, Phone } from "lucide-react";
+import { UserCircle, LogOut, Settings, Phone, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +26,10 @@ const UserMenu = () => {
   // 退出登录处理
   const handleLogout = async () => {
     await logout();
+    toast({
+      title: "已退出登录",
+      description: "您已成功退出系统"
+    });
     navigate("/");
   };
 
@@ -65,13 +69,21 @@ const UserMenu = () => {
               </Link>
             </DropdownMenuItem>
             
+            {/* 修改资料入口 */}
+            <DropdownMenuItem asChild>
+              <Link to="/profile-setup" className="flex cursor-pointer items-center">
+                <Settings className="mr-2 h-4 w-4" />
+                修改资料
+              </Link>
+            </DropdownMenuItem>
+            
             {/* 管理员专用选项 */}
             {isAdminUser && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to="/admin" className="flex cursor-pointer items-center">
-                    <Settings className="mr-2 h-4 w-4" />
+                    <Shield className="mr-2 h-4 w-4" />
                     后台管理
                   </Link>
                 </DropdownMenuItem>
@@ -95,7 +107,7 @@ const UserMenu = () => {
         <div className="flex gap-2">
           <Link to="/auth-phone">
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               className="flex items-center"
             >
@@ -103,14 +115,14 @@ const UserMenu = () => {
               手机登录
             </Button>
           </Link>
-          <Link to="/login">
+          <Link to="/admin-login" className="opacity-50 hover:opacity-100 transition-opacity">
             <Button
-              variant="default"
+              variant="outline"
               size="sm"
-              className="flex items-center"
+              className="flex items-center border-dashed text-xs"
             >
-              <UserCircle className="mr-1 h-4 w-4" />
-              登录/注册
+              <Shield className="mr-1 h-3 w-3" />
+              管理员
             </Button>
           </Link>
         </div>

@@ -20,7 +20,7 @@ export enum UserRole {
  */
 export interface User {
   id: string;          // 用户唯一标识
-  username: string;    // 用户名
+  username: string;    // 用户名/昵称
   password: string;    // 密码（实际应用中应该加密存储）
   role: UserRole;      // 用户角色
   createdAt: Date;     // 创建时间
@@ -29,6 +29,18 @@ export interface User {
   phone?: string;      // 手机号码
   avatar?: string;     // 头像URL
   bio?: string;        // 个人简介
+  birthDate?: Date;    // 生日
   following?: string[]; // 关注的用户ID列表
   followers?: string[]; // 粉丝ID列表
+}
+
+/**
+ * 用户资料表单数据类型
+ * 用于资料设置表单
+ */
+export interface UserProfileFormData {
+  username: string;    // 用户昵称
+  birthDate?: Date;    // 生日
+  bio?: string;        // 个人简介
+  avatar?: string;     // 头像URL
 }

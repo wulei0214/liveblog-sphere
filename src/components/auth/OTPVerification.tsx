@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/input-otp';
 import { sendPhoneOTP, verifyPhoneOTP } from '@/utils/phoneAuth';
 import { useAuth } from '@/contexts/AuthContext';
+import { phoneAuthLogin, needsNicknameSetup } from '@/repositories/user/auth';
 
 interface OTPVerificationProps {
   phone: string;
@@ -65,6 +66,9 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
         throw error;
       }
       
+      // 验证成功，使用手机号登录或注册
+      const user = phoneAuthLogin(phone);
+      
       toast({
         title: "登录成功",
         description: "欢迎回来",
@@ -72,11 +76,10 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
       
       refreshUser(); // 刷新用户信息
       
-      // 检查用户是否需要设置昵称（用户名与手机号相同）
-      const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-      if (currentUser && currentUser.username && currentUser.username.match(/^1\d{10}$/)) {
-        // 如果用户名是手机号格式，跳转到设置昵称页面
-        navigate('/set-nickname');
+      // 检查用户是否需要设置资料
+      if (needsNicknameSetup(user)) {
+        // 如果用户需要设置资料，跳转到资料设置页
+        navigate('/profile-setup');
       } else {
         // 否则跳转到首页
         navigate('/');

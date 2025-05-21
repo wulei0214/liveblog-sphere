@@ -2,35 +2,26 @@
 /**
  * 登录页面
  * 
- * 提供用户登录与注册的表单界面
- * 使用Tabs组件实现登录/注册表单的切换
+ * 在新认证流程中主要作为过渡页面
+ * 引导用户使用手机登录或管理员登录
  */
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import AnimatedTransition from '../components/AnimatedTransition';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LogIn, UserPlus } from 'lucide-react';
-import LoginForm from '@/components/auth/LoginForm';
-import RegisterForm from '@/components/auth/RegisterForm';
+import { Button } from '@/components/ui/button';
+import { Phone, Shield } from 'lucide-react';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<string>('login');
+  const { user } = useAuth();
   
   // 检查是否已登录，如已登录则跳转到首页
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        navigate('/');
-      }
-    });
-  }, [navigate]);
-  
-  // 注册成功后切换到登录页
-  const handleRegisterSuccess = () => {
-    setActiveTab('login');
-  };
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
   
   return (
     <AnimatedTransition>
@@ -38,30 +29,31 @@ const Login = () => {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-2">欢迎使用博客系统</h1>
-            <p className="text-gray-600 dark:text-gray-300">登录或注册以继续</p>
-          </div>
-          
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="login" className="flex items-center gap-2">
-                  <LogIn size={16} />
-                  <span>登录</span>
-                </TabsTrigger>
-                <TabsTrigger value="register" className="flex items-center gap-2">
-                  <UserPlus size={16} />
-                  <span>注册</span>
-                </TabsTrigger>
-              </TabsList>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">请选择登录方式继续</p>
+            
+            <div className="space-y-4">
+              <Link to="/auth-phone" className="block">
+                <Button
+                  variant="default"
+                  size="lg"
+                  className="w-full flex items-center justify-center gap-2 py-6"
+                >
+                  <Phone className="h-5 w-5" />
+                  <span>手机号登录/注册</span>
+                </Button>
+              </Link>
               
-              <TabsContent value="login">
-                <LoginForm />
-              </TabsContent>
-              
-              <TabsContent value="register">
-                <RegisterForm onSuccess={handleRegisterSuccess} />
-              </TabsContent>
-            </Tabs>
+              <Link to="/admin-login" className="block">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full flex items-center justify-center gap-2 py-6 border-dashed"
+                >
+                  <Shield className="h-5 w-5" />
+                  <span>管理员登录</span>
+                </Button>
+              </Link>
+            </div>
           </div>
           
           <div className="text-center mt-6">

@@ -39,11 +39,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       logout();
       setUser(null);
-      
-      toast({
-        title: "已登出",
-        description: "您已成功退出登录",
-      });
     } catch (error) {
       toast({
         title: "退出失败",

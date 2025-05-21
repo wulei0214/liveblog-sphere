@@ -27,6 +27,8 @@ import Music from './pages/Music';
 import Heard from './pages/Heard';
 import MusicLoginQQ from './pages/MusicLoginQQ';
 import SetNickname from './pages/SetNickname';
+import ProfileSetup from './pages/ProfileSetup'; // 新增个人资料设置页面
+import AdminLogin from './pages/AdminLogin'; // 新增管理员登录页面
 
 /**
  * 应用内容组件
@@ -42,6 +44,8 @@ function AppContent() {
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/auth-phone" element={<AuthPhone />} />
+            <Route path="/admin-login" element={<AdminLogin />} /> {/* 新增管理员登录路由 */}
+            <Route path="/profile-setup" element={<ProfileSetup />} /> {/* 新增资料设置路由 */}
             <Route path="/set-nickname" element={<SetNickname />} />
             <Route path="/post/:id" element={<Post />} />
             <Route path="/create" element={<Create />} />
