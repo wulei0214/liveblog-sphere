@@ -9,7 +9,7 @@ export { UserRole } from './user/types';
 export type { User } from './user/types';
 
 // 导出认证相关方法
-export { loginUser, registerUser, updateUserNickname, getCurrentUser, logoutUser } from './user/auth';
+export { loginUser, registerUser, updateUserNickname, getCurrentUser, logoutUser, updateUserProfile } from './user/auth';
 
 // 导出查询相关方法
 export { getAllUsers, getUserById, isAdmin, isEditor } from './user/queries';
