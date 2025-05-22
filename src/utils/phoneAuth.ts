@@ -22,7 +22,10 @@ export const sendPhoneOTP = async (phone: string): Promise<AuthOtpResponse> => {
   
   // 测试环境：返回成功响应，不实际发送验证码
   return {
-    data: {},
+    data: {
+      user: null,
+      session: null
+    },
     error: null
   };
 };
