@@ -5,7 +5,7 @@
  */
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { AuthContextType } from '@/types/auth';
+import { AuthContextType, AppUser, UserRole } from '@/types/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
 
@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  */
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { toast } = useToast();
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [supabaseUser, setSupabaseUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,7 +43,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               // 使用资料信息设置用户
               setUser({
                 ...profile,
-                role: profile.username === 'admin' ? 'admin' : 'user',
+                id: session.user.id,
+                role: profile.username === 'admin' ? UserRole.ADMIN : UserRole.USER,
               });
             }
           } catch (error) {
@@ -58,34 +59,40 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
     
     // 初始加载时获取当前会话
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setSupabaseUser(session?.user || null);
-      
-      if (session?.user) {
-        // 获取用户资料
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-          .then(({ data: profile }) => {
+    const fetchInitialSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        setSupabaseUser(session?.user || null);
+        
+        if (session?.user) {
+          // 获取用户资料
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
+            
             if (profile) {
               setUser({
                 ...profile,
-                role: profile.username === 'admin' ? 'admin' : 'user',
+                id: session.user.id,
+                role: profile.username === 'admin' ? UserRole.ADMIN : UserRole.USER,
               });
             }
-            setIsLoading(false);
-          })
-          .catch((error) => {
-            console.error('获取用户资料失败', error);
-            setIsLoading(false);
-          });
-      } else {
+          } catch (profileError) {
+            console.error('获取用户资料失败', profileError);
+          }
+        }
+      } catch (error) {
+        console.error('获取会话失败', error);
+      } finally {
         setIsLoading(false);
       }
-    });
+    };
+    
+    fetchInitialSession();
     
     // 清理订阅
     return () => {
@@ -120,23 +127,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
    * 刷新用户信息
    */
   const refreshUser = async () => {
+    if (!supabaseUser) return;
+    
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', supabaseUser.id)
+        .single();
       
-      if (session?.user) {
-        // 刷新用户资料
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        
-        if (profile) {
-          setUser({
-            ...profile,
-            role: profile.username === 'admin' ? 'admin' : 'user',
-          });
-        }
+      if (profile) {
+        setUser({
+          ...profile,
+          id: supabaseUser.id,
+          role: profile.username === 'admin' ? UserRole.ADMIN : UserRole.USER,
+        });
       }
     } catch (error) {
       console.error('刷新用户信息失败', error);
@@ -149,8 +154,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     supabaseUser,
     isLoading,
     isAuthenticated: !!user,
-    isAdminUser: user?.role === 'admin',
-    isEditorUser: user?.role === 'admin' || user?.role === 'editor',
+    isAdminUser: user?.role === UserRole.ADMIN,
+    isEditorUser: user?.role === UserRole.ADMIN || user?.role === UserRole.EDITOR,
     logout: handleLogout,
     refreshUser,
   };
