@@ -21,8 +21,8 @@ import { format } from 'date-fns';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { updateUserProfile } from '@/repositories/userRepository';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 // 定义表单验证模式
 const profileSetupSchema = z.object({
@@ -39,7 +39,7 @@ type ProfileSetupFormValues = z.infer<typeof profileSetupSchema>;
 const ProfileSetup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, supabaseUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   
   // 初始化表单
@@ -47,7 +47,7 @@ const ProfileSetup = () => {
     resolver: zodResolver(profileSetupSchema),
     defaultValues: {
       username: user?.username || '',
-      birthDate: user?.birthDate,
+      birthDate: user?.birthDate ? new Date(user.birthDate) : undefined,
       bio: user?.bio || '',
       avatar: user?.avatar || ''
     }
@@ -55,24 +55,37 @@ const ProfileSetup = () => {
   
   // 如果用户未登录，重定向到登录页
   useEffect(() => {
-    if (!user) {
+    if (!supabaseUser) {
       navigate('/auth-phone');
     } else if (
+      user &&
       user.username && 
-      user.username !== user.phone && 
+      !user.username.match(/^\+?86?\d{11}$/) && 
       user.bio && 
       user.avatar
     ) {
       // 如果用户已完善资料，跳转到首页
       navigate('/');
     }
-  }, [user, navigate]);
+  }, [user, supabaseUser, navigate]);
+
+  // 当用户数据加载后，更新表单数据
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        username: user.username || '',
+        birthDate: user.birthDate ? new Date(user.birthDate) : undefined,
+        bio: user.bio || '',
+        avatar: user.avatar || ''
+      });
+    }
+  }, [user, form]);
   
   /**
    * 处理表单提交
    */
   const handleSubmit = async (values: ProfileSetupFormValues) => {
-    if (!user) {
+    if (!supabaseUser) {
       toast({
         title: "请先登录",
         description: "您需要先登录才能设置个人资料",
@@ -85,16 +98,19 @@ const ProfileSetup = () => {
     setIsLoading(true);
     
     try {
-      // 调用更新资料服务
-      const updatedUser = updateUserProfile(user.id, {
-        username: values.username,
-        birthDate: values.birthDate,
-        bio: values.bio,
-        avatar: values.avatar || '/placeholder.svg' // 使用默认头像
-      });
+      // 更新Supabase profiles表
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({
+          username: values.username,
+          bio: values.bio,
+          avatar: values.avatar || '/placeholder.svg', // 使用默认头像
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', supabaseUser.id);
       
-      if (!updatedUser) {
-        throw new Error('资料更新失败');
+      if (error) {
+        throw error;
       }
       
       // 刷新用户信息

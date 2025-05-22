@@ -2,35 +2,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { updateUserNickname } from '@/repositories/userRepository';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const NicknameForm = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { user, refreshUser } = useAuth();
   const [nickname, setNickname] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
-  // 处理昵称设置
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { refreshUser, supabaseUser } = useAuth();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) {
-      toast({
-        title: "设置失败",
-        description: "请先登录",
-        variant: "destructive",
-      });
-      return;
-    }
-    
     if (!nickname.trim()) {
       toast({
-        title: "设置失败",
-        description: "昵称不能为空",
+        title: "昵称不能为空",
+        description: "请输入有效的昵称",
         variant: "destructive",
       });
       return;
@@ -39,24 +30,35 @@ const NicknameForm = () => {
     setIsLoading(true);
     
     try {
-      const updatedUser = updateUserNickname(user.id, nickname.trim());
-      
-      if (!updatedUser) {
-        throw new Error("设置昵称失败");
+      if (!supabaseUser) {
+        throw new Error("用户未登录");
       }
       
-      toast({
-        title: "设置成功",
-        description: "您的昵称已更新",
-      });
+      // 更新Supabase中的用户资料
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          username: nickname.trim(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', supabaseUser.id);
+      
+      if (error) {
+        throw error;
+      }
       
       // 刷新用户信息
-      refreshUser();
+      await refreshUser();
       
-      // 导航到首页
+      toast({
+        title: "昵称设置成功",
+        description: `欢迎，${nickname}！`,
+      });
+      
+      // 跳转到首页
       navigate('/');
-      
     } catch (error) {
+      console.error("设置昵称错误:", error);
       toast({
         title: "设置失败",
         description: error instanceof Error ? error.message : "设置昵称过程中发生错误",
@@ -70,29 +72,40 @@ const NicknameForm = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <label htmlFor="nickname" className="block text-sm font-medium">
-          设置昵称
-        </label>
+        <Label htmlFor="nickname">昵称</Label>
         <Input
           id="nickname"
+          type="text"
+          placeholder="请设置您的昵称"
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
-          placeholder="请设置您的昵称"
           disabled={isLoading}
-          required
+          maxLength={20}
+          autoComplete="off"
         />
         <p className="text-xs text-gray-500">
-          昵称将显示在您的文章和评论中
+          昵称将显示在您的个人主页和发表的内容中
         </p>
       </div>
       
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         className="w-full"
-        disabled={isLoading}
+        disabled={isLoading || !nickname.trim()}
       >
         {isLoading ? '保存中...' : '保存昵称'}
       </Button>
+      
+      <div className="text-center mt-4">
+        <Button
+          type="button"
+          variant="link"
+          size="sm"
+          onClick={() => navigate('/')}
+        >
+          稍后再设置
+        </Button>
+      </div>
     </form>
   );
 };

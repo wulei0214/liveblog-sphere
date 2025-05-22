@@ -9,7 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { sendPhoneOTP, filterPhoneInput, isValidPhoneNumber } from '@/utils/phoneAuth';
+import { filterPhoneInput, isValidPhoneNumber } from '@/utils/phoneAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PhoneNumberInputProps {
   phone: string;
@@ -42,6 +43,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
 
   /**
    * 发送验证码
+   * 集成Supabase OTP发送功能
    */
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,8 +61,22 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
     setIsLoading(true);
     
     try {
-      // 发送验证码 - 在测试阶段无需真实发送
-      // 直接提示使用万能验证码
+      // 格式化手机号为国际格式
+      const formattedPhone = phone.startsWith('+') ? phone : `+86${phone}`;
+      
+      // 使用Supabase发送OTP
+      const { data, error } = await supabase.auth.signInWithOtp({
+        phone: formattedPhone,
+        options: {
+          shouldCreateUser: true
+        }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      // 发送成功提示
       toast({
         title: "验证码已发送",
         description: "审核阶段请使用万能验证码：123456",
@@ -69,11 +85,15 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
       // 进入验证步骤
       setStep('verify');
     } catch (error) {
+      console.error('Send OTP error:', error);
       toast({
         title: "发送验证码失败",
-        description: error.message || "请稍后重试",
+        description: "请使用万能验证码：123456",
         variant: "destructive",
       });
+      
+      // 即使发送失败，也进入验证步骤，允许使用万能验证码
+      setStep('verify');
     } finally {
       setIsLoading(false);
     }

@@ -3,7 +3,7 @@
  * 验证码验证组件
  * 用于短信验证码登录第二步：输入验证码进行验证
  */
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -13,9 +13,9 @@ import {
   InputOTPGroup, 
   InputOTPSlot 
 } from '@/components/ui/input-otp';
-import { sendPhoneOTP } from '@/utils/phoneAuth';
+import { sendPhoneOTP, verifyPhoneOTP } from '@/utils/phoneAuth';
 import { useAuth } from '@/contexts/AuthContext';
-import { phoneAuthLogin, needsNicknameSetup } from '@/repositories/user/auth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface OTPVerificationProps {
   phone: string;
@@ -39,10 +39,13 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const { refreshUser } = useAuth();
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
 
   /**
    * 验证OTP验证码
-   * 注意：当前实现允许使用"123456"作为万能验证码
+   * 支持两种方式:
+   * 1. 使用"123456"作为万能验证码
+   * 2. 通过Supabase验证手机号码
    */
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,12 +61,21 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
     }
     
     setIsLoading(true);
+    setIsAuthLoading(true);
     
     try {
       // 万能验证码检查 - 允许使用"123456"跳过实际验证
       if (otp === "123456") {
-        // 直接使用手机号登录或注册，跳过API验证
-        const user = phoneAuthLogin(phone);
+        // 直接使用Supabase手机号登录，无需验证OTP
+        const formattedPhone = phone.startsWith('+') ? phone : `+86${phone}`;
+        const { data, error } = await supabase.auth.signInWithOtp({ 
+          phone: formattedPhone,
+          options: { shouldCreateUser: true }
+        });
+
+        if (error) {
+          throw error;
+        }
         
         toast({
           title: "登录成功",
@@ -72,8 +84,14 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
         
         refreshUser(); // 刷新用户信息
         
-        // 检查用户是否需要设置资料
-        if (needsNicknameSetup(user)) {
+        // 获取用户信息，检查用户名是否需要设置（如果是手机号则需要设置）
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('phone', formattedPhone)
+          .single();
+        
+        if (profileData && profileData.username === formattedPhone) {
           // 如果用户需要设置资料，跳转到资料设置页
           navigate('/profile-setup');
         } else {
@@ -85,21 +103,50 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
       }
       
       // 实际的验证码验证逻辑
-      // 注意：由于Supabase手机验证暂时不可用，这部分代码实际上不会执行
-      // 但保留以备将来启用
-      toast({
-        title: "验证失败",
-        description: "请使用万能验证码：123456",
-        variant: "destructive",
+      const formattedPhone = phone.startsWith('+') ? phone : `+86${phone}`;
+      const { data, error } = await supabase.auth.verifyOtp({ 
+        phone: formattedPhone, 
+        token: otp, 
+        type: 'sms'
       });
+
+      if (error) {
+        // 真实场景中的OTP验证失败
+        throw new Error("验证失败，请使用万能验证码：123456");
+      }
+
+      toast({
+        title: "验证成功",
+        description: "欢迎回来",
+      });
+      
+      refreshUser(); // 刷新用户信息
+      
+      // 检查用户是否需要设置资料
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('phone', formattedPhone)
+        .single();
+      
+      if (profileData && profileData.username === formattedPhone) {
+        // 如果用户名等于手机号，需要设置资料
+        navigate('/profile-setup');
+      } else {
+        // 否则跳转到首页
+        navigate('/');
+      }
+      
     } catch (error) {
+      console.error('OTP verification error:', error);
       toast({
         title: "验证失败",
-        description: error.message || "验证码无效或已过期",
+        description: error.message || "验证码无效或已过期，请使用万能验证码：123456",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
+      setIsAuthLoading(false);
     }
   };
 

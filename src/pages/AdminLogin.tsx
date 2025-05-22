@@ -17,13 +17,11 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Lock, ShieldAlert } from 'lucide-react';
-import { loginUser } from '@/repositories/userRepository';
+import { supabase } from '@/integrations/supabase/client';
 
 // 定义表单验证模式
 const adminLoginSchema = z.object({
-  username: z.string().refine(val => val === 'admin', {
-    message: '只允许管理员登录'
-  }),
+  email: z.string().email('请输入有效的邮箱地址'),
   password: z.string().min(1, '请输入密码')
 });
 
@@ -35,11 +33,11 @@ const AdminLogin = () => {
   const { user, refreshUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   
-  // 初始化表单，默认填入admin用户名
+  // 初始化表单，默认填入admin邮箱
   const form = useForm<AdminLoginFormValues>({
     resolver: zodResolver(adminLoginSchema),
     defaultValues: {
-      username: 'admin',
+      email: 'admin@example.com',
       password: ''
     }
   });
@@ -58,18 +56,31 @@ const AdminLogin = () => {
     setIsLoading(true);
     
     try {
-      // 调用登录服务
-      const loggedInUser = loginUser('admin', values.password);
+      // 使用Supabase登录
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password
+      });
       
-      if (!loggedInUser) {
-        throw new Error('登录失败，请检查用户名和密码');
+      if (error) {
+        throw error;
       }
       
-      if (loggedInUser.role !== 'admin') {
+      // 获取用户资料，检查是否为管理员
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', data.user.id)
+        .single();
+      
+      if (!profile || profile.username !== 'admin') {
+        // 如果不是管理员，先登出
+        await supabase.auth.signOut();
         throw new Error('该账号不是管理员账号');
       }
       
-      refreshUser();
+      // 刷新用户信息
+      await refreshUser();
       
       toast({
         title: "登录成功",
@@ -107,14 +118,15 @@ const AdminLogin = () => {
               <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="username"
+                  name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>管理员账号</FormLabel>
+                      <FormLabel>管理员邮箱</FormLabel>
                       <FormControl>
                         <Input 
                           {...field} 
-                          disabled={true} // 禁止修改，固定为admin
+                          type="email"
+                          disabled={true} // 禁止修改，固定为admin@example.com
                           className="bg-gray-100"
                         />
                       </FormControl>
@@ -149,6 +161,10 @@ const AdminLogin = () => {
                 >
                   {isLoading ? '登录中...' : '登录管理后台'}
                 </Button>
+                
+                <p className="text-xs text-center text-gray-500">
+                  测试阶段：默认管理员账号为 admin@example.com
+                </p>
               </form>
             </Form>
             
