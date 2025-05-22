@@ -23,7 +23,7 @@ export const initializeUsers = (): void => {
   const adminUser: User = {
     id: '1',
     username: 'admin',  // 管理员用户名固定为admin
-    password: 'admin123',
+    password: '123456', // 更改为新密码123456
     role: UserRole.ADMIN,
     createdAt: new Date(),
     lastLogin: new Date(),

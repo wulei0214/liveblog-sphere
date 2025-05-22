@@ -16,7 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export const createAdminUser = async (
   email: string = 'admin@example.com', 
-  password: string = 'admin123'
+  password: string = '123456'
 ): Promise<boolean> => {
   try {
     // 创建用户
@@ -35,7 +35,7 @@ export const createAdminUser = async (
       return false;
     }
     
-    // 检查是否已存在profilesbuta
+    // 检查是否已存在profiles
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('id')
@@ -72,5 +72,5 @@ export const createAdminUser = async (
  * 例如:
  * 
  * import { createAdminUser } from './createAdminUser';
- * createAdminUser('admin@example.com', 'secure_password');
+ * createAdminUser('admin@example.com', '123456');
  */

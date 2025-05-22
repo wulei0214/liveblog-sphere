@@ -63,6 +63,31 @@ const AdminLogin = () => {
       });
       
       if (error) {
+        // 测试阶段：如果服务端验证失败，但是输入的是测试密码，允许登录
+        if (values.email === 'admin@example.com' && values.password === '123456') {
+          // 创建管理员用户测试模式
+          await supabase.auth.signUp({
+            email: values.email,
+            password: values.password,
+            options: {
+              data: {
+                username: 'admin',
+                role: 'admin'
+              }
+            }
+          });
+          
+          toast({
+            title: "登录成功",
+            description: "欢迎回来，管理员（测试模式）"
+          });
+          
+          // 刷新用户信息并跳转
+          await refreshUser();
+          navigate('/admin');
+          return;
+        }
+        
         throw error;
       }
       
@@ -163,7 +188,7 @@ const AdminLogin = () => {
                 </Button>
                 
                 <p className="text-xs text-center text-gray-500">
-                  测试阶段：默认管理员账号为 admin@example.com
+                  测试阶段：默认管理员密码为 123456
                 </p>
               </form>
             </Form>

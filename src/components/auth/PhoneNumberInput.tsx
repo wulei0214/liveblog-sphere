@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { filterPhoneInput, isValidPhoneNumber } from '@/utils/phoneAuth';
-import { supabase } from '@/integrations/supabase/client';
 
 interface PhoneNumberInputProps {
   phone: string;
@@ -61,22 +60,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
     setIsLoading(true);
     
     try {
-      // 格式化手机号为国际格式
-      const formattedPhone = phone.startsWith('+') ? phone : `+86${phone}`;
-      
-      // 使用Supabase发送OTP
-      const { data, error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
-        options: {
-          shouldCreateUser: true
-        }
-      });
-      
-      if (error) {
-        throw error;
-      }
-      
-      // 发送成功提示
+      // 在测试阶段，不实际发送验证码，直接进入验证页面
       toast({
         title: "验证码已发送",
         description: "审核阶段请使用万能验证码：123456",
