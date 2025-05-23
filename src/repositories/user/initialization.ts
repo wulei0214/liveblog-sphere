@@ -5,11 +5,11 @@
  */
 import { Tables } from '../../lib/databaseSchema';
 import * as db from '../../lib/database';
-import { User, UserRole } from './types';
+import { User } from './types';
 
 /**
  * 初始化默认用户数据
- * 创建管理员账号和测试用户账号
+ * 创建测试用户账号
  */
 export const initializeUsers = (): void => {
   const users = db.getAll<User>(Tables.USERS);
@@ -19,28 +19,11 @@ export const initializeUsers = (): void => {
     return;
   }
   
-  // 创建默认管理员账号
-  const adminUser: User = {
-    id: '1',
-    username: 'admin',  // 管理员用户名固定为admin
-    password: '123456', // 更改为新密码123456
-    role: UserRole.ADMIN,
-    createdAt: new Date(),
-    lastLogin: new Date(),
-    email: 'admin@example.com',
-    phone: 'admin',  // 管理员手机号固定为admin，用于特殊登录
-    avatar: '/placeholder.svg', // 默认头像
-    bio: '系统管理员',
-    following: [],
-    followers: []
-  };
-  
   // 创建默认测试账号
   const testUser: User = {
-    id: '2',
+    id: '1',
     username: '测试用户',
     password: 'password123',
-    role: UserRole.USER,
     createdAt: new Date(),
     email: 'user@example.com',
     phone: '13800138000', // 测试用户默认手机号
@@ -51,7 +34,6 @@ export const initializeUsers = (): void => {
   };
   
   // 将默认用户添加到数据库
-  db.create<User>(Tables.USERS, adminUser);
   db.create<User>(Tables.USERS, testUser);
 };
 

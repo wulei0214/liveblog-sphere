@@ -20,14 +20,14 @@ export const sendPhoneOTP = async (phone: string): Promise<AuthOtpResponse> => {
   // 格式化手机号为国际格式 (+86 for China)
   const formattedPhone = phone.startsWith('+') ? phone : `+86${phone}`;
   
-  // 测试环境：返回成功响应，不实际发送验证码
-  return {
-    data: {
-      user: null,
-      session: null
-    },
-    error: null
-  };
+  try {
+    return await supabase.auth.signInWithOtp({
+      phone: formattedPhone
+    });
+  } catch (error) {
+    console.error('发送OTP错误:', error);
+    throw error;
+  }
 };
 
 /**
@@ -45,52 +45,6 @@ export const verifyPhoneOTP = async (phone: string, otp: string): Promise<AuthRe
   // 验证验证码格式
   if (!otp || otp.length !== 6 || !/^\d{6}$/.test(otp)) {
     throw new Error('请输入有效的6位数字验证码');
-  }
-  
-  // 万能验证码检查
-  if (otp === '123456') {
-    // 如果使用万能验证码，尝试注册用户
-    const formattedPhone = phone.startsWith('+') ? phone : `+86${phone}`;
-    
-    try {
-      // 尝试注册用户
-      const signUpResult = await supabase.auth.signUp({
-        phone: formattedPhone,
-        password: 'defaultpassword', // 设置默认密码
-        options: {
-          data: {
-            phone: formattedPhone.replace('+86', '')
-          }
-        }
-      });
-      
-      // 如果用户已存在（注册失败），尝试登录
-      if (signUpResult.error) {
-        return await supabase.auth.signInWithPassword({
-          phone: formattedPhone,
-          password: 'defaultpassword'
-        });
-      }
-      
-      return signUpResult;
-    } catch (error) {
-      console.error('验证失败:', error);
-      
-      // 返回成功响应，保证测试环境下可以成功进入首页
-      return {
-        data: {
-          user: {
-            id: 'test-user',
-            app_metadata: {},
-            user_metadata: { phone: phone },
-            aud: 'authenticated',
-            created_at: new Date().toISOString()
-          } as any,
-          session: null
-        },
-        error: null
-      };
-    }
   }
   
   // 格式化手机号为国际格式 (+86 for China)

@@ -5,16 +5,6 @@
 import { Tables } from '../../lib/databaseSchema';
 
 /**
- * 用户角色枚举
- * 定义系统中的用户角色类型
- */
-export enum UserRole {
-  ADMIN = 'admin',   // 管理员角色
-  EDITOR = 'editor', // 编辑角色
-  USER = 'user',     // 普通用户角色
-}
-
-/**
  * 用户类型定义
  * 包含用户的完整信息结构
  */
@@ -22,7 +12,6 @@ export interface User {
   id: string;          // 用户唯一标识
   username: string;    // 用户名/昵称
   password: string;    // 密码（实际应用中应该加密存储）
-  role: UserRole;      // 用户角色
   createdAt: Date;     // 创建时间
   lastLogin?: Date;    // 最后登录时间
   email?: string;      // 电子邮件

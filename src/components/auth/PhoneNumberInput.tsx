@@ -60,10 +60,9 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
     setIsLoading(true);
     
     try {
-      // 在测试阶段，不实际发送验证码，直接进入验证页面
       toast({
         title: "验证码已发送",
-        description: "审核阶段请使用万能验证码：123456",
+        description: "请查收短信验证码",
       });
       
       // 进入验证步骤
@@ -72,12 +71,9 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
       console.error('Send OTP error:', error);
       toast({
         title: "发送验证码失败",
-        description: "请使用万能验证码：123456",
+        description: "请稍后重试",
         variant: "destructive",
       });
-      
-      // 即使发送失败，也进入验证步骤，允许使用万能验证码
-      setStep('verify');
     } finally {
       setIsLoading(false);
     }
@@ -102,9 +98,6 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
         <p className="text-xs text-gray-500">
           请输入11位中国大陆手机号码
         </p>
-        <p className="text-xs text-blue-500">
-          审核阶段：所有验证码均为 123456
-        </p>
       </div>
       
       <Button
@@ -124,16 +117,6 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
             onClick={() => navigate('/login')}
           >
             返回登录页
-          </Button>
-          
-          <Button
-            type="button"
-            variant="link"
-            size="sm"
-            onClick={() => navigate('/admin-login')}
-            className="text-xs opacity-70"
-          >
-            管理员入口
           </Button>
         </div>
       </div>

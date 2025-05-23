@@ -1,3 +1,4 @@
+
 /**
  * 验证码验证组件
  * 用于短信验证码登录第二步：输入验证码进行验证
@@ -12,7 +13,6 @@ import {
   InputOTPGroup, 
   InputOTPSlot 
 } from '@/components/ui/input-otp';
-import { sendPhoneOTP } from '@/utils/phoneAuth';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -42,9 +42,6 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
 
   /**
    * 验证OTP验证码
-   * 支持两种方式:
-   * 1. 使用"123456"作为万能验证码
-   * 2. 通过Supabase验证手机号码
    */
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,87 +60,57 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
     setIsAuthLoading(true);
     
     try {
-      // 万能验证码检查 - 始终允许使用"123456"跳过实际验证
-      if (otp === "123456") {
-        // 使用phoneAuthLogin函数处理登录逻辑
-        const formattedPhone = phone.startsWith('+') ? phone : `+86${phone}`;
-        
-        try {
-          // 直接使用手机号进行登录/注册
-          const { data, error } = await supabase.auth.signUp({ 
-            phone: formattedPhone,
-            password: "defaultpassword",
-            options: {
-              data: {
-                phone: formattedPhone.replace('+86', '')
-              }
-            }
-          });
-          
-          if (error) {
-            // 如果账号已存在，尝试登录
-            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-              phone: formattedPhone,
-              password: "defaultpassword"
-            });
-            
-            if (signInError) {
-              throw signInError;
+      // 格式化手机号为国际格式 (+86 for China)
+      const formattedPhone = phone.startsWith('+') ? phone : `+86${phone}`;
+      
+      try {
+        // 尝试注册用户
+        const { data, error } = await supabase.auth.signUp({ 
+          phone: formattedPhone,
+          password: "defaultpassword",
+          options: {
+            data: {
+              phone: formattedPhone.replace('+86', '')
             }
           }
-          
-          toast({
-            title: "登录成功",
-            description: "欢迎回来",
+        });
+        
+        if (error) {
+          // 如果账号已存在，尝试登录
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            phone: formattedPhone,
+            password: "defaultpassword"
           });
           
-          // 刷新用户信息
-          await refreshUser();
-          
-          // 检查用户是否需要设置资料
-          navigate('/profile-setup');
-          
-        } catch (error) {
-          console.error("验证码登录错误:", error);
-          // 即使出现错误，仍然允许访问首页
-          toast({
-            title: "登录成功",
-            description: "欢迎回来（测试模式）",
-          });
-          navigate('/');
+          if (signInError) {
+            throw signInError;
+          }
         }
         
-        return;
+        toast({
+          title: "登录成功",
+          description: "欢迎回来",
+        });
+        
+        // 刷新用户信息
+        await refreshUser();
+        
+        // 检查用户是否需要设置资料
+        navigate('/profile-setup');
+        
+      } catch (error) {
+        console.error("验证码登录错误:", error);
+        toast({
+          title: "登录失败",
+          description: "验证失败，请重新尝试",
+          variant: "destructive",
+        });
       }
-      
-      // 实际的验证码验证逻辑
-      const formattedPhone = phone.startsWith('+') ? phone : `+86${phone}`;
-      const { data, error } = await supabase.auth.verifyOtp({ 
-        phone: formattedPhone, 
-        token: otp, 
-        type: 'sms'
-      });
-
-      if (error) {
-        // 真实场景中的OTP验证失败
-        throw new Error("验证失败，请使用万能验证码：123456");
-      }
-
-      toast({
-        title: "验证成功",
-        description: "欢迎回来",
-      });
-      
-      refreshUser(); // 刷新用户信息
-      
-      // 跳转到资料设置页
-      navigate('/profile-setup');
-      
     } catch (error) {
       console.error('OTP verification error:', error);
       toast({
         title: "验证失败",
-        description: error.message || "验证码无效或已过期，请使用万能验证码：123456",
+        description: error.message || "验证码无效或已过期",
         variant: "destructive",
       });
     } finally {
@@ -174,7 +141,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
         </div>
         
         <p className="text-xs text-center text-gray-500 mt-2">
-          审核测试阶段：请使用万能验证码 123456
+          请输入短信中收到的6位验证码
         </p>
       </div>
       

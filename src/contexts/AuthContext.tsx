@@ -5,7 +5,7 @@
  */
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { AuthContextType, AppUser, UserRole } from '@/types/auth';
+import { AuthContextType, AppUser } from '@/types/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
 
@@ -43,8 +43,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               // 使用资料信息设置用户
               setUser({
                 ...profile,
-                id: session.user.id,
-                role: profile.username === 'admin' ? UserRole.ADMIN : UserRole.USER,
+                id: session.user.id
               });
             }
           } catch (error) {
@@ -77,8 +76,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (profile) {
               setUser({
                 ...profile,
-                id: session.user.id,
-                role: profile.username === 'admin' ? UserRole.ADMIN : UserRole.USER,
+                id: session.user.id
               });
             }
           } catch (profileError) {
@@ -139,8 +137,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (profile) {
         setUser({
           ...profile,
-          id: supabaseUser.id,
-          role: profile.username === 'admin' ? UserRole.ADMIN : UserRole.USER,
+          id: supabaseUser.id
         });
       }
     } catch (error) {
@@ -154,8 +151,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     supabaseUser,
     isLoading,
     isAuthenticated: !!user,
-    isAdminUser: user?.role === UserRole.ADMIN,
-    isEditorUser: user?.role === UserRole.ADMIN || user?.role === UserRole.EDITOR,
     logout: handleLogout,
     refreshUser,
   };

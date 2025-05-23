@@ -8,15 +8,13 @@
 
 // 从用户存储库导出认证相关函数，保持向后兼容
 export { 
-  UserRole, 
   loginUser, 
   registerUser, 
   updateUserNickname,
   getCurrentUser, 
   logoutUser, 
   getAllUsers, 
-  deleteUser, 
-  isAdmin,
+  deleteUser,
   updateUser
 } from '../repositories/userRepository';
 

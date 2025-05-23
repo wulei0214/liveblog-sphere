@@ -2,9 +2,8 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { UserCircle, LogOut, Settings, Phone, Shield } from "lucide-react";
+import { UserCircle, LogOut, Settings, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -19,7 +18,7 @@ import {
  * 用户菜单组件，显示登录状态和用户信息
  */
 const UserMenu = () => {
-  const { user, isAuthenticated, isAdminUser, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -50,11 +49,6 @@ const UserMenu = () => {
               )}
               <span className="text-sm font-medium">
                 {user.username}
-                {isAdminUser && (
-                  <Badge className="ml-2 bg-primary/10 text-primary text-xs">
-                    管理员
-                  </Badge>
-                )}
               </span>
             </Button>
           </DropdownMenuTrigger>
@@ -77,25 +71,6 @@ const UserMenu = () => {
               </Link>
             </DropdownMenuItem>
             
-            {/* 管理员专用选项 */}
-            {isAdminUser && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/admin" className="flex cursor-pointer items-center">
-                    <Shield className="mr-2 h-4 w-4" />
-                    后台管理
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/users" className="flex cursor-pointer items-center">
-                    <UserCircle className="mr-2 h-4 w-4" />
-                    用户管理
-                  </Link>
-                </DropdownMenuItem>
-              </>
-            )}
-            
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
               <LogOut className="mr-2 h-4 w-4" />
@@ -113,16 +88,6 @@ const UserMenu = () => {
             >
               <Phone className="mr-1 h-4 w-4" />
               手机登录
-            </Button>
-          </Link>
-          <Link to="/admin-login" className="opacity-50 hover:opacity-100 transition-opacity">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center border-dashed text-xs"
-            >
-              <Shield className="mr-1 h-3 w-3" />
-              管理员
             </Button>
           </Link>
         </div>

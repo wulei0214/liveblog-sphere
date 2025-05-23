@@ -20,15 +20,12 @@ import Post from './pages/Post';
 import Create from './pages/Create';
 import Edit from './pages/Edit';
 import Profile from './pages/Profile';
-import AdminDashboard from './pages/AdminDashboard';
-import UserManagement from './pages/UserManagement';
 import NotFound from './pages/NotFound';
 import Music from './pages/Music';
 import Heard from './pages/Heard';
 import MusicLoginQQ from './pages/MusicLoginQQ';
 import SetNickname from './pages/SetNickname';
-import ProfileSetup from './pages/ProfileSetup'; // 新增个人资料设置页面
-import AdminLogin from './pages/AdminLogin'; // 新增管理员登录页面
+import ProfileSetup from './pages/ProfileSetup'; // 个人资料设置页面
 
 /**
  * 应用内容组件
@@ -44,15 +41,12 @@ function AppContent() {
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/auth-phone" element={<AuthPhone />} />
-            <Route path="/admin-login" element={<AdminLogin />} /> {/* 新增管理员登录路由 */}
-            <Route path="/profile-setup" element={<ProfileSetup />} /> {/* 新增资料设置路由 */}
+            <Route path="/profile-setup" element={<ProfileSetup />} /> 
             <Route path="/set-nickname" element={<SetNickname />} />
             <Route path="/post/:id" element={<Post />} />
             <Route path="/create" element={<Create />} />
             <Route path="/edit/:id" element={<Edit />} />
             <Route path="/profile/:id" element={<Profile />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/users" element={<UserManagement />} />
             <Route path="/music" element={<Music />} />
             <Route path="/heard" element={<Heard />} />
             <Route path="/music-login-qq" element={<MusicLoginQQ />} />
