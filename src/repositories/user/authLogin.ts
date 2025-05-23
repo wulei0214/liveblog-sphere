@@ -64,6 +64,8 @@ export const loginUser = (phoneOrAdmin: string, password: string): User | null =
 /**
  * 手机号验证码登录/注册
  * 如果手机号存在则登录，否则创建新用户并登录
+ * 
+ * 开发环境下使用固定验证码"123456"
  * @param phone 手机号码
  * @returns 登录/注册成功的用户
  */
@@ -97,6 +99,9 @@ export const phoneAuthLogin = (phone: string): User => {
     
     // 添加到用户列表
     user = db.create<User>(Tables.USERS, newUser);
+    console.log('开发环境: 创建新用户', user);
+  } else {
+    console.log('开发环境: 用户已存在，直接登录', user);
   }
   
   // 更新最后登录时间

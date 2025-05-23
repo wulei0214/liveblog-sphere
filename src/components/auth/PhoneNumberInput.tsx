@@ -42,7 +42,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
 
   /**
    * 发送验证码
-   * 集成Supabase OTP发送功能
+   * 开发环境下不实际发送，使用固定验证码"123456"
    */
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,9 +60,10 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
     setIsLoading(true);
     
     try {
+      // 开发环境提示
       toast({
         title: "验证码已发送",
-        description: "请查收短信验证码",
+        description: "开发环境固定验证码: 123456",
       });
       
       // 进入验证步骤
@@ -97,6 +98,8 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
         />
         <p className="text-xs text-gray-500">
           请输入11位中国大陆手机号码
+          <br />
+          <span className="text-amber-600 font-semibold">开发环境下将使用 123456 作为固定验证码</span>
         </p>
       </div>
       

@@ -14,7 +14,7 @@ import {
   InputOTPSlot 
 } from '@/components/ui/input-otp';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { verifyPhoneOTP } from '@/utils/phoneAuth';
 
 interface OTPVerificationProps {
   phone: string;
@@ -42,6 +42,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
 
   /**
    * 验证OTP验证码
+   * 开发环境下固定使用"123456"作为验证码
    */
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,53 +60,25 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
     setIsLoading(true);
     setIsAuthLoading(true);
     
-    try {
-      // 格式化手机号为国际格式 (+86 for China)
-      const formattedPhone = phone.startsWith('+') ? phone : `+86${phone}`;
+    try {      
+      // 验证验证码（开发环境下固定为"123456"）
+      const { data, error } = await verifyPhoneOTP(phone, otp);
       
-      try {
-        // 尝试注册用户
-        const { data, error } = await supabase.auth.signUp({ 
-          phone: formattedPhone,
-          password: "defaultpassword",
-          options: {
-            data: {
-              phone: formattedPhone.replace('+86', '')
-            }
-          }
-        });
-        
-        if (error) {
-          // 如果账号已存在，尝试登录
-          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            phone: formattedPhone,
-            password: "defaultpassword"
-          });
-          
-          if (signInError) {
-            throw signInError;
-          }
-        }
-        
-        toast({
-          title: "登录成功",
-          description: "欢迎回来",
-        });
-        
-        // 刷新用户信息
-        await refreshUser();
-        
-        // 检查用户是否需要设置资料
-        navigate('/profile-setup');
-        
-      } catch (error) {
-        console.error("验证码登录错误:", error);
-        toast({
-          title: "登录失败",
-          description: "验证失败，请重新尝试",
-          variant: "destructive",
-        });
+      if (error) {
+        throw error;
       }
+      
+      toast({
+        title: "登录成功",
+        description: "欢迎回来",
+      });
+      
+      // 刷新用户信息
+      await refreshUser();
+      
+      // 检查用户是否需要设置资料
+      navigate('/profile-setup');
+      
     } catch (error) {
       console.error('OTP verification error:', error);
       toast({
@@ -141,7 +114,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
         </div>
         
         <p className="text-xs text-center text-gray-500 mt-2">
-          请输入短信中收到的6位验证码
+          开发环境下固定验证码: <strong>123456</strong>
         </p>
       </div>
       

@@ -6,10 +6,13 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { AuthOtpResponse, AuthResponse } from '@supabase/supabase-js';
 
+// 固定验证码常量 - 仅用于开发测试
+const FIXED_OTP = "123456";
+
 /**
  * 发送手机号码验证码
  * @param phone 手机号码
- * @returns 发送结果
+ * @returns 发送结果 (开发环境中始终成功)
  */
 export const sendPhoneOTP = async (phone: string): Promise<AuthOtpResponse> => {
   // 验证手机号格式
@@ -17,17 +20,17 @@ export const sendPhoneOTP = async (phone: string): Promise<AuthOtpResponse> => {
     throw new Error('请输入有效的11位手机号码');
   }
 
-  // 格式化手机号为国际格式 (+86 for China)
-  const formattedPhone = phone.startsWith('+') ? phone : `+86${phone}`;
+  // 模拟发送验证码 - 开发环境中不实际发送
+  console.log(`开发环境：模拟发送验证码${FIXED_OTP}到手机号 ${phone}`);
   
-  try {
-    return await supabase.auth.signInWithOtp({
-      phone: formattedPhone
-    });
-  } catch (error) {
-    console.error('发送OTP错误:', error);
-    throw error;
-  }
+  // 返回假成功响应
+  return {
+    data: {
+      message: "开发环境: 验证码已发送 (固定为123456)",
+      id: Date.now().toString(),
+    },
+    error: null,
+  } as AuthOtpResponse;
 };
 
 /**
@@ -46,37 +49,47 @@ export const verifyPhoneOTP = async (phone: string, otp: string): Promise<AuthRe
   if (!otp || otp.length !== 6 || !/^\d{6}$/.test(otp)) {
     throw new Error('请输入有效的6位数字验证码');
   }
-  
+
+  // 固定验证码检查 - 仅用于开发测试
+  if (otp !== FIXED_OTP) {
+    throw new Error('验证码错误，开发环境下请使用123456');
+  }
+
   // 格式化手机号为国际格式 (+86 for China)
   const formattedPhone = phone.startsWith('+') ? phone : `+86${phone}`;
   
-  // 验证OTP
   try {
-    return await supabase.auth.verifyOtp({
+    // 开发环境: 直接尝试使用手机号作为密码进行普通登录
+    const { data, error } = await supabase.auth.signInWithPassword({
       phone: formattedPhone,
-      token: otp,
-      type: 'sms',
+      password: "defaultpassword"
     });
+
+    // 如果用户不存在，则创建新用户
+    if (error && error.message.includes("Invalid login credentials")) {
+      return await supabase.auth.signUp({
+        phone: formattedPhone,
+        password: "defaultpassword",
+        options: {
+          data: {
+            phone: formattedPhone.replace('+86', '')
+          }
+        }
+      });
+    }
+    
+    return { data, error };
   } catch (error) {
     console.error('验证OTP错误:', error);
     throw error;
   }
 };
 
-/**
- * 格式化手机号码
- * @param phone 手机号码
- * @returns 格式化后的手机号码
- */
+// 保持其他工具函数不变
 export const formatPhoneNumber = (phone: string): string => {
   return phone.startsWith('+') ? phone : `+86${phone}`;
 };
 
-/**
- * 验证手机号格式
- * @param phone 手机号码
- * @returns 是否为有效的手机号
- */
 export const isValidPhoneNumber = (phone: string): boolean => {
   // 提取数字部分
   const numericPhone = phone.replace(/\D/g, '');
@@ -89,11 +102,6 @@ export const isValidPhoneNumber = (phone: string): boolean => {
   return /^1\d{10}$/.test(numericPhone);
 };
 
-/**
- * 过滤手机号输入，只保留数字
- * @param input 输入值
- * @returns 过滤后只包含数字的字符串
- */
 export const filterPhoneInput = (input: string): string => {
   return input.replace(/\D/g, '');
 };

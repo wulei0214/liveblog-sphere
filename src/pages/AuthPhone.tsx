@@ -5,6 +5,8 @@
  * 提供两个步骤的验证码登录流程：
  * 1. 输入手机号并获取验证码
  * 2. 输入验证码进行验证登录
+ * 
+ * 开发环境下使用固定验证码"123456"
  */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +35,7 @@ const AuthPhone = () => {
 
   /**
    * 发送手机验证码
+   * 开发环境下使用固定验证码"123456"
    */
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +53,7 @@ const AuthPhone = () => {
     setIsLoading(true);
     
     try {
-      // 调用发送验证码API
+      // 开发环境下模拟发送验证码
       const { error } = await sendPhoneOTP(phone);
       
       if (error) {
@@ -59,7 +62,7 @@ const AuthPhone = () => {
       
       toast({
         title: "验证码已发送",
-        description: "请查看您的手机短信",
+        description: "开发环境固定验证码: 123456",
       });
       
       // 进入验证步骤
@@ -83,6 +86,8 @@ const AuthPhone = () => {
             <h1 className="text-3xl font-bold mb-2">手机号码登录</h1>
             <p className="text-gray-600 dark:text-gray-300">
               {step === 'phone' ? '输入手机号码获取验证码' : '输入收到的验证码'}
+              <br />
+              <span className="text-amber-600 font-medium">(开发环境固定验证码: 123456)</span>
             </p>
           </div>
           
