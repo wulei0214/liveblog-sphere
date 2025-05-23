@@ -5,7 +5,7 @@
  */
 import { Tables } from '../../lib/databaseSchema';
 import * as db from '../../lib/database';
-import { User } from './types';
+import { User, UserRole } from './types';
 
 /**
  * 初始化默认用户数据
@@ -29,6 +29,7 @@ export const initializeUsers = (): void => {
     phone: '13800138000', // 测试用户默认手机号
     avatar: '/placeholder.svg', // 默认头像
     bio: '这是一个测试账号',
+    role: UserRole.USER, // 默认普通用户角色
     following: [],
     followers: []
   };

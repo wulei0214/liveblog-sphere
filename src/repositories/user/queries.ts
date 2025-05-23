@@ -43,5 +43,5 @@ export const isAdmin = (): boolean => {
  */
 export const isEditor = (): boolean => {
   const currentUser = getCurrentUser();
-  return currentUser?.role === UserRole.EDITOR || currentUser?.role === UserRole.ADMIN;
+  return currentUser?.role === UserRole.ADMIN;
 };

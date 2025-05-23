@@ -151,6 +151,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     supabaseUser,
     isLoading,
     isAuthenticated: !!user,
+    isAdminUser: user?.role === 'admin', // 简化管理员判断
     logout: handleLogout,
     refreshUser,
   };
