@@ -23,11 +23,12 @@ export const sendPhoneOTP = async (phone: string): Promise<AuthOtpResponse> => {
   // 模拟发送验证码 - 开发环境中不实际发送
   console.log(`开发环境：模拟发送验证码${FIXED_OTP}到手机号 ${phone}`);
   
-  // 返回假成功响应
+  // 返回符合 AuthOtpResponse 类型的对象
   return {
-    data: {
-      message: "开发环境: 验证码已发送 (固定为123456)",
-      id: Date.now().toString(),
+    data: { 
+      user: null,
+      session: null,
+      messageId: Date.now().toString() 
     },
     error: null,
   } as AuthOtpResponse;
@@ -60,14 +61,14 @@ export const verifyPhoneOTP = async (phone: string, otp: string): Promise<AuthRe
   
   try {
     // 开发环境: 直接尝试使用手机号作为密码进行普通登录
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const result = await supabase.auth.signInWithPassword({
       phone: formattedPhone,
       password: "defaultpassword"
     });
 
     // 如果用户不存在，则创建新用户
-    if (error && error.message.includes("Invalid login credentials")) {
-      return await supabase.auth.signUp({
+    if (result.error && result.error.message.includes("Invalid login credentials")) {
+      const signUpResult = await supabase.auth.signUp({
         phone: formattedPhone,
         password: "defaultpassword",
         options: {
@@ -76,9 +77,11 @@ export const verifyPhoneOTP = async (phone: string, otp: string): Promise<AuthRe
           }
         }
       });
+      
+      return signUpResult as AuthResponse;
     }
     
-    return { data, error };
+    return result as AuthResponse;
   } catch (error) {
     console.error('验证OTP错误:', error);
     throw error;
