@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -15,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from 'sonner';
 import PostCard from '../components/PostCard';
 import ProfileEditDialog from '../components/ProfileEditDialog';
+import { UserRole } from '../repositories/user/types';
 
 const Profile = () => {
   const { id } = useParams<{ id: string }>();
@@ -96,6 +98,17 @@ const Profile = () => {
     );
   }
 
+  // 辅助函数，获取用户角色显示文本
+  const getUserRoleDisplay = (role: string | UserRole | undefined) => {
+    if (role === UserRole.ADMIN || role === 'admin') {
+      return '管理员';
+    } else if (role === 'editor') {
+      return '编辑';
+    } else {
+      return '用户';
+    }
+  };
+
   const formattedJoinDate = new Date(user.createdAt).toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: 'long',
@@ -147,7 +160,7 @@ const Profile = () => {
                 <CardTitle className="mt-4 flex items-center">
                   {user.username}
                   <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                    {user.role === 'admin' ? '管理员' : user.role === 'editor' ? '编辑' : '用户'}
+                    {getUserRoleDisplay(user.role)}
                   </span>
                 </CardTitle>
                 <CardDescription className="flex items-center mt-1">
@@ -239,7 +252,7 @@ const Profile = () => {
                             </Avatar>
                             <div>
                               <p className="font-medium">{followingUser.username}</p>
-                              <p className="text-sm text-gray-500">{followingUser.role === 'admin' ? '管理员' : followingUser.role === 'editor' ? '编辑' : '用户'}</p>
+                              <p className="text-sm text-gray-500">{getUserRoleDisplay(followingUser.role)}</p>
                             </div>
                           </CardContent>
                         </Card>
@@ -270,7 +283,7 @@ const Profile = () => {
                             </Avatar>
                             <div>
                               <p className="font-medium">{followerUser.username}</p>
-                              <p className="text-sm text-gray-500">{followerUser.role === 'admin' ? '管理员' : followerUser.role === 'editor' ? '编辑' : '用户'}</p>
+                              <p className="text-sm text-gray-500">{getUserRoleDisplay(followerUser.role)}</p>
                             </div>
                           </CardContent>
                         </Card>

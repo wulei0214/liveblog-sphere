@@ -10,7 +10,8 @@ import { Tables } from '../../lib/databaseSchema';
  */
 export enum UserRole {
   USER = 'user',     // 普通用户
-  ADMIN = 'admin'    // 管理员用户
+  ADMIN = 'admin',   // 管理员用户
+  EDITOR = 'editor'  // 编辑用户
 }
 
 /**
