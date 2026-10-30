@@ -6,6 +6,7 @@ import AnimatedTransition from '../components/AnimatedTransition';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserById, getPostsByUser, followUser, unfollowUser, isFollowing, updateUser, User } from '../lib/data';
+import type { Post } from '../lib/data';
 import { toast } from 'sonner';
 import ProfileEditDialog from '../components/ProfileEditDialog';
 import ProfileHeader from '../components/profile/ProfileHeader';
@@ -17,7 +18,7 @@ const Profile = () => {
   const { id } = useParams<{ id: string }>();
   const { user: currentUser, isAuthenticated } = useAuth();
   const [user, setUser] = useState<User | null>(null);
-  const [userPosts, setUserPosts] = useState<any[]>([]);
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [isUserFollowing, setIsUserFollowing] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('posts');
@@ -59,7 +60,7 @@ const Profile = () => {
     }
   };
 
-  const handleProfileUpdate = (updatedData: any) => {
+  const handleProfileUpdate = (updatedData: Partial<User>) => {
     if (!currentUser || !id) return;
     
     try {
