@@ -5,8 +5,18 @@
  * 这是一个模拟服务，实际应用中需要集成真实的QQ音乐API
  */
 
+export interface QQMusicTrack {
+  id: string;
+  name: string;
+  artist: string;
+  album: string;
+  duration: string;
+  url: string;
+  coverUrl: string;
+}
+
 // 免费音乐列表（无版权问题，可直接播放的音乐）
-const freeTracks = [
+const freeTracks: QQMusicTrack[] = [
   {
     id: '1',
     name: '稻香',
@@ -194,7 +204,7 @@ export const logoutFromQQMusic = async (): Promise<void> => {
  * @param {boolean} isLoggedIn - 登录状态
  * @returns {Promise<Array>} 音乐列表
  */
-export const getQQMusicTracks = async (isLoggedIn: boolean): Promise<any[]> => {
+export const getQQMusicTracks = async (isLoggedIn: boolean): Promise<QQMusicTrack[]> => {
   // 实际应用中，调用QQ音乐API获取数据
   // 未登录用户返回免费歌曲，已登录用户返回个人歌单
   
