@@ -3,18 +3,19 @@ import assert from 'node:assert/strict';
 import { filterAndSortPosts, paginateItems } from '../src/lib/postListUtils.js';
 
 const posts = [
-  { id: '1', title: 'Bravo', excerpt: '组件基础', content: '前端', tags: ['react'], categoryId: 'tech', status: 'published', createdAt: '2024-01-01', updatedAt: '2024-01-03' },
+  { id: '1', title: 'Bravo', excerpt: '组件基础', content: '前端', tags: ['tag-react'], categoryId: 'tech', status: 'published', createdAt: '2024-01-01', updatedAt: '2024-01-03' },
   { id: '2', title: 'Charlie', excerpt: '日常记录', content: '周末', tags: ['life'], categoryId: 'life', status: 'draft', createdAt: '2024-02-01', updatedAt: '2024-02-02' },
-  { id: '3', title: 'Alpha', excerpt: '性能优化', content: 'hooks', tags: ['react', 'advanced'], categoryId: 'tech', status: 'published', createdAt: '2024-03-01', updatedAt: '2024-03-02' },
+  { id: '3', title: 'Alpha', excerpt: '性能优化', content: 'hooks', tags: ['tag-react', 'tag-advanced'], categoryId: 'tech', status: 'published', createdAt: '2024-03-01', updatedAt: '2024-03-02' },
 ];
 
 test('关键词可匹配标题、摘要、正文和标签', () => {
   assert.deepEqual(filterAndSortPosts(posts, { query: 'hooks' }).map((post) => post.id), ['3']);
-  assert.deepEqual(filterAndSortPosts(posts, { query: 'react' }).map((post) => post.id), ['3', '1']);
+  const tagNames = new Map([['tag-react', 'React'], ['tag-advanced', 'Advanced']]);
+  assert.deepEqual(filterAndSortPosts(posts, { query: 'react', tagNames }).map((post) => post.id), ['3', '1']);
 });
 
 test('状态、分类和标签可以组合筛选', () => {
-  const result = filterAndSortPosts(posts, { status: 'published', categoryId: 'tech', tagId: 'react' });
+  const result = filterAndSortPosts(posts, { status: 'published', categoryId: 'tech', tagId: 'tag-react' });
   assert.deepEqual(result.map((post) => post.id), ['3', '1']);
 });
 
