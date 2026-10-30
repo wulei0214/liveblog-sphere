@@ -15,7 +15,7 @@ import type { Post } from '../repositories/postRepository';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { getFavoritePostIds, toggleFavoritePost } from '../lib/favorites';
+import { getFavoritePostIds, toggleFavoritePost } from '../lib/favorites.js';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '../contexts/ThemeContext';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -73,7 +73,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
     : new Date(post.createdAt);
   
   return (
-    <div className="h-full">
+    <div className="h-full" data-card-index={index}>
       <Card className={`h-full flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1`}>
         {/* 文章特色图片 */}
         {post.image && (
