@@ -25,7 +25,8 @@ test('支持按创建时间、更新时间和标题排序', () => {
 });
 
 test('分页边界安全，空数据至少保留第 1 页', () => {
-  const result = paginateItems(posts, 99, 2);
+  const sortedPosts = filterAndSortPosts(posts);
+  const result = paginateItems(sortedPosts, 99, 2);
   assert.equal(result.page, 2);
   assert.equal(result.totalPages, 2);
   assert.deepEqual(result.items.map((post) => post.id), ['1']);
@@ -33,9 +34,9 @@ test('分页边界安全，空数据至少保留第 1 页', () => {
 });
 
 test('分页只返回当前页且统计范围正确', () => {
-  const result = paginateItems(posts, 1, 2);
+  const result = paginateItems(filterAndSortPosts(posts), 1, 2);
   assert.equal(result.start, 1);
   assert.equal(result.end, 2);
   assert.equal(result.total, 3);
-  assert.deepEqual(result.items.map((post) => post.id), ['1', '2']);
+  assert.deepEqual(result.items.map((post) => post.id), ['3', '2']);
 });
