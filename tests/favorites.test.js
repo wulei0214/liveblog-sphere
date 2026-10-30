@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getFavoritePostIds, toggleFavoritePost } from '../src/lib/favorites.ts';
+import { getFavoritePostIds, toggleFavoritePost } from '../src/lib/favorites.js';
 
 const createStorage = () => {
   const values = new Map();
