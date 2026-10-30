@@ -6,6 +6,7 @@ LiveBlog Sphere 是一个以文章发布、内容浏览和多用户内容管理�
 
 ## 当前版本与计划
 - 已合并主分支版本：v0.3.1（首页筛选交互与稳定性修复、文章收藏操作、后台文章表格管理）
+- v0.3.2 工程维护：修复 TypeScript ESLint 错误并整理 Fast Refresh 导出；以 GitHub Actions 最终结果为验收依据
 - 最近合并 PR：[PR #3](https://github.com/wulei0214/liveblog-sphere/pull/3)
 - 当前主分支：`main`；下一阶段开发请从最新 main 创建独立功能分支
 - 正式云端后端：尚未完成接入
