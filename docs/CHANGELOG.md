@@ -1,3 +1,22 @@
+## [0.3.2] - 2026-10-30
+
+### 工程质量与 ESLint 修复
+
+### 修复
+- 将个人主页文章列表和标签页文章参数从 `any[]` 改为仓库统一的 `Post[]` 类型。
+- 将个人资料更新回调收紧为 `Partial<User>`，与资料编辑表单的公开类型保持一致。
+- 为 QQ 音乐模拟服务新增明确的 `QQMusicTrack` 类型，移除音乐列表返回值中的 `any[]`。
+- 将 CommandDialogProps 和 TextareaProps 的空接口改为类型别名，消除空对象类型错误。
+- 将 Tailwind 插件从 CommonJS `require()` 改为 ESM 默认导入，适配项目 `type: module` 配置。
+- 将用户角色显示纯函数从 ProfileHeader 组件文件拆出，避免组件模块混合导出导致 Fast Refresh 警告。
+- 为确属公共 API 的样式变体常量和自定义 Hook 显式配置 Fast Refresh 导出白名单；未关闭整个规则，也未降低 ESLint 错误级别。
+
+### 验证
+- 本次修改已推送到独立分支 `chore/fix-eslint-baseline`。
+- GitHub Actions 验证结果待本次 PR 工作流完成后补记；在 CI 完成前不宣称 lint 已通过。
+
+---
+
 ## [0.3.1] - 2026-10-30
 
 ### 收藏与筛选稳定性修复
