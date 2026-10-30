@@ -360,3 +360,56 @@ React UI
 - Medium Publication Permissions：<https://help.medium.com/hc/en-us/articles/34508714374679-Info-Homepage-Customizing-your-publication-settings-and-layout>
 
 > 权限设计借鉴 WordPress 的职责/能力拆分与 Ghost 的 Author/Editor/Administrator 边界；LiveBlog Sphere 采用更精简的 user/editor/admin 三角色，作者权限通过文章归属实现。Medium 的 Publication Writer/Editor 机制仅作为未来投稿型专栏的参考，不纳入当前“作者直接发布”规则。
+
+
+## 13. Supabase / MongoDB 基础设施决策（2026-10-30）
+
+### 13.1 Supabase 目标项目
+
+用户提供的 Supabase Dashboard 项目链接对应项目 ref：
+
+`wkywjpjfhpyxffsmmgka`
+
+**重要配置差异：** 当前仓库 `src/integrations/supabase/client.ts` 硬编码的 Supabase URL 指向 `ppdgfbixivvdpxjhfuva`，与本次提供的目标项目不同。因此：
+
+- 不在未经核验的情况下直接替换当前客户端 URL。
+- 不对目标项目执行建表、删除、重命名或迁移 SQL。
+- 先只读检查目标项目的 schema、现有表、RLS 状态、Auth 手机登录配置和 Storage buckets。
+- 核实目标项目没有需要保留的线上数据后，先在开发/预览环境创建迁移并验证。
+- 确定目标项目后，将 URL 和 publishable/anon key 移至环境变量；不得把 service_role/secret key 放入浏览器代码、Vite `VITE_*` 环境变量或 Git 历史。
+
+v0.3.0 客户端配置目标：
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`（或 Supabase 当前推荐的 publishable key）
+- 通过 `.env.example` 提供变量名，不提交真实项目密钥。
+- 服务端凭据仅放在受信任服务端 Secret 管理中。
+
+### 13.2 MongoDB Atlas 的定位
+
+用户也提供了 MongoDB Atlas 控制台入口。当前项目依赖和代码已采用 Supabase JS SDK，并且本轮核心需求是 Supabase Auth + PostgreSQL + RLS。因此建议：
+
+- Supabase PostgreSQL 作为用户、文章、评论、点赞、关注、通知和私信的唯一权威数据源。
+- 不在 Supabase 与 MongoDB 两边同时保存相同的核心业务实体。
+- 暂不引入 MongoDB 作为第二套业务数据库，也不为迁移而迁移。
+- 若 MongoDB Atlas 已存在项目数据、日志或其他独立业务集合，先只读盘点 collection、文档数量、索引和用途，再判断是否需要独立保留或迁移。
+- 若未来确实需要 MongoDB，应明确限定到不同的数据域，并设计事件/同步机制、失败重试、幂等和数据对账，不能前端双写。
+
+### 13.3 连接与操作安全
+
+- Dashboard URL 不是数据库凭据，也不自动授予对话中的数据库访问权限；需通过受支持的 Supabase 集成完成用户授权连接。
+- 连接后第一阶段采用只读盘点；数据库写入必须基于可审查的 SQL migration。
+- 修改生产 schema 前先确认备份与恢复路径；优先开发分支/预览项目。
+- 不在聊天、GitHub issue、源码或提交历史中粘贴数据库密码、service_role key、MongoDB URI 或短信服务商密钥。
+
+### 13.4 v0.3.0 新增任务
+
+| ID | 文件/区域 | 任务 | 验收 |
+|---|---|---|---|
+| V030-01 | Supabase 项目配置 | 只读核查项目 ref 与现有 schema | 确认目标为 `wkywjpjfhpyxffsmmgka`，盘点结果归档 |
+| V030-02 | `src/integrations/supabase/client.ts` | 移除硬编码项目 URL/key，改用环境变量 | 仓库不含目标项目秘密凭据 |
+| V030-03 | `.env.example` | 提供本地开发变量模板 | 新开发环境可按说明配置 |
+| V030-04 | `supabase/migrations/` | 创建 profiles、角色和触发器 migration | 可重复在空的 staging 项目部署 |
+| V030-05 | Supabase Auth | 配置 Phone OTP 与短信服务 | 测试手机号完成真实 OTP 流程 |
+| V030-06 | 权限测试 | 验证用户/编辑/管理员访问边界 | 非授权写入由数据库拒绝 |
+
