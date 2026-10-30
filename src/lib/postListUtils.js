@@ -15,7 +15,10 @@ export function filterAndSortPosts(posts, filters = {}) {
     if (tagId !== 'all' && !(post.tags || []).includes(tagId)) return false;
 
     if (!query) return true;
-    const searchable = [post.title, post.excerpt, post.content, ...(post.tags || [])]
+    const tagLabels = (post.tags || []).map((tagId) =>
+      filters.tagNames instanceof Map ? filters.tagNames.get(tagId) || tagId : filters.tagNames?.[tagId] || tagId
+    );
+    const searchable = [post.title, post.excerpt, post.content, ...tagLabels]
       .filter(Boolean)
       .join(' ')
       .toLocaleLowerCase();
