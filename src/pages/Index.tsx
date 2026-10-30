@@ -2,7 +2,7 @@
  * 网站首页：公开文章搜索与组合筛选。
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import { getAllPosts, getAllCategories, getPopularTags } from '../lib/data';
+import { getAllPosts, getAllCategories, getAllTags, getPopularTags } from '../lib/data';
 import type { Post } from '../models/Post';
 import type { Category } from '../repositories/categoryRepository';
 import type { Tag } from '../repositories/tagRepository';
@@ -17,6 +17,7 @@ const Index = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [popularTags, setPopularTags] = useState<Tag[]>([]);
+  const [allTags, setAllTags] = useState<Tag[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryId, setCategoryId] = useState('all');
   const [tagId, setTagId] = useState('all');
@@ -28,10 +29,11 @@ const Index = () => {
     setPosts(getAllPosts());
     setCategories(getAllCategories());
     setPopularTags(getPopularTags(10));
+    setAllTags(getAllTags());
     setIsLoaded(true);
   }, []);
 
-  const tagNames = useMemo(() => new Map(popularTags.map((tag) => [tag.id, tag.name])), [popularTags]);
+  const tagNames = useMemo(() => new Map(allTags.map((tag) => [tag.id, tag.name])), [allTags]);
   const filteredPosts = useMemo(() => filterAndSortPosts(posts, {
     query: searchQuery, categoryId, tagId, sortBy, tagNames
   }), [posts, searchQuery, categoryId, tagId, sortBy, tagNames]);
