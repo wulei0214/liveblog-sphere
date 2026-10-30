@@ -4,7 +4,7 @@ import { User } from '@/repositories/userRepository';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { getUserRoleDisplay } from './ProfileHeader';
+import { getUserRoleDisplay } from '@/lib/userRoleDisplay';
 
 interface UsersListProps {
   users: User[];
