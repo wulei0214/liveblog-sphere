@@ -31,9 +31,10 @@ const Index = () => {
     setIsLoaded(true);
   }, []);
 
+  const tagNames = useMemo(() => new Map(popularTags.map((tag) => [tag.id, tag.name])), [popularTags]);
   const filteredPosts = useMemo(() => filterAndSortPosts(posts, {
-    query: searchQuery, categoryId, tagId, sortBy
-  }), [posts, searchQuery, categoryId, tagId, sortBy]);
+    query: searchQuery, categoryId, tagId, sortBy, tagNames
+  }), [posts, searchQuery, categoryId, tagId, sortBy, tagNames]);
 
   const clearFilters = () => {
     setSearchQuery('');
