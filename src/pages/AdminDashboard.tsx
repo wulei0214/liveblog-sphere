@@ -55,7 +55,7 @@ const AdminDashboard = () => {
   const categoryNames = useMemo(() => new Map(categories.map((item) => [item.id, item.name])), [categories]);
   const tagNames = useMemo(() => new Map(tags.map((item) => [item.id, item.name])), [tags]);
 
-  const filteredPosts = useMemo(() => filterAndSortPosts(posts, { query, status, sortBy }), [posts, query, status, sortBy]);
+  const filteredPosts = useMemo(() => filterAndSortPosts(posts, { query, status, sortBy, tagNames }), [posts, query, status, sortBy, tagNames]);
   const pagination = useMemo(() => paginateItems(filteredPosts, page, pageSize), [filteredPosts, page, pageSize]);
   const pageIds = pagination.items.map((post) => post.id);
   const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.includes(id));
