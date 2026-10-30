@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { filterAndSortPosts, paginateItems } from '../src/lib/postListUtils.js';
 
 const posts = [
-  { id: '1', title: 'React 入门', excerpt: '组件基础', content: '前端', tags: ['react'], categoryId: 'tech', status: 'published', createdAt: '2024-01-01', updatedAt: '2024-01-03' },
-  { id: '2', title: '生活随笔', excerpt: '日常记录', content: '周末', tags: ['life'], categoryId: 'life', status: 'draft', createdAt: '2024-02-01', updatedAt: '2024-02-02' },
-  { id: '3', title: 'React 进阶', excerpt: '性能优化', content: 'hooks', tags: ['react', 'advanced'], categoryId: 'tech', status: 'published', createdAt: '2024-03-01', updatedAt: '2024-03-02' },
+  { id: '1', title: 'Bravo', excerpt: '组件基础', content: '前端', tags: ['react'], categoryId: 'tech', status: 'published', createdAt: '2024-01-01', updatedAt: '2024-01-03' },
+  { id: '2', title: 'Charlie', excerpt: '日常记录', content: '周末', tags: ['life'], categoryId: 'life', status: 'draft', createdAt: '2024-02-01', updatedAt: '2024-02-02' },
+  { id: '3', title: 'Alpha', excerpt: '性能优化', content: 'hooks', tags: ['react', 'advanced'], categoryId: 'tech', status: 'published', createdAt: '2024-03-01', updatedAt: '2024-03-02' },
 ];
 
 test('关键词可匹配标题、摘要、正文和标签', () => {
@@ -21,7 +21,7 @@ test('状态、分类和标签可以组合筛选', () => {
 test('支持按创建时间、更新时间和标题排序', () => {
   assert.deepEqual(filterAndSortPosts(posts).map((post) => post.id), ['3', '2', '1']);
   assert.deepEqual(filterAndSortPosts(posts, { sortBy: 'oldest' }).map((post) => post.id), ['1', '2', '3']);
-  assert.deepEqual(filterAndSortPosts(posts, { sortBy: 'title' }).map((post) => post.id), ['1', '3', '2']);
+  assert.deepEqual(filterAndSortPosts(posts, { sortBy: 'title' }).map((post) => post.id), ['3', '1', '2']);
 });
 
 test('分页边界安全，空数据至少保留第 1 页', () => {
