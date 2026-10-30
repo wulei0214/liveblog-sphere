@@ -8,9 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAllPosts, deletePost } from '@/repositories/postRepository';
-import { getAllUsers } from '@/repositories/userRepository';
+import { getAllUsers, updateUserRole, deleteUser } from '@/repositories/userRepository';
 import type { Post } from '@/models/Post';
-import type { User } from '@/repositories/user/types';
+import { UserRole, type User } from '@/repositories/user/types';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -37,6 +37,16 @@ const AdminDashboard = () => {
     if (confirmed && deletePost(post.id)) setRefreshKey((key) => key + 1);
   };
   const roleLabel = (role?: string) => role === 'admin' ? '管理员' : role === 'editor' ? '编辑' : '普通用户';
+  const handleToggleEditor = (item: User) => {
+    if (item.role === UserRole.ADMIN) return;
+    const nextRole = item.role === UserRole.EDITOR ? UserRole.USER : UserRole.EDITOR;
+    if (updateUserRole(item.id, nextRole)) setRefreshKey((key) => key + 1);
+  };
+  const handleDeleteUser = (item: User) => {
+    if (item.id === user.id || item.role === UserRole.ADMIN) return;
+    const confirmed = window.confirm('确定删除本地演示用户「' + item.username + '」吗？');
+    if (confirmed && deleteUser(item.id)) setRefreshKey((key) => key + 1);
+  };
 
   return (
     <>
@@ -74,7 +84,7 @@ const AdminDashboard = () => {
           <section className="rounded-xl border bg-card">
             <div className="border-b p-5"><h2 className="text-lg font-semibold">用户列表</h2><p className="text-sm text-muted-foreground">查看本地演示用户和角色。正式角色授权将在 Supabase RLS 阶段实现。</p></div>
             <div className="divide-y">{users.map((item: User) => (
-              <div key={item.id} className="flex items-center justify-between gap-3 p-4"><div className="min-w-0"><p className="truncate font-medium">{item.username}</p><p className="text-xs text-muted-foreground">{item.phone ? item.phone.slice(0, 3) + '****' + item.phone.slice(-4) : '未填写手机号'}</p></div><Badge variant={item.role === 'admin' ? 'default' : 'secondary'}>{roleLabel(item.role)}</Badge></div>
+              <div key={item.id} className="flex items-center justify-between gap-3 p-4"><div className="min-w-0"><p className="truncate font-medium">{item.username}</p><p className="text-xs text-muted-foreground">{item.phone ? item.phone.slice(0, 3) + '****' + item.phone.slice(-4) : '未填写手机号'}</p></div><div className="flex shrink-0 flex-wrap items-center gap-2"><Badge variant={item.role === 'admin' ? 'default' : 'secondary'}>{roleLabel(item.role)}</Badge>{item.role !== UserRole.ADMIN && <Button size="sm" variant="outline" onClick={() => handleToggleEditor(item)}>{item.role === UserRole.EDITOR ? '设为普通用户' : '设为编辑'}</Button>}{item.id !== user.id && item.role !== UserRole.ADMIN && <Button size="sm" variant="destructive" onClick={() => handleDeleteUser(item)}>删除用户</Button>}</div></div>
             ))}{users.length === 0 && <p className="p-6 text-center text-sm text-muted-foreground">暂无用户记录</p>}</div>
           </section>
           <p className="mt-6 text-xs text-muted-foreground">注意：本页面是本地体验用的管理员界面，不构成生产环境的安全权限系统。清理浏览器站点数据会清除演示数据。</p>
