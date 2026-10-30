@@ -8,7 +8,7 @@
 - 为 QQ 音乐模拟服务新增明确的 `QQMusicTrack` 类型，移除音乐列表返回值中的 `any[]`。
 - 将 CommandDialogProps 和 TextareaProps 的空接口改为类型别名，消除空对象类型错误。
 - 将 Tailwind 插件从 CommonJS `require()` 改为 ESM 默认导入，适配项目 `type: module` 配置。
-- 将用户角色显示纯函数从 ProfileHeader 组件文件拆出，避免组件模块混合导出导致 Fast Refresh 警告。
+- 将用户角色显示纯函数从 ProfileHeader 组件文件拆出，避免组件模块混合导出导致 Fast Refresh 警告，并同步更新 UsersList 引用路径。
 - 为确属公共 API 的样式变体常量和自定义 Hook 显式配置 Fast Refresh 导出白名单；未关闭整个规则，也未降低 ESLint 错误级别。
 
 ### 验证
