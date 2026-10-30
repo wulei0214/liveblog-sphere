@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Users, Eye, Trash2, Edit3, ShieldCheck } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -15,14 +15,14 @@ import type { User } from '@/repositories/user/types';
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!isLoading && user?.role !== 'admin') navigate('/admin-login', { replace: true });
   }, [isLoading, user, navigate]);
 
-  const posts = useMemo(() => getAllPosts(['published', 'draft', 'scheduled']), [refreshKey]);
-  const users = useMemo(() => user?.role === 'admin' ? getAllUsers() : [], [user, refreshKey]);
+  const posts = getAllPosts(['published', 'draft', 'scheduled']);
+  const users = user?.role === 'admin' ? getAllUsers() : [];
 
   if (!import.meta.env.DEV) return <Navigate to="/" replace />;
   if (isLoading || user?.role !== 'admin') {
