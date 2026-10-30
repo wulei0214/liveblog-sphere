@@ -1,9 +1,10 @@
 
 import React from 'react';
 import PostCard from '../PostCard';
+import type { Post } from '@/lib/data';
 
 interface ProfilePostsProps {
-  posts: any[];
+  posts: Post[];
 }
 
 const ProfilePosts = ({ posts }: ProfilePostsProps) => {

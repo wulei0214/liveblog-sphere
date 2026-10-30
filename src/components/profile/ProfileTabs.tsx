@@ -5,11 +5,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfilePosts from './ProfilePosts';
 import UsersList from './UsersList';
 import { User, getUserById } from '@/lib/data';
+import type { Post } from '@/lib/data';
 
 interface ProfileTabsProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  userPosts: any[];
+  userPosts: Post[];
   user: User;
 }
 
