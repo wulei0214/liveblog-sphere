@@ -1,14 +1,13 @@
-
 /**
  * 数据访问层
- * 
- * 集中导出所有数据存储库中的方法和类型
- * 提供统一的数据访问接口，保持向后兼容性
- * 管理数据初始化和样例数据创建
+ *
+ * 集中导出所有数据存储库中的方法和类型。
+ * 文章样例数据只允许由 postRepository 的安全初始化入口在空存储时创建；
+ * 此文件不得在模块加载时根据文章数量清空或重建任何用户数据。
  */
 
 // 文章相关方法导出
-export { 
+export {
   getAllPosts,
   getPostById,
   getPostsByUser,
@@ -30,15 +29,15 @@ export {
 export type { Post, Comment } from '../repositories/postRepository';
 
 // 用户相关方法导出
-export { 
-  UserRole, 
-  loginUser, 
-  registerUser, 
-  getCurrentUser, 
-  logoutUser, 
-  getAllUsers, 
+export {
+  UserRole,
+  loginUser,
+  registerUser,
+  getCurrentUser,
+  logoutUser,
+  getAllUsers,
   getUserById,
-  deleteUser, 
+  deleteUser,
   isAdmin,
   isEditor,
   updateUser,
@@ -106,31 +105,3 @@ export {
 
 // 导出消息相关类型
 export type { Message } from '../repositories/messageRepository';
-
-// 数据初始化和样例数据管理
-import { Tables } from './databaseSchema';
-import * as db from './database';
-import { Post } from '../repositories/postRepository';
-
-/**
- * 确保示例文章数据存在
- * 在应用首次加载时检查并创建样例数据
- */
-(function ensureSamplePosts() {
-  // 检查当前文章数量
-  const posts = db.getAll<Post>(Tables.POSTS);
-  if (posts.length !== 5) {
-    console.log('检测到文章数量不足5篇，重新初始化...');
-    // 清空现有数据
-    posts.forEach(post => {
-      db.remove(Tables.POSTS, post.id);
-    });
-    
-    // 触发postRepository中的初始化
-    import('../repositories/postRepository').then(repo => {
-      console.log('触发文章存储库初始化完成');
-    });
-  } else {
-    console.log('检测到已有5篇文章，无需重新初始化');
-  }
-})();

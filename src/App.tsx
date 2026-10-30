@@ -1,21 +1,13 @@
-
-/**
- * 应用程序根组件
- * 
- * 配置应用程序的全局状态提供者和路由结构
- * 整合了主题管理、认证系统和路由导航
- */
-
 import * as React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-
-// 页面导入
 import Index from './pages/Index';
 import Login from './pages/Login';
 import AuthPhone from './pages/AuthPhone';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
 import Post from './pages/Post';
 import Create from './pages/Create';
 import Edit from './pages/Edit';
@@ -25,13 +17,8 @@ import Music from './pages/Music';
 import Heard from './pages/Heard';
 import MusicLoginQQ from './pages/MusicLoginQQ';
 import SetNickname from './pages/SetNickname';
-import ProfileSetup from './pages/ProfileSetup'; // 个人资料设置页面
+import ProfileSetup from './pages/ProfileSetup';
 
-/**
- * 应用内容组件
- * 包含应用的主要内容及路由配置
- * 已包装在ThemeProvider内，不需要手动添加主题类
- */
 function AppContent() {
   return (
     <div className="min-h-screen bg-background">
@@ -41,7 +28,9 @@ function AppContent() {
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/auth-phone" element={<AuthPhone />} />
-            <Route path="/profile-setup" element={<ProfileSetup />} /> 
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="/set-nickname" element={<SetNickname />} />
             <Route path="/post/:id" element={<Post />} />
             <Route path="/create" element={<Create />} />
@@ -59,16 +48,8 @@ function AppContent() {
   );
 }
 
-/**
- * 应用程序根组件
- * 通过ThemeProvider包装整个应用，提供主题管理功能
- */
 function App() {
-  return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
-  );
+  return <ThemeProvider><AppContent /></ThemeProvider>;
 }
 
 export default App;
