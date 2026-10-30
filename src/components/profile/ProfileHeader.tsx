@@ -6,7 +6,7 @@ import { Calendar } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { UserRole } from '@/repositories/user/types';
+import { getUserRoleDisplay } from '@/lib/userRoleDisplay';
 
 interface ProfileHeaderProps {
   user: User;
@@ -16,17 +16,6 @@ interface ProfileHeaderProps {
   onEditClick: () => void;
   formattedJoinDate: string;
 }
-
-// 辅助函数，获取用户角色显示文本
-export const getUserRoleDisplay = (role: string | UserRole | undefined) => {
-  if (role === UserRole.ADMIN || role === 'admin') {
-    return '管理员';
-  } else if (role === UserRole.EDITOR || role === 'editor') {
-    return '编辑';
-  } else {
-    return '用户';
-  }
-};
 
 const ProfileHeader = ({ 
   user, 
