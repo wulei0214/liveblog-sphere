@@ -1,87 +1,63 @@
-
-/**
- * 身份验证上下文
- * 管理用户登录状态和身份验证相关功能
- */
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { AuthContextType, AppUser } from '@/types/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
+import { getCurrentUser, logoutUser } from '@/repositories/user/authSession';
 
-// 创建认证上下文
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/**
- * 身份验证提供者组件
- */
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { toast } = useToast();
   const [user, setUser] = useState<AppUser | null>(null);
   const [supabaseUser, setSupabaseUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
-  // 初始化时监听Supabase身份验证状态变化
+
   useEffect(() => {
-    // 设置状态监听器
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setSupabaseUser(session?.user || null);
-        
-        if (session?.user) {
-          // 当用户登录时，获取其个人资料
-          try {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
-            
-            if (profile) {
-              // 使用资料信息设置用户
-              setUser({
-                ...profile,
-                id: session.user.id
-              });
-            }
-          } catch (error) {
-            console.error('获取用户资料失败', error);
-          }
-        } else {
+    // Local Vite development must never contact the old Supabase project.
+    if (import.meta.env.DEV) {
+      const syncLocalUser = () => {
+        const localUser = getCurrentUser();
+        setUser(localUser ? { ...localUser } : null);
+        setSupabaseUser(null);
+        setSession(null);
+        setIsLoading(false);
+      };
+      syncLocalUser();
+      window.addEventListener('local-auth-change', syncLocalUser);
+      window.addEventListener('storage', syncLocalUser);
+      return () => {
+        window.removeEventListener('local-auth-change', syncLocalUser);
+        window.removeEventListener('storage', syncLocalUser);
+      };
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
+      setSession(nextSession);
+      setSupabaseUser(nextSession?.user || null);
+      if (nextSession?.user) {
+        try {
+          const { data: profile } = await supabase.from('profiles').select('*').eq('id', nextSession.user.id).single();
+          setUser(profile ? { ...profile, id: nextSession.user.id } : null);
+        } catch (error) {
+          console.error('获取用户资料失败', error);
           setUser(null);
         }
-        
-        setIsLoading(false);
+      } else {
+        setUser(null);
       }
-    );
-    
-    // 初始加载时获取当前会话
+      setIsLoading(false);
+    });
+
     const fetchInitialSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setSession(session);
-        setSupabaseUser(session?.user || null);
-        
-        if (session?.user) {
-          // 获取用户资料
-          try {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
-            
-            if (profile) {
-              setUser({
-                ...profile,
-                id: session.user.id
-              });
-            }
-          } catch (profileError) {
-            console.error('获取用户资料失败', profileError);
-          }
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        setSession(initialSession);
+        setSupabaseUser(initialSession?.user || null);
+        if (initialSession?.user) {
+          const { data: profile } = await supabase.from('profiles').select('*').eq('id', initialSession.user.id).single();
+          setUser(profile ? { ...profile, id: initialSession.user.id } : null);
         }
       } catch (error) {
         console.error('获取会话失败', error);
@@ -89,84 +65,62 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsLoading(false);
       }
     };
-    
-    fetchInitialSession();
-    
-    // 清理订阅
-    return () => {
-      subscription.unsubscribe();
-    };
+    void fetchInitialSession();
+    return () => subscription.unsubscribe();
   }, []);
-  
-  /**
-   * 退出登录函数
-   */
+
   const handleLogout = async () => {
+    if (import.meta.env.DEV) {
+      logoutUser();
+      setUser(null);
+      setSupabaseUser(null);
+      setSession(null);
+      return;
+    }
     try {
       const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        throw error;
-      }
-      
+      if (error) throw error;
       setUser(null);
       setSupabaseUser(null);
       setSession(null);
     } catch (error) {
       toast({
-        title: "退出失败",
-        description: error.message || "请稍后重试",
-        variant: "destructive",
+        title: '退出失败',
+        description: error instanceof Error ? error.message : '请稍后重试',
+        variant: 'destructive',
       });
     }
   };
-  
-  /**
-   * 刷新用户信息
-   */
+
   const refreshUser = async () => {
+    if (import.meta.env.DEV) {
+      const localUser = getCurrentUser();
+      setUser(localUser ? { ...localUser } : null);
+      return;
+    }
     if (!supabaseUser) return;
-    
     try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', supabaseUser.id)
-        .single();
-      
-      if (profile) {
-        setUser({
-          ...profile,
-          id: supabaseUser.id
-        });
-      }
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', supabaseUser.id).single();
+      if (profile) setUser({ ...profile, id: supabaseUser.id });
     } catch (error) {
       console.error('刷新用户信息失败', error);
     }
   };
-  
-  // 上下文提供的值
+
   const value: AuthContextType = {
     user,
     supabaseUser,
     isLoading,
     isAuthenticated: !!user,
-    isAdminUser: user?.role === 'admin', // 简化管理员判断
+    isAdminUser: user?.role === 'admin',
     logout: handleLogout,
     refreshUser,
   };
-  
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-/**
- * 使用身份验证上下文的钩子
- * @returns 身份验证上下文
- */
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (context === undefined) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
