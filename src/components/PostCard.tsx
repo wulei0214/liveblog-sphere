@@ -5,15 +5,17 @@
  * 在首页和分类页面中显示文章预览卡片
  * 包含文章标题、摘要、元数据和操作按钮
  */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Calendar, Clock, Eye, Pencil, Tag as TagIcon, Bookmark } from 'lucide-react';
+import { Calendar, Clock, Eye, Pencil, Tag as TagIcon, Bookmark, BookmarkCheck } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { getCategoryById, getTagById } from '../lib/data';
 import type { Post } from '../repositories/postRepository';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { getFavoritePostIds, toggleFavoritePost } from '../lib/favorites';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '../contexts/ThemeContext';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -34,8 +36,31 @@ interface PostCardProps {
 const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
   // 获取分类信息
   const category = post.categoryId ? getCategoryById(post.categoryId) : null;
-  const { isAdminUser } = useAuth();
+  const { user, isAdminUser } = useAuth();
   const { theme } = useTheme();
+  const navigate = useNavigate();
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  useEffect(() => {
+    setIsFavorite(user?.id ? getFavoritePostIds(user.id).includes(post.id) : false);
+  }, [user?.id, post.id]);
+
+  const handleToggleFavorite = () => {
+    if (!user) {
+      toast.error('请先登录后再收藏');
+      navigate('/login');
+      return;
+    }
+
+    const nextFavorite = toggleFavoritePost(user.id, post.id);
+    if (nextFavorite === null) {
+      toast.error('收藏操作失败，请检查浏览器本地存储后重试');
+      return;
+    }
+
+    setIsFavorite(nextFavorite);
+    toast.success(nextFavorite ? '已加入收藏' : '已取消收藏');
+  };
   
   // 获取主要标签（最多显示2个）
   const tags = post.tags && post.tags.length > 0 
@@ -48,15 +73,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
     : new Date(post.createdAt);
   
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ 
-        duration: 0.5,
-        delay: index * 0.1
-      }}
-      className="h-full"
-    >
+    <div className="h-full">
       <Card className={`h-full flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1`}>
         {/* 文章特色图片 */}
         {post.image && (
@@ -137,9 +154,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
         <CardFooter className="pt-2 mt-auto">
           {/* 操作按钮 */}
           <div className="flex justify-between items-center w-full">
-            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-primary">
-              <Bookmark size={14} className="mr-1" />
-              <span className="text-xs">收藏</span>
+            <Button type="button" variant="ghost" size="sm" className={isFavorite ? 'text-primary hover:text-primary' : 'text-gray-500 hover:text-primary'} onClick={handleToggleFavorite} aria-pressed={isFavorite} aria-label={isFavorite ? '取消收藏文章' : '收藏文章'}>
+              {isFavorite ? <BookmarkCheck size={14} className="mr-1 fill-current" /> : <Bookmark size={14} className="mr-1" />}
+              <span className="text-xs">{isFavorite ? '已收藏' : '收藏'}</span>
             </Button>
             
             <div className="flex gap-2">
@@ -162,7 +179,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, index }) => {
           </div>
         </CardFooter>
       </Card>
-    </motion.div>
+    </div>
   );
 };
 
