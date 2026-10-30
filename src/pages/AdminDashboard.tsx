@@ -31,6 +31,10 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [categories, setCategories] = useState<ReturnType<typeof getAllCategories>>([]);
+  const [tags, setTags] = useState<ReturnType<typeof getAllTags>>([]);
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('all');
   const [sortBy, setSortBy] = useState('updated');
@@ -42,10 +46,12 @@ const AdminDashboard = () => {
     if (!isLoading && user?.role !== 'admin') navigate('/admin-login', { replace: true });
   }, [isLoading, user, navigate]);
 
-  const posts = useMemo(() => getAllPosts(['published', 'draft', 'scheduled']), [refreshKey]);
-  const users = useMemo(() => user?.role === 'admin' ? getAllUsers() : [], [user, refreshKey]);
-  const categories = useMemo(() => getAllCategories(), [refreshKey]);
-  const tags = useMemo(() => getAllTags(), [refreshKey]);
+  useEffect(() => {
+    setPosts(getAllPosts(['published', 'draft', 'scheduled']));
+    setUsers(user?.role === 'admin' ? getAllUsers() : []);
+    setCategories(getAllCategories());
+    setTags(getAllTags());
+  }, [user, refreshKey]);
   const categoryNames = useMemo(() => new Map(categories.map((item) => [item.id, item.name])), [categories]);
   const tagNames = useMemo(() => new Map(tags.map((item) => [item.id, item.name])), [tags]);
 
