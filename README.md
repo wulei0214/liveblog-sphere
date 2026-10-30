@@ -75,6 +75,7 @@ npm run dev
 - MongoDB Atlas 暂不作为文章/用户的重复数据源。
 - Supabase service_role key 不得提交到 Git 或放入浏览器端。
 - 当前文章删除操作为本地永久删除；因数据模型尚无软删除字段，暂不提供回收站/恢复功能。
+- 当前收藏数据使用浏览器 localStorage（`liveblog:favorites:<userId>`），仅用于本地演示；清除浏览器站点数据会清空收藏，尚未同步到 Supabase。
 
 ## 提交与 PR 规范
 采用 Conventional Commits：
