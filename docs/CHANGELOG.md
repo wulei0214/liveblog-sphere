@@ -12,8 +12,8 @@
 - 为确属公共 API 的样式变体常量和自定义 Hook 显式配置 Fast Refresh 导出白名单；未关闭整个规则，也未降低 ESLint 错误级别。
 
 ### 验证
-- 本次修改已推送到独立分支 `chore/fix-eslint-baseline`。
-- GitHub Actions 验证结果待本次 PR 工作流完成后补记；在 CI 完成前不宣称 lint 已通过。
+- 已合并到 `main`，合并提交：`3e93044ce627ba2046290b152b60260fb2eb60bf`。
+- GitHub Actions CI #27：`npm ci`、13/13 项测试、生产构建、ESLint 全部通过；ESLint 0 errors / 0 warnings。
 
 ---
 
