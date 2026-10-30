@@ -65,7 +65,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
         {isLoading ? '验证中...' : '验证并登录'}
       </Button>
       <div className="text-center mt-4 space-y-2">
-        <Button type="button" variant="ghost" className="text-sm" disabled={isLoading} onClick={(e) => handleSendOTP(e)}>
+        <Button type="button" variant="ghost" className="text-sm" disabled={isLoading} onClick={(e) => handleSendOTP(e as unknown as React.FormEvent)}>
           重新获取演示验证码
         </Button>
         <div><Button type="button" variant="link" onClick={() => setStep('phone')}>更改手机号码</Button></div>
