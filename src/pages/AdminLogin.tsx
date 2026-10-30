@@ -10,7 +10,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { loginUser } from '@/repositories/userRepository';
 
-/** 本地演示管理员入口，仅在 Vite 开发模式中开放。 */
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -47,42 +46,17 @@ const AdminLogin = () => {
         <main className="min-h-screen flex items-center justify-center px-4 pt-20 pb-10">
           <section className="w-full max-w-md rounded-xl border bg-card p-6 shadow-sm">
             <div className="mb-6 text-center">
-              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                <ShieldCheck className="h-6 w-6 text-primary" />
-              </div>
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10"><ShieldCheck className="h-6 w-6 text-primary" /></div>
               <h1 className="text-2xl font-semibold">管理员演示登录</h1>
               <p className="mt-2 text-sm text-muted-foreground">仅限本机开发体验，不是正式管理员认证。</p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="admin-username">账号</Label>
-                <Input id="admin-username" value="admin" readOnly />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="admin-password">演示密码</Label>
-                <Input
-                  id="admin-password"
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="请输入管理员演示密码"
-                  autoComplete="current-password"
-                  required
-                />
-              </div>
-              <div className="rounded-md bg-muted/60 p-3 text-sm">
-                <p className="font-medium">本地演示密码</p>
-                <p className="font-mono">AdminDemo@123</p>
-              </div>
-              <Button type="submit" className="w-full" disabled={submitting || !password}>
-                {submitting ? '登录中...' : '进入管理后台'}
-              </Button>
+              <div className="space-y-2"><Label htmlFor="admin-username">账号</Label><Input id="admin-username" value="admin" readOnly /></div>
+              <div className="space-y-2"><Label htmlFor="admin-password">演示密码</Label><Input id="admin-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="请输入管理员演示密码" autoComplete="current-password" required /></div>
+              <div className="rounded-md bg-muted/60 p-3 text-sm"><p className="font-medium">本地演示密码</p><p className="font-mono">AdminDemo@123</p></div>
+              <Button type="submit" className="w-full" disabled={submitting || !password}>{submitting ? '登录中...' : '进入管理后台'}</Button>
             </form>
-            <div className="mt-5 text-center">
-              <Link to="/login" className="inline-flex items-center text-sm text-primary hover:underline">
-                <ArrowLeft className="mr-1 h-4 w-4" /> 返回身份选择
-              </Link>
-            </div>
+            <div className="mt-5 text-center"><Link to="/login" className="inline-flex items-center text-sm text-primary hover:underline"><ArrowLeft className="mr-1 h-4 w-4" />返回身份选择</Link></div>
           </section>
         </main>
       </AnimatedTransition>
